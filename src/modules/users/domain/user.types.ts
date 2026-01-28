@@ -10,6 +10,8 @@ export interface UserEntityProps {
     address: string | null;
     shortDescription: string | null;
     trustScore: number;
+    role: 'USER' | 'ADMIN';
+    provider: 'LOCAL' | 'GOOGLE';
     refreshToken: string | null;
     createdAt: Date;
     updatedAt: Date;

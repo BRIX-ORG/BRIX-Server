@@ -38,6 +38,12 @@ export class UserEntity {
     @ApiProperty({ example: 4.5, description: 'The trust score of the user' })
     readonly trustScore: number;
 
+    @ApiProperty({ example: 'USER', description: 'The role of the user' })
+    readonly role: 'USER' | 'ADMIN';
+
+    @ApiProperty({ example: 'LOCAL', description: 'The auth provider' })
+    readonly provider: 'LOCAL' | 'GOOGLE';
+
     @ApiProperty({ example: 'token', required: false })
     readonly refreshToken: string | null;
 
@@ -62,6 +68,8 @@ export class UserEntity {
         this.address = props.address;
         this.shortDescription = props.shortDescription;
         this.trustScore = props.trustScore;
+        this.role = props.role;
+        this.provider = props.provider;
         this.refreshToken = props.refreshToken;
         this.createdAt = props.createdAt;
         this.updatedAt = props.updatedAt;

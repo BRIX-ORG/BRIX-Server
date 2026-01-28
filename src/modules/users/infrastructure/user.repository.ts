@@ -35,6 +35,15 @@ export class UserRepository {
         return user ? new UserEntity(user) : null;
     }
 
+    async findByUsernameOrEmail(identifier: string): Promise<UserEntity | null> {
+        const user: User | null = await this.prisma.user.findFirst({
+            where: {
+                OR: [{ email: identifier }, { username: identifier }],
+            },
+        });
+        return user ? new UserEntity(user) : null;
+    }
+
     async create(data: CreateUserData): Promise<UserEntity> {
         const user: User = await this.prisma.user.create({
             data: {

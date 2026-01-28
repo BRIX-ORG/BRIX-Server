@@ -1,19 +1,21 @@
-import { ApiProperty } from '@nestjs/swagger';
 import {
     IsEmail,
-    IsString,
-    IsOptional,
-    MinLength,
     IsNotEmpty,
+    IsString,
+    MinLength,
+    IsOptional,
     Matches,
     MaxLength,
 } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-export class CreateUserDto {
-    @ApiProperty({ example: 'johndoe', description: 'The unique username' })
+export class RegisterDto {
+    @ApiProperty({
+        example: 'johndoe',
+        description: 'Unique username',
+    })
     @IsString({ message: 'Username must be a string' })
     @IsNotEmpty({ message: 'Username is required' })
-    @MinLength(3, { message: 'Username must be at least 3 characters long' })
     @MaxLength(30, { message: 'Username cannot exceed 30 characters' })
     @Matches(/^(?!.*\.\.)(?!.*\.$)(?!^\.)[a-zA-Z0-9._]{3,30}$/, {
         message:
@@ -21,33 +23,27 @@ export class CreateUserDto {
     })
     username: string;
 
-    @ApiProperty({ example: 'John Doe', description: 'The full name' })
+    @ApiProperty({
+        example: 'John Doe',
+        description: 'Full name of the user',
+    })
     @IsString({ message: 'Full name must be a string' })
     @IsNotEmpty({ message: 'Full name is required' })
     @MaxLength(50, { message: 'Full name cannot exceed 50 characters' })
     fullName: string;
 
-    @ApiProperty({ example: 'user@example.com', description: 'The email of the user' })
+    @ApiProperty({
+        example: 'john@example.com',
+        description: 'User email address',
+    })
     @IsNotEmpty({ message: 'Email is required' })
     @IsEmail({}, { message: 'Please enter a valid email address' })
     @MaxLength(100, { message: 'Email cannot exceed 100 characters' })
     email: string;
 
-    @ApiProperty({
-        example: 'password123',
-        description: 'The password of the user',
-        minLength: 6,
-    })
-    @IsString({ message: 'Password must be a string' })
-    @IsNotEmpty({ message: 'Password is required' })
-    @MinLength(6, { message: 'Password must be at least 6 characters long' })
-    @MaxLength(32, { message: 'Password cannot exceed 32 characters' })
-    password: string;
-
-    @ApiProperty({
+    @ApiPropertyOptional({
         example: '0912345678',
-        description: 'The phone number (Vietnam format)',
-        required: false,
+        description: 'Phone number (Vietnam format)',
     })
     @IsOptional()
     @IsString({ message: 'Phone must be a string' })
@@ -56,4 +52,15 @@ export class CreateUserDto {
     })
     @MaxLength(15, { message: 'Phone number cannot exceed 15 characters' })
     phone?: string;
+
+    @ApiProperty({
+        example: 'SecurePassword123!',
+        description: 'User password',
+        minLength: 6,
+    })
+    @IsString({ message: 'Password must be a string' })
+    @IsNotEmpty({ message: 'Password is required' })
+    @MinLength(6, { message: 'Password must be at least 6 characters long' })
+    @MaxLength(32, { message: 'Password cannot exceed 32 characters' })
+    password: string;
 }

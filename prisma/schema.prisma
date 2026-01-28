@@ -18,6 +18,16 @@ enum TagType {
   PRODUCT
 }
 
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Provider {
+  LOCAL
+  GOOGLE
+}
+
 model User {
   id               String   @id @default(uuid()) @db.Uuid
   username         String   @unique
@@ -30,6 +40,8 @@ model User {
   address          String?
   shortDescription String?  @map("short_description")
   trustScore       Float    @default(0) @map("trust_score")
+  role             Role     @default(USER)
+  provider         Provider @default(LOCAL)
   refreshToken     String?  @map("refresh_token")
   createdAt        DateTime @default(now()) @map("created_at")
   updatedAt        DateTime @updatedAt @map("updated_at")

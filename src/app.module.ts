@@ -5,6 +5,7 @@ import { AppService } from '@/app.service';
 import { appConfig } from '@/config';
 import { PrismaModule } from '@/prisma';
 import { UsersModule } from '@/modules/users';
+import { AuthModule } from '@/modules/auth';
 import { LoggerMiddleware } from '@/common';
 
 @Module({
@@ -16,6 +17,7 @@ import { LoggerMiddleware } from '@/common';
         }),
         PrismaModule,
         UsersModule,
+        AuthModule,
     ],
     controllers: [AppController],
     providers: [AppService],

@@ -19,6 +19,6 @@ import {
         FindUserService,
         DeleteUserService,
     ],
-    exports: [FindUserService, CreateUserService],
+    exports: [FindUserService, CreateUserService, UserRepository],
 })
 export class UsersModule {}
