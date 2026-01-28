@@ -23,6 +23,8 @@ export interface CreateUserData {
     email: string;
     password: string;
     phone?: string;
+    avatar?: string | null;
+    provider?: 'LOCAL' | 'GOOGLE';
 }
 
 export interface UpdateProfileData {

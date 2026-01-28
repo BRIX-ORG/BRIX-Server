@@ -18,7 +18,8 @@
             "@/*": ["src/*"],
             "@modules/*": ["src/modules/*"],
             "@users/*": ["src/modules/users/*"],
-            "@auth/*": ["src/modules/auth/*"]
+            "@auth/*": ["src/modules/auth/*"],
+            "@firebase/*": ["src/modules/firebase/*"]
         },
         "incremental": true,
         "skipLibCheck": true,

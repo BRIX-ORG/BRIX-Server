@@ -52,6 +52,8 @@ export class UserRepository {
                 email: data.email,
                 password: data.password,
                 phone: data.phone ?? null,
+                avatar: data.avatar ?? null,
+                provider: data.provider ?? 'LOCAL',
             },
         });
         return new UserEntity(user);

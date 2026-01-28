@@ -11,6 +11,7 @@ import {
     RefreshTokenService,
     ValidateUserService,
     ValidateLocalUserService,
+    VerifyGoogleTokenService,
 } from './application';
 import { LocalStrategy } from './strategies';
 import { JwtStrategy } from '@/common/strategies';
@@ -42,6 +43,7 @@ import { UsersModule } from '@users/users.module';
         RefreshTokenService,
         ValidateUserService,
         ValidateLocalUserService,
+        VerifyGoogleTokenService,
     ],
     exports: [JwtTokenService, PasswordService],
 })

@@ -1,8 +1,13 @@
 import { Controller, Post, Body, HttpCode, HttpStatus, Res, Req, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiExtraModels, getSchemaPath } from '@nestjs/swagger';
 import { ApiResponseDto } from '@/common/dto/response.dto';
-import { RegisterUserService, LoginUserService, RefreshTokenService } from '@auth/application';
-import { RegisterDto, AuthResponseDto } from '@auth/dto';
+import {
+    RegisterUserService,
+    LoginUserService,
+    RefreshTokenService,
+    VerifyGoogleTokenService,
+} from '@auth/application';
+import { RegisterDto, AuthResponseDto, GoogleAuthDto } from '@auth/dto';
 import { LocalAuthGuard } from '@auth/guards';
 import { CurrentUser } from '@/common';
 import type { Response, Request } from 'express';
@@ -17,6 +22,7 @@ export class AuthController {
         private readonly registerUserService: RegisterUserService,
         private readonly loginUserService: LoginUserService,
         private readonly refreshTokenService: RefreshTokenService,
+        private readonly verifyGoogleTokenService: VerifyGoogleTokenService,
     ) {}
 
     @Post('register')
@@ -194,5 +200,62 @@ export class AuthController {
         response.clearCookie('accessToken');
         response.clearCookie('refreshToken');
         return { message: 'Logged out successfully' };
+    }
+
+    @Post('google')
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Authenticate with Google (Firebase ID Token)' })
+    @ApiResponse({
+        status: 200,
+        description: 'User successfully authenticated with Google',
+        schema: {
+            allOf: [
+                { $ref: getSchemaPath(ApiResponseDto) },
+                {
+                    properties: {
+                        data: { $ref: getSchemaPath(AuthResponseDto) },
+                    },
+                },
+            ],
+        },
+    })
+    @ApiResponse({
+        status: 401,
+        description: 'Invalid Firebase ID token',
+    })
+    @ApiResponse({
+        status: 409,
+        description: 'Email already exists with a different provider',
+    })
+    async googleAuth(
+        @Body() dto: GoogleAuthDto,
+        @Res({ passthrough: true }) response: Response,
+    ): Promise<AuthResponse> {
+        const result = await this.verifyGoogleTokenService.execute(dto.idToken);
+
+        // Set access token as httpOnly cookie
+        response.cookie('accessToken', result.accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 15 * 60 * 1000, // 15 minutes
+        });
+
+        // Set refresh token as httpOnly cookie
+        response.cookie('refreshToken', result.refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        });
+
+        // In development, return tokens for debugging
+        if (process.env.NODE_ENV === 'development') {
+            return result;
+        }
+        return {
+            accessToken: 'Set in cookie',
+            refreshToken: 'Set in cookie',
+        };
     }
 }

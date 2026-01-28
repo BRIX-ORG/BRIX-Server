@@ -40,3 +40,6 @@ Thumbs.db
 
 # NestJS
 .nestcli.json
+
+# Firebase
+**/*firebase-adminsdk*.json

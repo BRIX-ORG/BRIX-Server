@@ -6,6 +6,7 @@ import { appConfig } from '@/config';
 import { PrismaModule } from '@/prisma';
 import { UsersModule } from '@/modules/users';
 import { AuthModule } from '@/modules/auth';
+import { FirebaseModule } from '@/modules/firebase';
 import { LoggerMiddleware } from '@/common';
 
 @Module({
@@ -15,6 +16,7 @@ import { LoggerMiddleware } from '@/common';
             load: [appConfig],
             envFilePath: ['.env', '.env.local'],
         }),
+        FirebaseModule,
         PrismaModule,
         UsersModule,
         AuthModule,
