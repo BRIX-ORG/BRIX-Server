@@ -2,12 +2,12 @@ import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nes
 import { Response } from 'express';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { ApiResponse } from '@/common/dto/response.dto';
+import { ApiResponseDto } from '@/common/dto/response.dto';
 
 // Response Interceptor to transform all responses to standard format
 @Injectable()
-export class ResponseInterceptor<T> implements NestInterceptor<T, ApiResponse<T>> {
-    intercept(context: ExecutionContext, next: CallHandler): Observable<ApiResponse<T>> {
+export class ResponseInterceptor<T> implements NestInterceptor<T, ApiResponseDto<T>> {
+    intercept(context: ExecutionContext, next: CallHandler): Observable<ApiResponseDto<T>> {
         const ctx = context.switchToHttp();
         const response = ctx.getResponse<Response>();
 

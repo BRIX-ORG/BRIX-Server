@@ -1,12 +1,23 @@
-// Standard API Response Interface
-export interface ApiResponse<T = any> {
+import { ApiProperty } from '@nestjs/swagger';
+
+// Standard API Response Class for Swagger Documentation
+export class ApiResponseDto<T> {
+    @ApiProperty({ example: 'Success', description: 'Response message' })
     message: string;
+
+    @ApiProperty({ example: 200, description: 'HTTP status code' })
     code: number;
+
+    @ApiProperty({ description: 'Response data' })
     data: T;
 }
 
 // Helper function to create success response
-export function createSuccessResponse<T>(data: T, message = 'Success', code = 200): ApiResponse<T> {
+export function createSuccessResponse<T>(
+    data: T,
+    message = 'Success',
+    code = 200,
+): ApiResponseDto<T> {
     return {
         message,
         code,
@@ -15,7 +26,7 @@ export function createSuccessResponse<T>(data: T, message = 'Success', code = 20
 }
 
 // Helper function to create error response
-export function createErrorResponse(message: string, code: number): ApiResponse<null> {
+export function createErrorResponse(message: string, code: number): ApiResponseDto<null> {
     return {
         message,
         code,

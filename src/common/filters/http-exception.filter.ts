@@ -7,7 +7,7 @@ import {
     Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { ApiResponse } from '@/common/dto/response.dto';
+import { ApiResponseDto } from '@/common/dto/response.dto';
 
 // Global HTTP Exception Filter
 // Catches all HttpException instances and formats them to standard response
@@ -40,7 +40,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
         );
 
         // Create standardized error response
-        const errorResponse: ApiResponse<null> = {
+        const errorResponse: ApiResponseDto<null> = {
             message,
             code: status,
             data: null,
@@ -50,9 +50,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     }
 }
 
-/**
- * Global Exception Filter for all unhandled exceptions
- */
+// Global Exception Filter for all unhandled exceptions
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
     private readonly logger = new Logger(AllExceptionsFilter.name);
@@ -77,7 +75,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
         );
 
         // Create standardized error response
-        const errorResponse: ApiResponse<null> = {
+        const errorResponse: ApiResponseDto<null> = {
             message: process.env.NODE_ENV === 'production' ? 'Internal server error' : message,
             code: status,
             data: null,

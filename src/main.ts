@@ -1,8 +1,10 @@
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { ValidationPipe, Logger } from '@nestjs/common';
-import { AppModule } from './app.module';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { AppModule } from '@/app.module';
 import { ResponseInterceptor, HttpExceptionFilter, AllExceptionsFilter } from '@/common';
+import pc from 'picocolors';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule, {
@@ -33,10 +35,27 @@ async function bootstrap() {
     // CORS
     app.enableCors();
 
+    // Swagger
+    const swaggerConfig = new DocumentBuilder()
+        .setTitle('BRIX API')
+        .setDescription('The BRIX API documentation')
+        .setVersion('1.0')
+        .addBearerAuth()
+        .build();
+    const document = SwaggerModule.createDocument(app, swaggerConfig);
+    SwaggerModule.setup(`${apiPrefix}/docs`, app, document);
+
     const port = configService.get<number>('app.port', 3000);
     await app.listen(port);
 
-    logger.log(`Application is running on: http://localhost:${port}/${apiPrefix}`);
+    logger.log(
+        pc.blueBright(`Application is running on: `) +
+            pc.cyan(`http://localhost:${port}/${apiPrefix}`),
+    );
+    logger.log(
+        pc.blueBright(`Swagger documentation is available at: `) +
+            pc.cyan(`http://localhost:${port}/${apiPrefix}/docs`),
+    );
 }
 bootstrap().catch((err) => {
     console.error(err);

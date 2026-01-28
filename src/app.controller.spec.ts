@@ -15,8 +15,18 @@ describe('AppController', () => {
     });
 
     describe('root', () => {
-        it('should return "Hello World!"', () => {
-            expect(appController.getHello()).toBe('Hello World!');
+        it('should return service info', () => {
+            const info = appController.getHello();
+            expect(info).toBeDefined();
+            expect(info.name).toBe('BRIX API');
+        });
+    });
+
+    describe('health', () => {
+        it('should return health status', () => {
+            const health = appController.checkHealth();
+            expect(health).toBeDefined();
+            expect(health.status).toBe('ok');
         });
     });
 });
