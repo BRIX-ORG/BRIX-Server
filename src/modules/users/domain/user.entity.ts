@@ -20,7 +20,6 @@ export class UserEntity {
     @ApiProperty({ example: '0123456789', description: 'The phone number', required: false })
     readonly phone: string | null;
 
-    @ApiProperty({ example: '********', description: 'The hashed password of the user' })
     readonly password: string;
 
     @ApiProperty({ example: 'https://example.com/avatar.png', required: false })
@@ -44,7 +43,6 @@ export class UserEntity {
     @ApiProperty({ example: 'LOCAL', description: 'The auth provider' })
     readonly provider: 'LOCAL' | 'GOOGLE';
 
-    @ApiProperty({ example: 'token', required: false })
     readonly refreshToken: string | null;
 
     @ApiProperty({ example: '2024-01-01T00:00:00Z', description: 'The date the user was created' })

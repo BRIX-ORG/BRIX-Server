@@ -26,12 +26,11 @@ import {
     FindUserService,
     DeleteUserService,
 } from '@users/application';
-import { CreateUserDto, UpdateProfileDto } from '@users/dto';
-import { UserEntity } from '@users/domain';
+import { CreateUserDto, UpdateProfileDto, UserResponseDto } from '@users/dto';
 
 @ApiTags('users')
 @Controller('users')
-@ApiExtraModels(ApiResponseDto, UserEntity)
+@ApiExtraModels(ApiResponseDto, UserResponseDto)
 export class UsersController {
     constructor(
         private readonly createUserService: CreateUserService,
@@ -51,15 +50,16 @@ export class UsersController {
                     properties: {
                         data: {
                             type: 'array',
-                            items: { $ref: getSchemaPath(UserEntity) },
+                            items: { $ref: getSchemaPath(UserResponseDto) },
                         },
                     },
                 },
             ],
         },
     })
-    async findAll(): Promise<UserEntity[]> {
-        return this.findUserService.findAll();
+    async findAll(): Promise<UserResponseDto[]> {
+        const users = await this.findUserService.findAll();
+        return UserResponseDto.fromEntities(users);
     }
 
     @Get(':id')
@@ -72,15 +72,16 @@ export class UsersController {
                 { $ref: getSchemaPath(ApiResponseDto) },
                 {
                     properties: {
-                        data: { $ref: getSchemaPath(UserEntity) },
+                        data: { $ref: getSchemaPath(UserResponseDto) },
                     },
                 },
             ],
         },
     })
     @ApiResponse({ status: 404, description: 'User not found.' })
-    async findOne(@Param('id') id: string): Promise<UserEntity> {
-        return this.findUserService.findById(id);
+    async findOne(@Param('id') id: string): Promise<UserResponseDto> {
+        const user = await this.findUserService.findById(id);
+        return UserResponseDto.fromEntity(user);
     }
 
     @Post()
@@ -93,15 +94,16 @@ export class UsersController {
                 { $ref: getSchemaPath(ApiResponseDto) },
                 {
                     properties: {
-                        data: { $ref: getSchemaPath(UserEntity) },
+                        data: { $ref: getSchemaPath(UserResponseDto) },
                     },
                 },
             ],
         },
     })
     @ApiResponse({ status: 400, description: 'Bad request.' })
-    async create(@Body() createUserDto: CreateUserDto): Promise<UserEntity> {
-        return this.createUserService.execute(createUserDto);
+    async create(@Body() createUserDto: CreateUserDto): Promise<UserResponseDto> {
+        const user = await this.createUserService.execute(createUserDto);
+        return UserResponseDto.fromEntity(user);
     }
 
     @Put(':id')
@@ -114,7 +116,7 @@ export class UsersController {
                 { $ref: getSchemaPath(ApiResponseDto) },
                 {
                     properties: {
-                        data: { $ref: getSchemaPath(UserEntity) },
+                        data: { $ref: getSchemaPath(UserResponseDto) },
                     },
                 },
             ],
@@ -124,8 +126,9 @@ export class UsersController {
     async update(
         @Param('id') id: string,
         @Body() updateProfileDto: UpdateProfileDto,
-    ): Promise<UserEntity> {
-        return this.updateProfileService.execute(id, updateProfileDto);
+    ): Promise<UserResponseDto> {
+        const user = await this.updateProfileService.execute(id, updateProfileDto);
+        return UserResponseDto.fromEntity(user);
     }
 
     @Delete(':id')
