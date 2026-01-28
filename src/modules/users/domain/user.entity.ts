@@ -8,30 +8,38 @@ export class UserEntity {
     })
     readonly id: string;
 
+    @ApiProperty({ example: 'johndoe', description: 'The unique username of the user' })
+    readonly username: string;
+
+    @ApiProperty({ example: 'John Doe', description: 'The full name of the user' })
+    readonly fullName: string;
+
     @ApiProperty({ example: 'user@example.com', description: 'The email of the user' })
     readonly email: string;
+
+    @ApiProperty({ example: '0123456789', description: 'The phone number', required: false })
+    readonly phone: string | null;
 
     @ApiProperty({ example: '********', description: 'The hashed password of the user' })
     readonly password: string;
 
-    @ApiProperty({
-        example: 'John',
-        description: 'The first name of the user',
-        required: false,
-        nullable: true,
-    })
-    readonly firstName: string | null;
+    @ApiProperty({ example: 'https://example.com/avatar.png', required: false })
+    readonly avatar: string | null;
 
-    @ApiProperty({
-        example: 'Doe',
-        description: 'The last name of the user',
-        required: false,
-        nullable: true,
-    })
-    readonly lastName: string | null;
+    @ApiProperty({ example: 'https://example.com/bg.png', required: false })
+    readonly background: string | null;
 
-    @ApiProperty({ example: true, description: 'Whether the user account is active' })
-    readonly isActive: boolean;
+    @ApiProperty({ example: '123 Main St', required: false })
+    readonly address: string | null;
+
+    @ApiProperty({ example: 'Hello, I am John', required: false })
+    readonly shortDescription: string | null;
+
+    @ApiProperty({ example: 4.5, description: 'The trust score of the user' })
+    readonly trustScore: number;
+
+    @ApiProperty({ example: 'token', required: false })
+    readonly refreshToken: string | null;
 
     @ApiProperty({ example: '2024-01-01T00:00:00Z', description: 'The date the user was created' })
     readonly createdAt: Date;
@@ -44,16 +52,18 @@ export class UserEntity {
 
     constructor(props: UserEntityProps) {
         this.id = props.id;
+        this.username = props.username;
+        this.fullName = props.fullName;
         this.email = props.email;
+        this.phone = props.phone;
         this.password = props.password;
-        this.firstName = props.firstName;
-        this.lastName = props.lastName;
-        this.isActive = props.isActive;
+        this.avatar = props.avatar;
+        this.background = props.background;
+        this.address = props.address;
+        this.shortDescription = props.shortDescription;
+        this.trustScore = props.trustScore;
+        this.refreshToken = props.refreshToken;
         this.createdAt = props.createdAt;
         this.updatedAt = props.updatedAt;
-    }
-
-    get fullName(): string {
-        return [this.firstName, this.lastName].filter(Boolean).join(' ');
     }
 }

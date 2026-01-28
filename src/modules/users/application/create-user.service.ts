@@ -16,10 +16,11 @@ export class CreateUserService {
 
         // TODO: Hash password before saving
         const user = await this.userRepository.create({
+            username: dto.username,
+            fullName: dto.fullName,
             email: dto.email,
             password: dto.password,
-            firstName: dto.firstName,
-            lastName: dto.lastName,
+            phone: dto.phone,
         });
 
         return user;

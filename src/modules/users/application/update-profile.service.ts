@@ -15,8 +15,12 @@ export class UpdateProfileService {
         }
 
         const user = await this.userRepository.update(id, {
-            firstName: dto.firstName,
-            lastName: dto.lastName,
+            fullName: dto.fullName,
+            phone: dto.phone,
+            avatar: dto.avatar,
+            background: dto.background,
+            address: dto.address,
+            shortDescription: dto.shortDescription,
         });
 
         return user;

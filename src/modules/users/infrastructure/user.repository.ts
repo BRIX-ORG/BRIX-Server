@@ -28,13 +28,21 @@ export class UserRepository {
         return user ? new UserEntity(user) : null;
     }
 
+    async findByUsername(username: string): Promise<UserEntity | null> {
+        const user: User | null = await this.prisma.user.findUnique({
+            where: { username },
+        });
+        return user ? new UserEntity(user) : null;
+    }
+
     async create(data: CreateUserData): Promise<UserEntity> {
         const user: User = await this.prisma.user.create({
             data: {
+                username: data.username,
+                fullName: data.fullName,
                 email: data.email,
                 password: data.password,
-                firstName: data.firstName ?? null,
-                lastName: data.lastName ?? null,
+                phone: data.phone ?? null,
             },
         });
         return new UserEntity(user);
@@ -44,8 +52,14 @@ export class UserRepository {
         const user: User = await this.prisma.user.update({
             where: { id },
             data: {
-                firstName: data.firstName,
-                lastName: data.lastName,
+                fullName: data.fullName,
+                phone: data.phone,
+                avatar: data.avatar,
+                background: data.background,
+                address: data.address,
+                shortDescription: data.shortDescription,
+                trustScore: data.trustScore,
+                refreshToken: data.refreshToken,
             },
         });
         return new UserEntity(user);
@@ -67,6 +81,13 @@ export class UserRepository {
     async emailExists(email: string): Promise<boolean> {
         const count: number = await this.prisma.user.count({
             where: { email },
+        });
+        return count > 0;
+    }
+
+    async usernameExists(username: string): Promise<boolean> {
+        const count: number = await this.prisma.user.count({
+            where: { username },
         });
         return count > 0;
     }

@@ -1,22 +1,35 @@
 export interface UserEntityProps {
     id: string;
+    username: string;
+    fullName: string;
     email: string;
+    phone: string | null;
     password: string;
-    firstName: string | null;
-    lastName: string | null;
-    isActive: boolean;
+    avatar: string | null;
+    background: string | null;
+    address: string | null;
+    shortDescription: string | null;
+    trustScore: number;
+    refreshToken: string | null;
     createdAt: Date;
     updatedAt: Date;
 }
 
 export interface CreateUserData {
+    username: string;
+    fullName: string;
     email: string;
     password: string;
-    firstName?: string;
-    lastName?: string;
+    phone?: string;
 }
 
 export interface UpdateProfileData {
-    firstName?: string;
-    lastName?: string;
+    fullName?: string;
+    phone?: string;
+    avatar?: string;
+    background?: string;
+    address?: string;
+    shortDescription?: string;
+    trustScore?: number;
+    refreshToken?: string;
 }

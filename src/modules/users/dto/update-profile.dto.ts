@@ -2,13 +2,33 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsOptional } from 'class-validator';
 
 export class UpdateProfileDto {
-    @ApiProperty({ example: 'John', description: 'The first name of the user', required: false })
+    @ApiProperty({ example: 'John Doe', description: 'The full name of the user', required: false })
     @IsString()
     @IsOptional()
-    firstName?: string;
+    fullName?: string;
 
-    @ApiProperty({ example: 'Doe', description: 'The last name of the user', required: false })
+    @ApiProperty({ example: '0123456789', description: 'The phone number', required: false })
     @IsString()
     @IsOptional()
-    lastName?: string;
+    phone?: string;
+
+    @ApiProperty({ example: 'https://example.com/avatar.png', required: false })
+    @IsString()
+    @IsOptional()
+    avatar?: string;
+
+    @ApiProperty({ example: 'https://example.com/bg.png', required: false })
+    @IsString()
+    @IsOptional()
+    background?: string;
+
+    @ApiProperty({ example: '123 Main St', required: false })
+    @IsString()
+    @IsOptional()
+    address?: string;
+
+    @ApiProperty({ example: 'Hello, I am John', required: false })
+    @IsString()
+    @IsOptional()
+    shortDescription?: string;
 }
