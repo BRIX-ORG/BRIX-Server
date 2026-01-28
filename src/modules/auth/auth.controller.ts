@@ -1,12 +1,12 @@
 import { Controller, Post, Body, HttpCode, HttpStatus, Res, Req, UseGuards } from '@nestjs/common';
-import type { Response, Request } from 'express';
 import { ApiTags, ApiOperation, ApiResponse, ApiExtraModels, getSchemaPath } from '@nestjs/swagger';
 import { ApiResponseDto } from '@/common/dto/response.dto';
 import { RegisterUserService, LoginUserService, RefreshTokenService } from '@auth/application';
 import { RegisterDto, AuthResponseDto } from '@auth/dto';
-import type { AuthResponse } from '@auth/domain';
 import { LocalAuthGuard } from '@auth/guards';
 import { CurrentUser } from '@/common';
+import type { Response, Request } from 'express';
+import type { AuthResponse } from '@auth/domain';
 import type { UserEntity } from '@users/domain';
 
 @ApiTags('Authentication')

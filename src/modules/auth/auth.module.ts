@@ -33,10 +33,8 @@ import { UsersModule } from '@users/users.module';
     ],
     controllers: [AuthController],
     providers: [
-        // Strategies
         LocalStrategy,
         JwtStrategy,
-        // Application Services (Use Cases)
         PasswordService,
         JwtTokenService,
         RegisterUserService,
