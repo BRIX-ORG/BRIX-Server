@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserRepository } from '@users/infrastructure';
-import { JwtTokenService } from './jwt-token.service';
+import { JwtTokenService } from '@auth/application';
 import type { AuthResponse } from '@auth/domain';
 
 @Injectable()

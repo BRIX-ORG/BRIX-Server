@@ -1,7 +1,6 @@
 import { Injectable, ConflictException } from '@nestjs/common';
 import { UserRepository } from '@users/infrastructure';
-import { PasswordService } from './password.service';
-import { JwtTokenService } from './jwt-token.service';
+import { PasswordService, JwtTokenService } from '@auth/application';
 import { RegisterDto } from '@auth/dto';
 import { AuthResponse } from '@auth/domain';
 

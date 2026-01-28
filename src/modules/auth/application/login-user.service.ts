@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { UserRepository } from '@users/infrastructure';
-import { JwtTokenService } from './jwt-token.service';
+import { JwtTokenService } from '@auth/application';
 import { AuthResponse } from '@auth/domain';
 import { UserEntity } from '@users/domain';
 
