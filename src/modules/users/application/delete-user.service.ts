@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { UserRepository } from '../infrastructure';
+import { UserRepository } from '@users/infrastructure';
 
 @Injectable()
 export class DeleteUserService {

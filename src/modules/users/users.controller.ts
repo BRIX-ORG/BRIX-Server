@@ -14,9 +14,9 @@ import {
     UpdateProfileService,
     FindUserService,
     DeleteUserService,
-} from './application';
-import { CreateUserDto, UpdateProfileDto } from './dto';
-import { UserEntity } from './domain';
+} from '@users/application';
+import { CreateUserDto, UpdateProfileDto } from '@users/dto';
+import { UserEntity } from '@users/domain';
 
 @Controller('users')
 export class UsersController {

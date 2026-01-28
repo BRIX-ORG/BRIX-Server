@@ -16,10 +16,8 @@
         "baseUrl": "./",
         "paths": {
             "@/*": ["src/*"],
-            "@common/*": ["src/common/*"],
-            "@config/*": ["src/config/*"],
             "@modules/*": ["src/modules/*"],
-            "@database/*": ["src/database/*"]
+            "@users/*": ["src/modules/users/*"]
         },
         "incremental": true,
         "skipLibCheck": true,
