@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserRepository } from '@users/infrastructure';
 import { JwtTokenService } from '@auth/application';
 import type { AuthResponse } from '@auth/domain';
+import { UserResponseDto } from '@users/dto';
 
 @Injectable()
 export class RefreshTokenService {
@@ -33,7 +34,10 @@ export class RefreshTokenService {
                 refreshToken: tokens.refreshToken,
             });
 
-            return tokens;
+            return {
+                ...tokens,
+                user: UserResponseDto.fromEntity(user),
+            };
         } catch {
             throw new UnauthorizedException('Invalid refresh token');
         }

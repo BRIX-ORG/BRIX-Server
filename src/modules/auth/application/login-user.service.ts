@@ -3,6 +3,7 @@ import { UserRepository } from '@users/infrastructure';
 import { JwtTokenService } from '@auth/application';
 import { AuthResponse } from '@auth/domain';
 import { UserEntity } from '@users/domain';
+import { UserResponseDto } from '@users/dto';
 
 @Injectable()
 export class LoginUserService {
@@ -21,6 +22,9 @@ export class LoginUserService {
             refreshToken: tokens.refreshToken,
         });
 
-        return tokens;
+        return {
+            ...tokens,
+            user: UserResponseDto.fromEntity(user),
+        };
     }
 }

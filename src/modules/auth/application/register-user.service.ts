@@ -3,6 +3,7 @@ import { UserRepository } from '@users/infrastructure';
 import { PasswordService, JwtTokenService } from '@auth/application';
 import { EmailService } from '@/email';
 import { RegisterDto } from '@auth/dto';
+import { UserResponseDto } from '@users/dto';
 import { AuthResponse } from '@auth/domain';
 
 @Injectable()
@@ -41,7 +42,7 @@ export class RegisterUserService {
             phone: dto.phone,
         });
 
-        // Generate tokens with full payload
+        // Generate tokens
         const tokens = this.jwtTokenService.generateTokens(user);
 
         // Update user with refresh token
@@ -52,9 +53,11 @@ export class RegisterUserService {
         // Send welcome email (non-blocking)
         this.emailService.sendWelcomeEmail(user.email).catch((error) => {
             this.logger.error(`Failed to send welcome email to ${user.email}`, error);
-            // Don't throw - registration was successful
         });
 
-        return tokens;
+        return {
+            ...tokens,
+            user: UserResponseDto.fromEntity(user),
+        };
     }
 }

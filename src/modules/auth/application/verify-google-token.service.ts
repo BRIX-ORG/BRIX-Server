@@ -3,6 +3,7 @@ import { FirebaseService } from '@/firebase';
 import { UserRepository } from '@users/infrastructure';
 import { JwtTokenService } from '@auth/application';
 import type { AuthResponse } from '@auth/domain';
+import { UserResponseDto } from '@users/dto';
 
 @Injectable()
 export class VerifyGoogleTokenService {
@@ -73,7 +74,10 @@ export class VerifyGoogleTokenService {
                 refreshToken: tokens.refreshToken,
             });
 
-            return tokens;
+            return {
+                ...tokens,
+                user: UserResponseDto.fromEntity(user),
+            };
         } catch (error) {
             if (error instanceof UnauthorizedException || error instanceof ConflictException) {
                 throw error;

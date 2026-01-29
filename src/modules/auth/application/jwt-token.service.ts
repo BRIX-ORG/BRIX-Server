@@ -15,11 +15,8 @@ export class JwtTokenService {
     createPayload(user: UserEntity): JwtPayload {
         return {
             sub: user.id,
-            name: user.fullName,
+            username: user.username,
             email: user.email,
-            avatar: user.avatar,
-            background: user.background,
-            address: user.address,
             role: user.role.toLowerCase() as 'user' | 'admin',
             provider: user.provider.toLowerCase() as 'local' | 'google',
         };
@@ -41,12 +38,25 @@ export class JwtTokenService {
         });
     }
 
-    // Generate both access and refresh tokens
+    // Generate both access and refresh tokens with expiration
     generateTokens(user: UserEntity): AuthTokens {
         const payload = this.createPayload(user);
+        const accessToken = this.generateAccessToken(payload);
+        const refreshToken = this.generateRefreshToken(payload);
+
+        // Decode tokens to get 'exp' claim (Unix timestamp)
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const accessDecoded = this.jwtService.decode(accessToken);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const refreshDecoded = this.jwtService.decode(refreshToken);
+
         return {
-            accessToken: this.generateAccessToken(payload),
-            refreshToken: this.generateRefreshToken(payload),
+            accessToken,
+            refreshToken,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            accessTokenExpiresAt: (accessDecoded?.exp ?? 0) * 1000, // Convert to ms
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            refreshTokenExpiresAt: (refreshDecoded?.exp ?? 0) * 1000, // Convert to ms
         };
     }
 

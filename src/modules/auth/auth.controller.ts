@@ -1,4 +1,4 @@
-import { Controller, Post, Body, HttpCode, HttpStatus, Res, Req, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, Req, UseGuards } from '@nestjs/common';
 import {
     ApiTags,
     ApiOperation,
@@ -67,37 +67,23 @@ export class AuthController {
         status: 409,
         description: 'Email or username already exists',
     })
-    async register(
-        @Body() registerDto: RegisterDto,
-        @Res({ passthrough: true }) response: Response,
-    ): Promise<AuthResponse> {
+    async register(@Body() registerDto: RegisterDto): Promise<AuthResponse> {
         const result = await this.registerUserService.execute(registerDto);
 
-        // Set access token as httpOnly cookie
-        response.cookie('accessToken', result.accessToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 15 * 60 * 1000, // 15 minutes
-        });
+        // response.cookie('accessToken', result.accessToken, {
+        //     httpOnly: true,
+        //     secure: process.env.NODE_ENV === 'production',
+        //     sameSite: 'strict',
+        //     maxAge: 15 * 60 * 1000, // 15 minutes
+        // });
+        // response.cookie('refreshToken', result.refreshToken, {
+        //     httpOnly: true,
+        //     secure: process.env.NODE_ENV === 'production',
+        //     sameSite: 'strict',
+        //     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        // });
 
-        // Set refresh token as httpOnly cookie
-        response.cookie('refreshToken', result.refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        });
-
-        // In development, return tokens for debugging
-        // In production, only return success message (tokens are in httpOnly cookies)
-        if (process.env.NODE_ENV === 'development') {
-            return result;
-        }
-        return {
-            accessToken: 'Set in cookie',
-            refreshToken: 'Set in cookie',
-        };
+        return result;
     }
 
     @Post('login')
@@ -123,37 +109,24 @@ export class AuthController {
         description: 'Invalid credentials',
     })
     @ApiBody({ type: LoginDto })
-    async login(
-        @CurrentUser() user: UserEntity,
-        @Res({ passthrough: true }) response: Response,
-    ): Promise<AuthResponse> {
+    async login(@CurrentUser() user: UserEntity): Promise<AuthResponse> {
         // Complete login process (generate tokens, update DB)
         const result = await this.loginUserService.execute(user);
 
-        // Set access token as httpOnly cookie
-        response.cookie('accessToken', result.accessToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 15 * 60 * 1000, // 15 minutes
-        });
+        // response.cookie('accessToken', result.accessToken, {
+        //     httpOnly: true,
+        //     secure: process.env.NODE_ENV === 'production',
+        //     sameSite: 'strict',
+        //     maxAge: 15 * 60 * 1000, // 15 minutes
+        // });
+        // response.cookie('refreshToken', result.refreshToken, {
+        //     httpOnly: true,
+        //     secure: process.env.NODE_ENV === 'production',
+        //     sameSite: 'strict',
+        //     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        // });
 
-        // Set refresh token as httpOnly cookie
-        response.cookie('refreshToken', result.refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        });
-
-        // In development, return tokens for debugging
-        if (process.env.NODE_ENV === 'development') {
-            return result;
-        }
-        return {
-            accessToken: 'Set in cookie',
-            refreshToken: 'Set in cookie',
-        };
+        return result;
     }
 
     @Post('refresh')
@@ -178,40 +151,25 @@ export class AuthController {
         description: 'Invalid refresh token',
     })
     @ApiBody({ type: RefreshTokenDto, required: false, description: 'Optional if sent via cookie' })
-    async refresh(
-        @Req() request: Request,
-        @Res({ passthrough: true }) response: Response,
-        @Body() body: RefreshTokenDto,
-    ): Promise<AuthResponse> {
+    async refresh(@Req() request: Request, @Body() body: RefreshTokenDto): Promise<AuthResponse> {
         const refreshToken =
             body.refreshToken || (request.cookies as Record<string, string>)['refreshToken'];
         const result = await this.refreshTokenService.execute(refreshToken);
 
-        // Set new access token as httpOnly cookie
-        response.cookie('accessToken', result.accessToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 15 * 60 * 1000, // 15 minutes
-        });
+        // response.cookie('accessToken', result.accessToken, {
+        //     httpOnly: true,
+        //     secure: process.env.NODE_ENV === 'production',
+        //     sameSite: 'strict',
+        //     maxAge: 15 * 60 * 1000, // 15 minutes
+        // });
+        // response.cookie('refreshToken', result.refreshToken, {
+        //     httpOnly: true,
+        //     secure: process.env.NODE_ENV === 'production',
+        //     sameSite: 'strict',
+        //     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        // });
 
-        // Update refresh token cookie
-        response.cookie('refreshToken', result.refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        });
-
-        // In development, return tokens for debugging
-        // In production, only return success message (tokens are in httpOnly cookies)
-        if (process.env.NODE_ENV === 'development') {
-            return result;
-        }
-        return {
-            accessToken: 'Set in cookie',
-            refreshToken: 'Set in cookie',
-        };
+        return result;
     }
 
     @Post('logout')
@@ -226,10 +184,10 @@ export class AuthController {
             },
         },
     })
-    logout(@Res({ passthrough: true }) response: Response): { message: string } {
+    logout(): { message: string } {
         // Clear both tokens from cookies
-        response.clearCookie('accessToken');
-        response.clearCookie('refreshToken');
+        // response.clearCookie('accessToken');
+        // response.clearCookie('refreshToken');
         return { message: 'Logged out successfully' };
     }
 
@@ -258,36 +216,23 @@ export class AuthController {
         status: 409,
         description: 'Email already exists with a different provider',
     })
-    async googleAuth(
-        @Body() dto: GoogleAuthDto,
-        @Res({ passthrough: true }) response: Response,
-    ): Promise<AuthResponse> {
+    async googleAuth(@Body() dto: GoogleAuthDto): Promise<AuthResponse> {
         const result = await this.verifyGoogleTokenService.execute(dto.idToken);
 
-        // Set access token as httpOnly cookie
-        response.cookie('accessToken', result.accessToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 15 * 60 * 1000, // 15 minutes
-        });
+        // response.cookie('accessToken', result.accessToken, {
+        //     httpOnly: true,
+        //     secure: process.env.NODE_ENV === 'production',
+        //     sameSite: 'strict',
+        //     maxAge: 15 * 60 * 1000, // 15 minutes
+        // });
+        // response.cookie('refreshToken', result.refreshToken, {
+        //     httpOnly: true,
+        //     secure: process.env.NODE_ENV === 'production',
+        //     sameSite: 'strict',
+        //     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        // });
 
-        // Set refresh token as httpOnly cookie
-        response.cookie('refreshToken', result.refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        });
-
-        // In development, return tokens for debugging
-        if (process.env.NODE_ENV === 'development') {
-            return result;
-        }
-        return {
-            accessToken: 'Set in cookie',
-            refreshToken: 'Set in cookie',
-        };
+        return result;
     }
 
     @Post('forgot-password')
