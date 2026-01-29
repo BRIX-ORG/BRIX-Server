@@ -17,7 +17,6 @@ export class JwtTokenService {
             sub: user.id,
             name: user.fullName,
             email: user.email,
-            password: user.password,
             avatar: user.avatar,
             background: user.background,
             address: user.address,
