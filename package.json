@@ -7,13 +7,14 @@
     "private": true,
     "license": "UNLICENSED",
     "scripts": {
+        "preinstall": "node scripts/only-pnpm.js",
         "build": "nest build",
         "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
         "format:check": "prettier --check \"src/**/*.ts\" \"test/**/*.ts\"",
         "start": "nest start",
         "start:dev": "nest start --watch",
         "start:debug": "nest start --debug --watch",
-        "start:prod": "node dist/main",
+        "start:prod": "node dist/src/main",
         "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
         "test": "jest",
         "test:watch": "jest --watch",
@@ -66,7 +67,8 @@
         "picocolors": "^1.1.1",
         "reflect-metadata": "^0.2.2",
         "rxjs": "^7.8.2",
-        "swagger-ui-express": "^5.0.1"
+        "swagger-ui-express": "^5.0.1",
+        "prisma": "^7.3.0"
     },
     "devDependencies": {
         "@commitlint/cli": "^20.3.1",
@@ -95,7 +97,6 @@
         "jest": "^30.2.0",
         "lint-staged": "^16.2.7",
         "prettier": "^3.8.1",
-        "prisma": "^7.3.0",
         "source-map-support": "^0.5.21",
         "supertest": "^7.2.2",
         "ts-jest": "^29.4.6",

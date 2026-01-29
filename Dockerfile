@@ -1,5 +1,5 @@
 # Build stage
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
@@ -9,17 +9,22 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 # Copy package files
 COPY package.json pnpm-lock.yaml ./
 
-# Install dependencies
-RUN pnpm install --frozen-lockfile
+# Copy prisma schema for building
+COPY prisma/ ./prisma/
+
+# Skip pnpm check & ignore scripts (to skip husky)
+ENV SKIP_PNPM_CHECK=true
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 # Copy source code
 COPY . .
 
-# Build the application
+# Generate Prisma Client & Build
+RUN pnpm exec prisma generate
 RUN pnpm build
 
 # Production stage
-FROM node:20-alpine AS production
+FROM node:22-alpine AS production
 
 WORKDIR /app
 
@@ -28,9 +33,14 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 
 # Copy package files
 COPY package.json pnpm-lock.yaml ./
+COPY prisma/ ./prisma/
 
 # Install only production dependencies
-RUN pnpm install --frozen-lockfile --prod
+ENV SKIP_PNPM_CHECK=true
+RUN pnpm install --frozen-lockfile --prod --ignore-scripts
+
+# Generate Prisma Client for production
+RUN pnpm exec prisma generate
 
 # Copy built application from builder stage
 COPY --from=builder /app/dist ./dist
@@ -39,4 +49,4 @@ COPY --from=builder /app/dist ./dist
 EXPOSE 3000
 
 # Start the application
-CMD ["node", "dist/main.js"]
+CMD ["node", "dist/src/main.js"]
