@@ -35,5 +35,6 @@ export interface UpdateProfileData {
     address?: string;
     shortDescription?: string;
     trustScore?: number;
+    password?: string;
     refreshToken?: string;
 }

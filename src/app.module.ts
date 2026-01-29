@@ -7,6 +7,8 @@ import { PrismaModule } from '@/prisma';
 import { UsersModule } from '@/modules/users';
 import { AuthModule } from '@/modules/auth';
 import { FirebaseModule } from '@/firebase';
+import { RedisModule } from '@/redis';
+import { EmailModule } from '@/email';
 import { LoggerMiddleware } from '@/common';
 
 @Module({
@@ -17,6 +19,8 @@ import { LoggerMiddleware } from '@/common';
             envFilePath: ['.env', '.env.local'],
         }),
         FirebaseModule,
+        RedisModule,
+        EmailModule,
         PrismaModule,
         UsersModule,
         AuthModule,

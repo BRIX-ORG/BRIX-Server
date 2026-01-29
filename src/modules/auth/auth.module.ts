@@ -12,14 +12,21 @@ import {
     ValidateUserService,
     ValidateLocalUserService,
     VerifyGoogleTokenService,
+    ForgotPasswordService,
+    VerifyOtpService,
+    ResetPasswordService,
 } from './application';
 import { LocalStrategy } from './strategies';
 import { JwtStrategy } from '@/common/strategies';
 import { UsersModule } from '@users/users.module';
+import { RedisModule } from '@/redis';
+import { EmailModule } from '@/email';
 
 @Module({
     imports: [
         UsersModule,
+        RedisModule,
+        EmailModule,
         PassportModule,
         JwtModule.registerAsync({
             imports: [ConfigModule],
@@ -44,6 +51,9 @@ import { UsersModule } from '@users/users.module';
         ValidateUserService,
         ValidateLocalUserService,
         VerifyGoogleTokenService,
+        ForgotPasswordService,
+        VerifyOtpService,
+        ResetPasswordService,
     ],
     exports: [JwtTokenService, PasswordService],
 })

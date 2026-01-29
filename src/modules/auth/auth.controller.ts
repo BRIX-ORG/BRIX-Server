@@ -1,13 +1,32 @@
 import { Controller, Post, Body, HttpCode, HttpStatus, Res, Req, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiExtraModels, getSchemaPath } from '@nestjs/swagger';
+import {
+    ApiTags,
+    ApiOperation,
+    ApiResponse,
+    ApiExtraModels,
+    getSchemaPath,
+    ApiBody,
+} from '@nestjs/swagger';
 import { ApiResponseDto } from '@/common/dto/response.dto';
 import {
     RegisterUserService,
     LoginUserService,
     RefreshTokenService,
     VerifyGoogleTokenService,
+    ForgotPasswordService,
+    VerifyOtpService,
+    ResetPasswordService,
 } from '@auth/application';
-import { RegisterDto, AuthResponseDto, GoogleAuthDto } from '@auth/dto';
+import {
+    RegisterDto,
+    LoginDto,
+    AuthResponseDto,
+    GoogleAuthDto,
+    ForgotPasswordDto,
+    VerifyOtpDto,
+    ResetPasswordDto,
+    RefreshTokenDto,
+} from '@auth/dto';
 import { LocalAuthGuard } from '@auth/guards';
 import { CurrentUser } from '@/common';
 import type { Response, Request } from 'express';
@@ -23,6 +42,9 @@ export class AuthController {
         private readonly loginUserService: LoginUserService,
         private readonly refreshTokenService: RefreshTokenService,
         private readonly verifyGoogleTokenService: VerifyGoogleTokenService,
+        private readonly forgotPasswordService: ForgotPasswordService,
+        private readonly verifyOtpService: VerifyOtpService,
+        private readonly resetPasswordService: ResetPasswordService,
     ) {}
 
     @Post('register')
@@ -100,6 +122,7 @@ export class AuthController {
         status: 401,
         description: 'Invalid credentials',
     })
+    @ApiBody({ type: LoginDto })
     async login(
         @CurrentUser() user: UserEntity,
         @Res({ passthrough: true }) response: Response,
@@ -154,11 +177,14 @@ export class AuthController {
         status: 401,
         description: 'Invalid refresh token',
     })
+    @ApiBody({ type: RefreshTokenDto, required: false, description: 'Optional if sent via cookie' })
     async refresh(
         @Req() request: Request,
         @Res({ passthrough: true }) response: Response,
+        @Body() body: RefreshTokenDto,
     ): Promise<AuthResponse> {
-        const refreshToken = (request.cookies as Record<string, string>)['refreshToken'];
+        const refreshToken =
+            body.refreshToken || (request.cookies as Record<string, string>)['refreshToken'];
         const result = await this.refreshTokenService.execute(refreshToken);
 
         // Set new access token as httpOnly cookie
@@ -194,6 +220,11 @@ export class AuthController {
     @ApiResponse({
         status: 200,
         description: 'User successfully logged out',
+        schema: {
+            properties: {
+                message: { type: 'string', example: 'Logged out successfully' },
+            },
+        },
     })
     logout(@Res({ passthrough: true }) response: Response): { message: string } {
         // Clear both tokens from cookies
@@ -257,5 +288,63 @@ export class AuthController {
             accessToken: 'Set in cookie',
             refreshToken: 'Set in cookie',
         };
+    }
+
+    @Post('forgot-password')
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Request password reset (sends OTP to email)' })
+    @ApiResponse({
+        status: 200,
+        description: 'Request processed (always returns 200 for security)',
+        schema: {
+            properties: {
+                message: { type: 'string', example: 'If the email exists, an OTP has been sent' },
+            },
+        },
+    })
+    async forgotPassword(@Body() dto: ForgotPasswordDto): Promise<{ message: string }> {
+        await this.forgotPasswordService.execute(dto.email);
+        return { message: 'If the email exists, an OTP has been sent' };
+    }
+
+    @Post('verify-otp')
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Verify OTP and get reset token' })
+    @ApiResponse({
+        status: 200,
+        description: 'OTP verified successfully',
+        schema: {
+            properties: {
+                resetToken: { type: 'string', example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' },
+            },
+        },
+    })
+    @ApiResponse({
+        status: 401,
+        description: 'Invalid or expired OTP',
+    })
+    async verifyOtp(@Body() dto: VerifyOtpDto): Promise<{ resetToken: string }> {
+        return await this.verifyOtpService.execute(dto.email, dto.otp);
+    }
+
+    @Post('reset-password')
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Reset password with reset token' })
+    @ApiResponse({
+        status: 200,
+        description: 'Password reset successfully',
+        schema: {
+            properties: {
+                message: { type: 'string', example: 'Password reset successfully' },
+            },
+        },
+    })
+    @ApiResponse({
+        status: 401,
+        description: 'Invalid or expired reset token',
+    })
+    async resetPassword(@Body() dto: ResetPasswordDto): Promise<{ message: string }> {
+        await this.resetPasswordService.execute(dto.email, dto.resetToken, dto.newPassword);
+        return { message: 'Password reset successfully' };
     }
 }

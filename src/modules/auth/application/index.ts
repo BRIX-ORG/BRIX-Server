@@ -6,3 +6,6 @@ export * from './refresh-token.service';
 export * from './validate-user.service';
 export * from './validate-local-user.service';
 export * from './verify-google-token.service';
+export * from './forgot-password.service';
+export * from './verify-otp.service';
+export * from './reset-password.service';

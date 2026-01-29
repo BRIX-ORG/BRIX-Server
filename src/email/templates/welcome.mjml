@@ -1,0 +1,178 @@
+<mjml>
+    <mj-head>
+        <mj-title>Welcome to BRIX - Join the Grid</mj-title>
+        <mj-preview>Welcome to the platform of absolute truth</mj-preview>
+        <mj-font
+            name="Inter"
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap"
+        />
+        <mj-font
+            name="JetBrains Mono"
+            href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap"
+        />
+        <mj-font
+            name="Space Grotesk"
+            href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&display=swap"
+        />
+        <mj-attributes>
+            <mj-all font-family="'Inter', Arial, sans-serif" />
+            <mj-text color="#ffffff" line-height="1.6" />
+        </mj-attributes>
+        <mj-style>
+            body {
+                background-image: url('https://res.cloudinary.com/dpndyuheh/image/upload/v1769707870/export_usvops.png');
+                background-repeat: repeat;
+                background-color: #050505;
+            }
+            .full-grid {
+                background-image: url('https://res.cloudinary.com/dpndyuheh/image/upload/v1769707870/export_usvops.png') !important;
+                background-repeat: repeat !important;
+                background-color: #050505 !important;
+            }
+        </mj-style>
+    </mj-head>
+
+    <mj-body background-color="#050505">
+        <mj-wrapper full-width="full-width" css-class="full-grid" padding="0">
+            <!-- Header with BRIX Logo & Text same row -->
+            <mj-section padding="40px 20px 20px" full-width="full-width">
+                <mj-group width="220px">
+                    <mj-column width="25%" vertical-align="middle">
+                        <mj-image
+                            src="https://res.cloudinary.com/dpndyuheh/image/upload/v1769707333/favicon_pcacy2.png"
+                            width="28px"
+                            align="right"
+                            padding="0"
+                        />
+                    </mj-column>
+                    <mj-column width="75%" vertical-align="middle">
+                        <mj-text
+                            align="left"
+                            font-family="'JetBrains Mono', monospace"
+                            font-size="24px"
+                            font-weight="700"
+                            letter-spacing="0.3em"
+                            padding="0 0 0 12px"
+                            line-height="32px"
+                        >
+                            BRIX<span style="color: #00eeff">.</span>
+                        </mj-text>
+                    </mj-column>
+                </mj-group>
+            </mj-section>
+
+            <!-- Main Content Card with Tech Border -->
+            <mj-section
+                background-color="transparent"
+                full-width="full-width"
+                border="1px solid #1a1a1a"
+                border-radius="8px"
+                padding="40px 30px"
+            >
+                <mj-column>
+                    <!-- Headline -->
+                    <mj-text
+                        align="center"
+                        font-family="'Space Grotesk', sans-serif"
+                        font-size="40px"
+                        font-weight="700"
+                        color="#ffffff"
+                        padding="0 0 20px"
+                        line-height="1.2"
+                    >
+                        Welcome to the Grid
+                    </mj-text>
+
+                    <!-- Body Text -->
+                    <mj-text align="center" font-size="18px" color="#9ca3af" padding="0 20px 30px">
+                        Welcome to the platform of absolute truth. Your entry into the decentralized
+                        architecture has been verified.
+                    </mj-text>
+
+                    <!-- Username Display -->
+                    <mj-text
+                        align="center"
+                        font-family="'JetBrains Mono', monospace"
+                        font-size="16px"
+                        color="#00f3ff"
+                        padding="10px 0 30px"
+                    >
+                        USER: {{ email }}
+                    </mj-text>
+
+                    <!-- CTA Button -->
+                    <mj-button
+                        background-color="#b50df2"
+                        color="#ffffff"
+                        font-family="'Space Grotesk', sans-serif"
+                        font-size="14px"
+                        font-weight="700"
+                        letter-spacing="0.2em"
+                        border-radius="4px"
+                        padding="20px 0"
+                        inner-padding="16px 40px"
+                        href="{{ appUrl }}"
+                    >
+                        EXPLORE THE GRID
+                    </mj-button>
+
+                    <!-- Status Message -->
+                    <mj-text
+                        align="center"
+                        font-family="'JetBrains Mono', monospace"
+                        font-size="11px"
+                        color="#b29cba"
+                        text-transform="uppercase"
+                        letter-spacing="0.1em"
+                        padding="20px 0 0"
+                    >
+                        Initialization complete. Status: Online.
+                    </mj-text>
+                </mj-column>
+            </mj-section>
+
+            <!-- Technical Footer -->
+            <mj-section padding="30px 20px" border-top="1px solid #1a1a1a" full-width="full-width">
+                <mj-column>
+                    <mj-text
+                        align="center"
+                        font-family="'JetBrains Mono', monospace"
+                        font-size="10px"
+                        color="#6b7280"
+                        line-height="1.8"
+                    >
+                        <div
+                            style="
+                                border-bottom: 1px solid #1a1a1a;
+                                padding-bottom: 4px;
+                                margin-bottom: 4px;
+                            "
+                        >
+                            SECURITY_HASH: <span style="color: #d1d5db">0x8C3B1A...E5F2</span>
+                        </div>
+                        <div
+                            style="
+                                border-bottom: 1px solid #1a1a1a;
+                                padding-bottom: 4px;
+                                margin-bottom: 4px;
+                            "
+                        >
+                            ORIGIN_NODE: <span style="color: #d1d5db">BRIX-WEL-01</span>
+                        </div>
+                    </mj-text>
+
+                    <mj-text
+                        align="center"
+                        font-size="11px"
+                        color="#4b5563"
+                        padding="20px 30px 0"
+                        line-height="1.6"
+                    >
+                        This is a secure automated message regarding your BRIX account. Do not share
+                        your access credentials with anyone.
+                    </mj-text>
+                </mj-column>
+            </mj-section>
+        </mj-wrapper>
+    </mj-body>
+</mjml>
