@@ -1,4 +1,4 @@
-import { Controller, Post, Body, HttpCode, HttpStatus, Req, UseGuards } from '@nestjs/common';
+import { Controller, Post, Put, Body, HttpCode, HttpStatus, Req, UseGuards } from '@nestjs/common';
 import {
     ApiTags,
     ApiOperation,
@@ -11,6 +11,7 @@ import { ApiResponseDto } from '@/common/dto/response.dto';
 import {
     RegisterUserService,
     LoginUserService,
+    LogoutUserService,
     RefreshTokenService,
     VerifyGoogleTokenService,
     ForgotPasswordService,
@@ -25,7 +26,6 @@ import {
     ForgotPasswordDto,
     VerifyOtpDto,
     ResetPasswordDto,
-    RefreshTokenDto,
 } from '@auth/dto';
 import { LocalAuthGuard } from '@auth/guards';
 import { CurrentUser } from '@/common';
@@ -40,6 +40,7 @@ export class AuthController {
     constructor(
         private readonly registerUserService: RegisterUserService,
         private readonly loginUserService: LoginUserService,
+        private readonly logoutUserService: LogoutUserService,
         private readonly refreshTokenService: RefreshTokenService,
         private readonly verifyGoogleTokenService: VerifyGoogleTokenService,
         private readonly forgotPasswordService: ForgotPasswordService,
@@ -129,7 +130,7 @@ export class AuthController {
         return result;
     }
 
-    @Post('refresh')
+    @Put('refresh')
     @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: 'Refresh access token' })
     @ApiResponse({
@@ -150,10 +151,16 @@ export class AuthController {
         status: 401,
         description: 'Invalid refresh token',
     })
-    @ApiBody({ type: RefreshTokenDto, required: false, description: 'Optional if sent via cookie' })
-    async refresh(@Req() request: Request, @Body() body: RefreshTokenDto): Promise<AuthResponse> {
-        const refreshToken =
-            body.refreshToken || (request.cookies as Record<string, string>)['refreshToken'];
+    async refresh(@Req() request: Request): Promise<AuthResponse> {
+        const authHeader = request.headers.authorization;
+        const refreshToken = authHeader?.startsWith('Bearer ')
+            ? authHeader.substring(7)
+            : undefined;
+
+        if (!refreshToken) {
+            throw new Error('Refresh token not provided in Authorization header');
+        }
+
         const result = await this.refreshTokenService.execute(refreshToken);
 
         // response.cookie('accessToken', result.accessToken, {
@@ -174,7 +181,7 @@ export class AuthController {
 
     @Post('logout')
     @HttpCode(HttpStatus.OK)
-    @ApiOperation({ summary: 'Logout user' })
+    @ApiOperation({ summary: 'Logout user (invalidates refresh token)' })
     @ApiResponse({
         status: 200,
         description: 'User successfully logged out',
@@ -184,11 +191,21 @@ export class AuthController {
             },
         },
     })
-    logout(): { message: string } {
-        // Clear both tokens from cookies
-        // response.clearCookie('accessToken');
-        // response.clearCookie('refreshToken');
-        return { message: 'Logged out successfully' };
+    @ApiResponse({
+        status: 401,
+        description: 'Invalid or missing refresh token',
+    })
+    async logout(@Req() request: Request): Promise<{ message: string }> {
+        const authHeader = request.headers.authorization;
+        const refreshToken = authHeader?.startsWith('Bearer ')
+            ? authHeader.substring(7)
+            : undefined;
+
+        if (!refreshToken) {
+            return { message: 'Logged out successfully' };
+        }
+
+        return await this.logoutUserService.execute(refreshToken);
     }
 
     @Post('google')
