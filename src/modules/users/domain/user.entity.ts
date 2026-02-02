@@ -43,6 +43,9 @@ export class UserEntity {
     @ApiProperty({ example: 'LOCAL', description: 'The auth provider' })
     readonly provider: 'LOCAL' | 'GOOGLE';
 
+    @ApiProperty({ example: false, description: 'Whether the email is verified' })
+    readonly isVerified: boolean;
+
     readonly refreshToken: string | null;
 
     @ApiProperty({ example: '2024-01-01T00:00:00Z', description: 'The date the user was created' })
@@ -68,6 +71,7 @@ export class UserEntity {
         this.trustScore = props.trustScore;
         this.role = props.role;
         this.provider = props.provider;
+        this.isVerified = props.isVerified;
         this.refreshToken = props.refreshToken;
         this.createdAt = props.createdAt;
         this.updatedAt = props.updatedAt;

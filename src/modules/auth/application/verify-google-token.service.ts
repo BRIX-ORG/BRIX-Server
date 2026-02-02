@@ -64,6 +64,11 @@ export class VerifyGoogleTokenService {
                     avatar: picture ?? null,
                     provider: 'GOOGLE',
                 });
+
+                // Update isVerified to true for Google users
+                user = await this.userRepository.update(user.id, {
+                    isVerified: true,
+                });
             }
 
             // Generate JWT tokens

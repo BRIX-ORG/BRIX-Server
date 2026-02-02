@@ -71,6 +71,7 @@ export class UserRepository {
                 shortDescription: data.shortDescription,
                 trustScore: data.trustScore,
                 refreshToken: data.refreshToken,
+                isVerified: data.isVerified,
             },
         });
         return new UserEntity(user);

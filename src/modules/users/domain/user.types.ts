@@ -12,6 +12,7 @@ export interface UserEntityProps {
     trustScore: number;
     role: 'USER' | 'ADMIN';
     provider: 'LOCAL' | 'GOOGLE';
+    isVerified: boolean;
     refreshToken: string | null;
     createdAt: Date;
     updatedAt: Date;
@@ -37,4 +38,5 @@ export interface UpdateProfileData {
     trustScore?: number;
     password?: string;
     refreshToken?: string;
+    isVerified?: boolean;
 }

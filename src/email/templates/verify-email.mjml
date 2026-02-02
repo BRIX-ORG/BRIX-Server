@@ -1,0 +1,172 @@
+<mjml>
+    <mj-head>
+        <mj-title>BRIX - Email Verification</mj-title>
+        <mj-preview>Verify your email address</mj-preview>
+        <mj-font
+            name="Inter"
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap"
+        />
+        <mj-font
+            name="JetBrains Mono"
+            href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap"
+        />
+        <mj-font
+            name="Space Grotesk"
+            href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&display=swap"
+        />
+        <mj-attributes>
+            <mj-all font-family="'Inter', Arial, sans-serif" />
+            <mj-text color="#ffffff" line-height="1.6" />
+        </mj-attributes>
+        <mj-style>
+            body {
+                background-image: url('https://res.cloudinary.com/dpndyuheh/image/upload/v1769707870/export_usvops.png');
+                background-repeat: repeat;
+                background-color: #050505;
+            }
+            .full-grid {
+                background-image: url('https://res.cloudinary.com/dpndyuheh/image/upload/v1769707870/export_usvops.png') !important;
+                background-repeat: repeat !important;
+                background-color: #050505 !important;
+            }
+            .otp-box div {
+                border: 2px solid #1a1a1a !important;
+                border-radius: 8px !important;
+            }
+        </mj-style>
+    </mj-head>
+
+    <mj-body background-color="#050505">
+        <mj-wrapper full-width="full-width" css-class="full-grid" padding="0">
+            <!-- Header with BRIX Logo & Text same row -->
+            <mj-section padding="40px 20px 20px" full-width="full-width">
+                <mj-group width="220px">
+                    <mj-column width="25%" vertical-align="middle">
+                        <mj-image
+                            src="https://res.cloudinary.com/dpndyuheh/image/upload/v1769707333/favicon_pcacy2.png"
+                            width="28px"
+                            align="right"
+                            padding="0"
+                        />
+                    </mj-column>
+                    <mj-column width="75%" vertical-align="middle">
+                        <mj-text
+                            align="left"
+                            font-family="'JetBrains Mono', monospace"
+                            font-size="24px"
+                            font-weight="700"
+                            letter-spacing="0.3em"
+                            padding="0 0 0 12px"
+                            line-height="32px"
+                        >
+                            BRIX<span style="color: #00eeff">.</span>
+                        </mj-text>
+                    </mj-column>
+                </mj-group>
+            </mj-section>
+
+            <!-- Main Content Card - Top -->
+            <mj-section
+                background-color="transparent"
+                full-width="full-width"
+                border-top="1px solid #1a1a1a"
+                border-left="1px solid #1a1a1a"
+                border-right="1px solid #1a1a1a"
+                border-radius="8px 8px 0 0"
+                padding="40px 30px 0"
+            >
+                <mj-column>
+                    <!-- Headline -->
+                    <mj-text
+                        align="center"
+                        font-size="28px"
+                        font-weight="700"
+                        color="#ffffff"
+                        padding="0 0 10px"
+                    >
+                        Verify Your Email
+                    </mj-text>
+
+                    <!-- Body Text -->
+                    <mj-text align="center" font-size="16px" color="#9ca3af" padding="0 20px 30px">
+                        Welcome to BRIX! Please verify your email address using the code below.
+                    </mj-text>
+                </mj-column>
+            </mj-section>
+
+            <!-- OTP Code Box -->
+            <mj-section
+                background-color="transparent"
+                full-width="full-width"
+                border-left="1px solid #1a1a1a"
+                border-right="1px solid #1a1a1a"
+                padding="0 60px"
+            >
+                <mj-column>
+                    <mj-text
+                        align="center"
+                        font-family="'Space Grotesk', monospace"
+                        font-size="48px"
+                        font-weight="700"
+                        letter-spacing="0.2em"
+                        color="#00eeff"
+                        background-color="#0a0a0a"
+                        padding="25px 20px"
+                        css-class="otp-box"
+                    >
+                        {{ otp }}
+                    </mj-text>
+                </mj-column>
+            </mj-section>
+
+            <!-- Warning Text -->
+            <mj-section
+                background-color="transparent"
+                full-width="full-width"
+                border-left="1px solid #1a1a1a"
+                border-right="1px solid #1a1a1a"
+                border-bottom="1px solid #1a1a1a"
+                border-radius="0 0 8px 8px"
+                padding="30px 40px 40px"
+            >
+                <mj-column>
+                    <mj-text
+                        align="center"
+                        font-size="14px"
+                        color="#6b7280"
+                        padding="0 0 20px"
+                        line-height="1.5"
+                    >
+                        This code will expire in
+                        <strong style="color: #ffffff">5 minutes</strong>. If you didn't request
+                        this, please ignore this email.
+                    </mj-text>
+
+                    <mj-divider border-width="1px" border-color="#1a1a1a" padding="20px 0" />
+
+                    <mj-text
+                        align="center"
+                        font-size="13px"
+                        color="#4b5563"
+                        padding="0"
+                        line-height="1.5"
+                    >
+                        For your security, never share this code with anyone.
+                    </mj-text>
+                </mj-column>
+            </mj-section>
+
+            <!-- Footer -->
+            <mj-section padding="30px 20px" full-width="full-width">
+                <mj-column>
+                    <mj-text align="center" font-size="12px" color="#4b5563" padding="0">
+                        © 2026 BRIX. All rights reserved.
+                    </mj-text>
+                    <mj-text align="center" font-size="11px" color="#374151" padding="10px 0 0">
+                        This is an automated message, please do not reply.
+                    </mj-text>
+                </mj-column>
+            </mj-section>
+        </mj-wrapper>
+    </mj-body>
+</mjml>

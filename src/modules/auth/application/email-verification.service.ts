@@ -1,11 +1,11 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { RedisService } from '@/redis';
 import { EmailService } from '@/email';
 import { UserRepository } from '@users/infrastructure';
 
 @Injectable()
-export class ForgotPasswordService {
-    private readonly logger = new Logger(ForgotPasswordService.name);
+export class EmailVerificationService {
+    private readonly logger = new Logger(EmailVerificationService.name);
     private readonly OTP_EXPIRY = 300; // 5 minutes in seconds
 
     constructor(
@@ -15,27 +15,27 @@ export class ForgotPasswordService {
     ) {}
 
     async execute(email: string): Promise<void> {
-        // Always returns success to prevent email enumeration
         const user = await this.userRepository.findByEmail(email);
 
         if (!user) {
-            this.logger.warn(`Password reset requested for non-existent email: ${email}`);
-            // Still return success, but don't send email
-            return;
+            throw new BadRequestException('User not found');
         }
 
-        // Don't allow password reset for Google auth users
+        // Only allow email verification for LOCAL auth users
         if (user.provider !== 'LOCAL') {
-            this.logger.warn(`Password reset requested for ${user.provider} auth user: ${email}`);
-            // Still return success to prevent enumeration
-            return;
+            throw new BadRequestException('Email verification is only for local auth users');
+        }
+
+        // Check if already verified
+        if (user.isVerified) {
+            throw new BadRequestException('Email is already verified');
         }
 
         // Generate 6-digit OTP
         const otp = this.generateOtp();
 
         // Store OTP in Redis with attempts counter
-        const otpKey = `fp:otp:${email}`;
+        const otpKey = `ev:otp:${email}`;
         await this.redisService.set(
             otpKey,
             {
@@ -47,11 +47,11 @@ export class ForgotPasswordService {
 
         // Send OTP email
         try {
-            await this.emailService.sendForgotPasswordOtp(email, otp);
-            this.logger.log(`OTP sent successfully to ${email}`);
+            await this.emailService.sendEmailVerification(email, otp);
+            this.logger.log(`Verification OTP sent successfully to ${email}`);
         } catch (error) {
-            this.logger.error(`Failed to send OTP email to ${email}`, error);
-            // Don't throw error to maintain security (always return 200)
+            this.logger.error(`Failed to send verification email to ${email}`, error);
+            throw new BadRequestException('Failed to send verification email');
         }
     }
 

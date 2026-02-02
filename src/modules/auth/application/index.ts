@@ -10,3 +10,5 @@ export * from './verify-google-token.service';
 export * from './forgot-password.service';
 export * from './verify-otp.service';
 export * from './reset-password.service';
+export * from './email-verification.service';
+export * from './verify-email-otp.service';

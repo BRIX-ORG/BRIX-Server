@@ -122,6 +122,15 @@ export class EmailService {
         });
     }
 
+    async sendEmailVerification(email: string, otp: string): Promise<void> {
+        const html = this.renderTemplate('verify-email', { otp, email });
+        await this.sendEmail({
+            to: email,
+            subject: 'BRIX - Verify Your Email',
+            html,
+        });
+    }
+
     async sendPasswordResetSuccess(email: string): Promise<void> {
         const html = this.renderTemplate('password-reset-success', { email });
         await this.sendEmail({

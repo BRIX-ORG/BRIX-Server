@@ -16,6 +16,8 @@ import {
     ForgotPasswordService,
     VerifyOtpService,
     ResetPasswordService,
+    EmailVerificationService,
+    VerifyEmailOtpService,
 } from './application';
 import { LocalStrategy } from './strategies';
 import { JwtStrategy } from '@/common/strategies';
@@ -56,6 +58,8 @@ import { EmailModule } from '@/email';
         ForgotPasswordService,
         VerifyOtpService,
         ResetPasswordService,
+        EmailVerificationService,
+        VerifyEmailOtpService,
     ],
     exports: [JwtTokenService, PasswordService],
 })

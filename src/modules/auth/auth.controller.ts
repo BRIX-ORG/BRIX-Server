@@ -17,6 +17,8 @@ import {
     ForgotPasswordService,
     VerifyOtpService,
     ResetPasswordService,
+    EmailVerificationService,
+    VerifyEmailOtpService,
 } from '@auth/application';
 import {
     RegisterDto,
@@ -26,6 +28,8 @@ import {
     ForgotPasswordDto,
     VerifyOtpDto,
     ResetPasswordDto,
+    EmailVerificationDto,
+    VerifyEmailDto,
 } from '@auth/dto';
 import { LocalAuthGuard } from '@auth/guards';
 import { CurrentUser } from '@/common';
@@ -46,6 +50,8 @@ export class AuthController {
         private readonly forgotPasswordService: ForgotPasswordService,
         private readonly verifyOtpService: VerifyOtpService,
         private readonly resetPasswordService: ResetPasswordService,
+        private readonly emailVerificationService: EmailVerificationService,
+        private readonly verifyEmailOtpService: VerifyEmailOtpService,
     ) {}
 
     @Post('register')
@@ -186,9 +192,19 @@ export class AuthController {
         status: 200,
         description: 'User successfully logged out',
         schema: {
-            properties: {
-                message: { type: 'string', example: 'Logged out successfully' },
-            },
+            allOf: [
+                { $ref: getSchemaPath(ApiResponseDto) },
+                {
+                    properties: {
+                        data: {
+                            type: 'object',
+                            properties: {
+                                message: { type: 'string', example: 'Logged out successfully' },
+                            },
+                        },
+                    },
+                },
+            ],
         },
     })
     @ApiResponse({
@@ -233,6 +249,7 @@ export class AuthController {
         status: 409,
         description: 'Email already exists with a different provider',
     })
+    @ApiBody({ type: GoogleAuthDto })
     async googleAuth(@Body() dto: GoogleAuthDto): Promise<AuthResponse> {
         const result = await this.verifyGoogleTokenService.execute(dto.idToken);
 
@@ -259,11 +276,25 @@ export class AuthController {
         status: 200,
         description: 'Request processed (always returns 200 for security)',
         schema: {
-            properties: {
-                message: { type: 'string', example: 'If the email exists, an OTP has been sent' },
-            },
+            allOf: [
+                { $ref: getSchemaPath(ApiResponseDto) },
+                {
+                    properties: {
+                        data: {
+                            type: 'object',
+                            properties: {
+                                message: {
+                                    type: 'string',
+                                    example: 'If the email exists, an OTP has been sent',
+                                },
+                            },
+                        },
+                    },
+                },
+            ],
         },
     })
+    @ApiBody({ type: ForgotPasswordDto })
     async forgotPassword(@Body() dto: ForgotPasswordDto): Promise<{ message: string }> {
         await this.forgotPasswordService.execute(dto.email);
         return { message: 'If the email exists, an OTP has been sent' };
@@ -276,15 +307,29 @@ export class AuthController {
         status: 200,
         description: 'OTP verified successfully',
         schema: {
-            properties: {
-                resetToken: { type: 'string', example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' },
-            },
+            allOf: [
+                { $ref: getSchemaPath(ApiResponseDto) },
+                {
+                    properties: {
+                        data: {
+                            type: 'object',
+                            properties: {
+                                resetToken: {
+                                    type: 'string',
+                                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+                                },
+                            },
+                        },
+                    },
+                },
+            ],
         },
     })
     @ApiResponse({
         status: 401,
         description: 'Invalid or expired OTP',
     })
+    @ApiBody({ type: VerifyOtpDto })
     async verifyOtp(@Body() dto: VerifyOtpDto): Promise<{ resetToken: string }> {
         return await this.verifyOtpService.execute(dto.email, dto.otp);
     }
@@ -296,17 +341,95 @@ export class AuthController {
         status: 200,
         description: 'Password reset successfully',
         schema: {
-            properties: {
-                message: { type: 'string', example: 'Password reset successfully' },
-            },
+            allOf: [
+                { $ref: getSchemaPath(ApiResponseDto) },
+                {
+                    properties: {
+                        data: {
+                            type: 'object',
+                            properties: {
+                                message: { type: 'string', example: 'Password reset successfully' },
+                            },
+                        },
+                    },
+                },
+            ],
         },
     })
     @ApiResponse({
         status: 401,
         description: 'Invalid or expired reset token',
     })
+    @ApiBody({ type: ResetPasswordDto })
     async resetPassword(@Body() dto: ResetPasswordDto): Promise<{ message: string }> {
         await this.resetPasswordService.execute(dto.email, dto.resetToken, dto.newPassword);
         return { message: 'Password reset successfully' };
+    }
+
+    @Post('verify-email/send')
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Send email verification OTP' })
+    @ApiResponse({
+        status: 200,
+        description: 'Verification OTP sent successfully',
+        schema: {
+            allOf: [
+                { $ref: getSchemaPath(ApiResponseDto) },
+                {
+                    properties: {
+                        data: {
+                            type: 'object',
+                            properties: {
+                                message: {
+                                    type: 'string',
+                                    example: 'Verification code sent to email',
+                                },
+                            },
+                        },
+                    },
+                },
+            ],
+        },
+    })
+    @ApiResponse({
+        status: 400,
+        description: 'Email not found, already verified, or not local auth',
+    })
+    @ApiBody({ type: EmailVerificationDto })
+    async sendEmailVerification(@Body() dto: EmailVerificationDto): Promise<{ message: string }> {
+        await this.emailVerificationService.execute(dto.email);
+        return { message: 'Verification code sent to email' };
+    }
+
+    @Post('verify-email/verify')
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Verify email with OTP' })
+    @ApiResponse({
+        status: 200,
+        description: 'Email verified successfully',
+        schema: {
+            allOf: [
+                { $ref: getSchemaPath(ApiResponseDto) },
+                {
+                    properties: {
+                        data: {
+                            type: 'object',
+                            properties: {
+                                message: { type: 'string', example: 'Email verified successfully' },
+                            },
+                        },
+                    },
+                },
+            ],
+        },
+    })
+    @ApiResponse({
+        status: 401,
+        description: 'Invalid or expired OTP',
+    })
+    @ApiBody({ type: VerifyEmailDto })
+    async verifyEmail(@Body() dto: VerifyEmailDto): Promise<{ message: string }> {
+        await this.verifyEmailOtpService.execute(dto.email, dto.otp);
+        return { message: 'Email verified successfully' };
     }
 }
