@@ -21,7 +21,8 @@
             "@auth/*": ["src/modules/auth/*"],
             "@firebase/*": ["src/firebase/*"],
             "@redis/*": ["src/redis/*"],
-            "@email/*": ["src/email/*"]
+            "@email/*": ["src/email/*"],
+            "@cloudinary/*": ["src/cloudinary/*"]
         },
         "incremental": true,
         "skipLibCheck": true,
@@ -30,6 +31,6 @@
         "noImplicitAny": false,
         "strictBindCallApply": false,
         "noFallthroughCasesInSwitch": false,
-        "types": ["node", "jest"]
+        "types": ["node", "jest", "multer"]
     }
 }

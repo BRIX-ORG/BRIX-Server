@@ -3,7 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from '@/app.controller';
 import { AppService } from '@/app.service';
-import { appConfig } from '@/config';
+import { appConfig, cloudinaryConfig } from '@/config';
 import { PrismaModule } from '@/prisma';
 import { UsersModule } from '@/modules/users';
 import { AuthModule } from '@/modules/auth';
@@ -11,13 +11,15 @@ import { FirebaseModule } from '@/firebase';
 import { RedisModule } from '@/redis';
 import { EmailModule } from '@/email';
 import { QueueModule } from '@/queue';
+import { CloudinaryModule } from '@/cloudinary';
+import { MinioModule } from '@/minio';
 import { LoggerMiddleware } from '@/common';
 
 @Module({
     imports: [
         ConfigModule.forRoot({
             isGlobal: true,
-            load: [appConfig],
+            load: [appConfig, cloudinaryConfig],
             envFilePath: ['.env', '.env.local'],
         }),
         ScheduleModule.forRoot(),
@@ -25,6 +27,8 @@ import { LoggerMiddleware } from '@/common';
         RedisModule,
         EmailModule,
         QueueModule,
+        CloudinaryModule,
+        MinioModule,
         PrismaModule,
         UsersModule,
         AuthModule,
