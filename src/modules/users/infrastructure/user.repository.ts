@@ -51,6 +51,7 @@ export class UserRepository {
                 fullName: data.fullName,
                 email: data.email,
                 password: data.password,
+                gender: data.gender,
                 phone: data.phone ?? null,
                 avatar: data.avatar ?? null,
                 provider: data.provider ?? 'LOCAL',

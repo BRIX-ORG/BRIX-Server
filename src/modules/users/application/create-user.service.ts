@@ -20,6 +20,7 @@ export class CreateUserService {
             fullName: dto.fullName,
             email: dto.email,
             password: dto.password,
+            gender: dto.gender,
             phone: dto.phone,
         });
 

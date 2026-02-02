@@ -22,6 +22,13 @@ export class UserEntity {
 
     readonly password: string;
 
+    @ApiProperty({
+        example: 'MALE',
+        description: 'The gender of the user',
+        enum: ['MALE', 'FEMALE', 'OTHER'],
+    })
+    readonly gender: 'MALE' | 'FEMALE' | 'OTHER';
+
     @ApiProperty({ example: 'https://example.com/avatar.png', required: false })
     readonly avatar: string | null;
 
@@ -64,6 +71,7 @@ export class UserEntity {
         this.email = props.email;
         this.phone = props.phone;
         this.password = props.password;
+        this.gender = props.gender;
         this.avatar = props.avatar;
         this.background = props.background;
         this.address = props.address;

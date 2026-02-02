@@ -21,6 +21,13 @@ export class UserResponseDto {
     phone: string | null;
 
     @ApiProperty({
+        example: 'MALE',
+        description: 'The gender of the user',
+        enum: ['MALE', 'FEMALE', 'OTHER'],
+    })
+    gender: 'MALE' | 'FEMALE' | 'OTHER';
+
+    @ApiProperty({
         example: 'https://example.com/avatar.png',
         description: 'User avatar URL',
         required: false,
@@ -78,6 +85,7 @@ export class UserResponseDto {
         dto.fullName = user.fullName;
         dto.email = user.email;
         dto.phone = user.phone;
+        dto.gender = user.gender;
         dto.avatar = user.avatar;
         dto.background = user.background;
         dto.address = user.address;

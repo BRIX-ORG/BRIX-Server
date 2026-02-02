@@ -61,6 +61,7 @@ export class VerifyGoogleTokenService {
                     fullName: name ?? email.split('@')[0],
                     email,
                     password: uid, // Use Firebase UID as password placeholder
+                    gender: 'OTHER', // Default gender for Google auth
                     avatar: picture ?? null,
                     provider: 'GOOGLE',
                 });

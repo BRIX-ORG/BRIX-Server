@@ -5,6 +5,7 @@ export interface UserEntityProps {
     email: string;
     phone: string | null;
     password: string;
+    gender: 'MALE' | 'FEMALE' | 'OTHER';
     avatar: string | null;
     background: string | null;
     address: string | null;
@@ -23,6 +24,7 @@ export interface CreateUserData {
     fullName: string;
     email: string;
     password: string;
+    gender: 'MALE' | 'FEMALE' | 'OTHER';
     phone?: string;
     avatar?: string | null;
     provider?: 'LOCAL' | 'GOOGLE';

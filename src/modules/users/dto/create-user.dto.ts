@@ -7,6 +7,7 @@ import {
     IsNotEmpty,
     Matches,
     MaxLength,
+    IsEnum,
 } from 'class-validator';
 
 export class CreateUserDto {
@@ -56,4 +57,13 @@ export class CreateUserDto {
     })
     @MaxLength(15, { message: 'Phone number cannot exceed 15 characters' })
     phone?: string;
+
+    @ApiProperty({
+        example: 'MALE',
+        description: 'Gender of the user',
+        enum: ['MALE', 'FEMALE', 'OTHER'],
+    })
+    @IsEnum(['MALE', 'FEMALE', 'OTHER'], { message: 'Gender must be MALE, FEMALE, or OTHER' })
+    @IsNotEmpty({ message: 'Gender is required' })
+    gender: 'MALE' | 'FEMALE' | 'OTHER';
 }

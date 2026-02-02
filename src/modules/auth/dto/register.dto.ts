@@ -6,6 +6,7 @@ import {
     IsOptional,
     Matches,
     MaxLength,
+    IsEnum,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -52,6 +53,15 @@ export class RegisterDto {
     })
     @MaxLength(15, { message: 'Phone number cannot exceed 15 characters' })
     phone?: string;
+
+    @ApiProperty({
+        example: 'MALE',
+        description: 'Gender of the user',
+        enum: ['MALE', 'FEMALE', 'OTHER'],
+    })
+    @IsEnum(['MALE', 'FEMALE', 'OTHER'], { message: 'Gender must be MALE, FEMALE, or OTHER' })
+    @IsNotEmpty({ message: 'Gender is required' })
+    gender: 'MALE' | 'FEMALE' | 'OTHER';
 
     @ApiProperty({
         example: 'SecurePassword123!',

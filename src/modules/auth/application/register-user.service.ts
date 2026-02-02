@@ -39,6 +39,7 @@ export class RegisterUserService {
             fullName: dto.fullName,
             email: dto.email,
             password: hashedPassword,
+            gender: dto.gender,
             phone: dto.phone,
         });
 
