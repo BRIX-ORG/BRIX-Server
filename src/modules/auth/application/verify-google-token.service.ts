@@ -66,9 +66,9 @@ export class VerifyGoogleTokenService {
                     provider: 'GOOGLE',
                 });
 
-                // Update isVerified to true for Google users
-                user = await this.userRepository.update(user.id, {
-                    isVerified: true,
+                // Update verifiedAt timestamp for Google users
+                await this.userRepository.update(user.id, {
+                    verifiedAt: new Date(),
                 });
             }
 

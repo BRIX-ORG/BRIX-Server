@@ -44,6 +44,7 @@
         ]
     },
     "dependencies": {
+        "@nestjs/bullmq": "^11.0.4",
         "@nestjs/common": "^11.1.12",
         "@nestjs/config": "^4.0.2",
         "@nestjs/core": "^11.1.12",
@@ -51,11 +52,13 @@
         "@nestjs/mapped-types": "^2.1.0",
         "@nestjs/passport": "^11.0.5",
         "@nestjs/platform-express": "^11.1.12",
+        "@nestjs/schedule": "^6.1.0",
         "@nestjs/swagger": "^11.2.5",
         "@prisma/adapter-pg": "^7.3.0",
         "@prisma/client": "^7.3.0",
         "@sendgrid/mail": "^8.1.6",
         "bcrypt": "^6.0.0",
+        "bullmq": "^5.67.2",
         "class-transformer": "^0.5.1",
         "class-validator": "^0.14.3",
         "cookie-parser": "^1.4.7",
@@ -82,6 +85,7 @@
         "@nestjs/schematics": "^11.0.9",
         "@nestjs/testing": "^11.1.12",
         "@types/bcrypt": "^6.0.0",
+        "@types/bull": "^4.10.4",
         "@types/cookie-parser": "^1.4.10",
         "@types/express": "^5.0.6",
         "@types/jest": "^30.0.0",
@@ -125,7 +129,16 @@
             "**/*.(t|j)s"
         ],
         "coverageDirectory": "../coverage",
-        "testEnvironment": "node"
+        "testEnvironment": "node",
+        "moduleNameMapper": {
+            "^@/(.*)$": "<rootDir>/$1",
+            "^@modules/(.*)$": "<rootDir>/modules/$1",
+            "^@users/(.*)$": "<rootDir>/modules/users/$1",
+            "^@auth/(.*)$": "<rootDir>/modules/auth/$1",
+            "^@firebase/(.*)$": "<rootDir>/firebase/$1",
+            "^@redis/(.*)$": "<rootDir>/redis/$1",
+            "^@email/(.*)$": "<rootDir>/email/$1"
+        }
     },
     "pnpm": {
         "onlyBuiltDependencies": [

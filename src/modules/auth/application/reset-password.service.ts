@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException, NotFoundException, Logger } from '@nestjs/common';
 import { RedisService } from '@/redis';
-import { EmailService } from '@/email';
+import { QueueService } from '@/queue';
 import { UserRepository } from '@users/infrastructure';
 import { PasswordService } from './password.service';
 import type { ResetTokenData } from '@auth/domain';
@@ -12,7 +12,7 @@ export class ResetPasswordService {
 
     constructor(
         private readonly redisService: RedisService,
-        private readonly emailService: EmailService,
+        private readonly queueService: QueueService,
         private readonly userRepository: UserRepository,
         private readonly passwordService: PasswordService,
     ) {}
@@ -52,12 +52,12 @@ export class ResetPasswordService {
         // Delete reset token from Redis
         await this.redisService.delete(resetKey);
 
-        // Send success email
+        // Add success email job to queue
         try {
-            await this.emailService.sendPasswordResetSuccess(email);
+            await this.queueService.sendPasswordResetSuccessEmail(email);
             this.logger.log(`Password reset successful for ${email}`);
         } catch (error) {
-            this.logger.error(`Failed to send success email to ${email}`, error);
+            this.logger.error(`Failed to queue success email for ${email}`, error);
             // Don't throw - password was already changed
         }
     }

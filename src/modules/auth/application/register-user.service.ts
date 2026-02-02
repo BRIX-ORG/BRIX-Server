@@ -1,7 +1,7 @@
 import { Injectable, ConflictException, Logger } from '@nestjs/common';
 import { UserRepository } from '@users/infrastructure';
 import { PasswordService, JwtTokenService } from '@auth/application';
-import { EmailService } from '@/email';
+import { QueueService } from '@/queue';
 import { RegisterDto } from '@auth/dto';
 import { UserResponseDto } from '@users/dto';
 import { AuthResponse } from '@auth/domain';
@@ -14,7 +14,7 @@ export class RegisterUserService {
         private readonly userRepository: UserRepository,
         private readonly passwordService: PasswordService,
         private readonly jwtTokenService: JwtTokenService,
-        private readonly emailService: EmailService,
+        private readonly queueService: QueueService,
     ) {}
 
     async execute(dto: RegisterDto): Promise<AuthResponse> {
@@ -51,9 +51,9 @@ export class RegisterUserService {
             refreshToken: tokens.refreshToken,
         });
 
-        // Send welcome email (non-blocking)
-        this.emailService.sendWelcomeEmail(user.email).catch((error) => {
-            this.logger.error(`Failed to send welcome email to ${user.email}`, error);
+        // Add welcome email job to queue (non-blocking)
+        this.queueService.sendWelcomeEmail(user.email).catch((error) => {
+            this.logger.error(`Failed to queue welcome email for ${user.email}`, error);
         });
 
         return {

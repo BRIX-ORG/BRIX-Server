@@ -49,15 +49,15 @@ export class VerifyEmailOtpService {
             );
         }
 
-        // OTP is valid - update user isVerified
+        // OTP is valid - update user verifiedAt timestamp
         const user = await this.userRepository.findByEmail(email);
 
         if (!user) {
             throw new BadRequestException('User not found');
         }
 
-        // Update user isVerified to true
-        await this.userRepository.update(user.id, { isVerified: true });
+        // Update user verifiedAt to current timestamp
+        await this.userRepository.update(user.id, { verifiedAt: new Date() });
 
         // Delete OTP from Redis
         await this.redisService.delete(otpKey);

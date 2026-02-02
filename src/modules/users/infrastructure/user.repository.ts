@@ -71,8 +71,9 @@ export class UserRepository {
                 address: data.address,
                 shortDescription: data.shortDescription,
                 trustScore: data.trustScore,
+                password: data.password,
                 refreshToken: data.refreshToken,
-                isVerified: data.isVerified,
+                verifiedAt: data.verifiedAt,
             },
         });
         return new UserEntity(user);
@@ -81,6 +82,34 @@ export class UserRepository {
     async delete(id: string): Promise<void> {
         await this.prisma.user.delete({
             where: { id },
+        });
+    }
+
+    async deleteUnverifiedUsers(olderThanMinutes: number): Promise<number> {
+        const cutoffTime = new Date();
+        cutoffTime.setMinutes(cutoffTime.getMinutes() - olderThanMinutes);
+
+        const result = await this.prisma.user.deleteMany({
+            where: {
+                verifiedAt: null,
+                provider: 'LOCAL',
+                createdAt: { lt: cutoffTime },
+            },
+        });
+
+        return result.count;
+    }
+
+    async countUnverifiedUsers(olderThanMinutes: number): Promise<number> {
+        const cutoffTime = new Date();
+        cutoffTime.setMinutes(cutoffTime.getMinutes() - olderThanMinutes);
+
+        return this.prisma.user.count({
+            where: {
+                verifiedAt: null,
+                provider: 'LOCAL',
+                createdAt: { lt: cutoffTime },
+            },
         });
     }
 

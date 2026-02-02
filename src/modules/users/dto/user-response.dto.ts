@@ -61,10 +61,11 @@ export class UserResponseDto {
     provider: 'LOCAL' | 'GOOGLE';
 
     @ApiProperty({
-        example: false,
-        description: 'Whether the email is verified',
+        example: null,
+        nullable: true,
+        description: 'When the email was verified',
     })
-    isVerified: boolean;
+    verifiedAt: Date | null;
 
     @ApiProperty({
         example: '2024-01-01T00:00:00Z',
@@ -93,7 +94,7 @@ export class UserResponseDto {
         dto.trustScore = user.trustScore;
         dto.role = user.role;
         dto.provider = user.provider;
-        dto.isVerified = user.isVerified;
+        dto.verifiedAt = user.verifiedAt;
         dto.createdAt = user.createdAt;
         dto.updatedAt = user.updatedAt;
         return dto;

@@ -6,6 +6,7 @@ import {
     UpdateProfileService,
     FindUserService,
     DeleteUserService,
+    UserCleanupService,
 } from './application';
 
 @Module({
@@ -18,6 +19,7 @@ import {
         UpdateProfileService,
         FindUserService,
         DeleteUserService,
+        UserCleanupService,
     ],
     exports: [FindUserService, CreateUserService, UserRepository],
 })

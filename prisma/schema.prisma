@@ -49,7 +49,7 @@ model User {
   trustScore       Float    @default(0) @map("trust_score")
   role             Role     @default(USER)
   provider         Provider @default(LOCAL)
-  isVerified       Boolean  @default(false) @map("is_verified")
+  verifiedAt       DateTime? @map("verified_at")
   refreshToken     String?  @map("refresh_token")
   createdAt        DateTime @default(now()) @map("created_at")
   updatedAt        DateTime @updatedAt @map("updated_at")
@@ -62,7 +62,7 @@ model User {
 model Brick {
   id           String    @id @default(uuid()) @db.Uuid
   userId       String    @map("user_id") @db.Uuid
-  user         User      @relation(fields: [userId], references: [id])
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   mediaUrl     String    @map("media_url")
   thumbnailUrl String?   @map("thumbnail_url")
   watermarkUrl String?   @map("watermark_url")
@@ -82,14 +82,14 @@ model Brick {
 }
 
 model BrickMetadata {
-  id         String  @id @default(uuid()) @db.Uuid
-  brickId    String  @unique @map("brick_id") @db.Uuid
-  brick      Brick   @relation(fields: [brickId], references: [id])
-  rawExif    Json?   @map("raw_exif")
-  modelData  Json?   @map("model_data")
-  hashSha256 String? @map("hash_sha256")
-  onChainTx  String? @map("on_chain_tx")
-  isVerified Boolean @default(false) @map("is_verified")
+  id         String    @id @default(uuid()) @db.Uuid
+  brickId    String    @unique @map("brick_id") @db.Uuid
+  brick      Brick     @relation(fields: [brickId], references: [id], onDelete: Cascade)
+  rawExif    Json?     @map("raw_exif")
+  modelData  Json?     @map("model_data")
+  hashSha256 String?   @map("hash_sha256")
+  onChainTx  String?   @map("on_chain_tx")
+  verifiedAt DateTime? @map("verified_at")
 
   @@map("brick_metadata")
 }

@@ -25,6 +25,7 @@ import {
     UpdateProfileService,
     FindUserService,
     DeleteUserService,
+    UserCleanupService,
 } from '@users/application';
 import { CreateUserDto, UpdateProfileDto, UserResponseDto } from '@users/dto';
 
@@ -37,6 +38,7 @@ export class UsersController {
         private readonly updateProfileService: UpdateProfileService,
         private readonly findUserService: FindUserService,
         private readonly deleteUserService: DeleteUserService,
+        private readonly userCleanupService: UserCleanupService,
     ) {}
 
     @Get()
@@ -149,5 +151,31 @@ export class UsersController {
     @ApiResponse({ status: 404, description: 'User not found.' })
     async remove(@Param('id') id: string): Promise<void> {
         return this.deleteUserService.execute(id);
+    }
+
+    @Post('cleanup-unverified')
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Manual cleanup of unverified users older than 15 minutes' })
+    @ApiOkResponse({
+        description: 'Cleanup completed successfully.',
+        schema: {
+            allOf: [
+                { $ref: getSchemaPath(ApiResponseDto) },
+                {
+                    properties: {
+                        data: {
+                            type: 'object',
+                            properties: {
+                                deletedCount: { type: 'number', example: 3 },
+                            },
+                        },
+                    },
+                },
+            ],
+        },
+    })
+    async cleanupUnverifiedUsers(): Promise<{ deletedCount: number }> {
+        const deletedCount = await this.userCleanupService.cleanupUnverifiedUsersNow();
+        return { deletedCount };
     }
 }

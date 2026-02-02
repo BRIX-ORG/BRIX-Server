@@ -27,7 +27,7 @@ export class EmailVerificationService {
         }
 
         // Check if already verified
-        if (user.isVerified) {
+        if (user.verifiedAt) {
             throw new BadRequestException('Email is already verified');
         }
 

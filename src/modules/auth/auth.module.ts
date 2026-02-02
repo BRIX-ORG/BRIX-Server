@@ -24,12 +24,14 @@ import { JwtStrategy } from '@/common/strategies';
 import { UsersModule } from '@users/users.module';
 import { RedisModule } from '@/redis';
 import { EmailModule } from '@/email';
+import { QueueModule } from '@/queue';
 
 @Module({
     imports: [
         UsersModule,
         RedisModule,
         EmailModule,
+        QueueModule,
         PassportModule,
         JwtModule.registerAsync({
             imports: [ConfigModule],
