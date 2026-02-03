@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { UserEntity } from '@users/domain';
+import { CloudinaryImageDto } from './cloudinary-image.dto';
 
 export class UserResponseDto {
     @ApiProperty({
@@ -28,18 +29,34 @@ export class UserResponseDto {
     gender: 'MALE' | 'FEMALE' | 'OTHER';
 
     @ApiProperty({
-        example: 'https://example.com/avatar.png',
-        description: 'User avatar URL',
+        type: CloudinaryImageDto,
+        description: 'User avatar image data from Cloudinary',
         required: false,
+        nullable: true,
+        example: {
+            url: 'https://res.cloudinary.com/your-cloud/image/upload/v1234567890/BRIX/users/avatars/abc123.webp',
+            publicId: 'BRIX/users/avatars/abc123',
+            width: 400,
+            height: 400,
+            format: 'webp',
+        },
     })
-    avatar: string | null;
+    avatar: CloudinaryImageDto | null;
 
     @ApiProperty({
-        example: 'https://example.com/bg.png',
-        description: 'User background image URL',
+        type: CloudinaryImageDto,
+        description: 'User background image data from Cloudinary',
         required: false,
+        nullable: true,
+        example: {
+            url: 'https://res.cloudinary.com/your-cloud/image/upload/v1234567890/BRIX/users/backgrounds/xyz789.webp',
+            publicId: 'BRIX/users/backgrounds/xyz789',
+            width: 1920,
+            height: 1080,
+            format: 'webp',
+        },
     })
-    background: string | null;
+    background: CloudinaryImageDto | null;
 
     @ApiProperty({ example: '123 Main St', description: 'User address', required: false })
     address: string | null;

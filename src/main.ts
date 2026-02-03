@@ -35,6 +35,7 @@ async function bootstrap() {
 
     // Global prefix
     const apiPrefix = configService.get<string>('app.apiPrefix', 'api');
+    const minioConsolePort = configService.get<string>('minio.consolePort', '9001');
     app.setGlobalPrefix(apiPrefix);
 
     // CORS
@@ -60,6 +61,11 @@ async function bootstrap() {
     logger.log(
         pc.blueBright(`Swagger documentation is available at: `) +
             pc.cyan(`http://localhost:${port}/${apiPrefix}/docs`),
+    );
+
+    logger.log(
+        pc.blueBright(`MinIO Console is available at: `) +
+            pc.cyan(`http://localhost:${minioConsolePort}`),
     );
 }
 bootstrap().catch((err) => {

@@ -42,8 +42,8 @@ model User {
   phone            String?
   password         String
   gender           Gender   @default(OTHER)
-  avatar           String?
-  background       String?
+  avatar           Json?     @db.JsonB
+  background       Json?     @db.JsonB
   address          String?
   shortDescription String?  @map("short_description")
   trustScore       Float    @default(0) @map("trust_score")

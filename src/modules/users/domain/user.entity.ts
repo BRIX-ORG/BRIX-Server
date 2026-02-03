@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { UserEntityProps } from './user.types';
+import { UserEntityProps, CloudinaryImageData } from './user.types';
 
 export class UserEntity {
     @ApiProperty({
@@ -29,11 +29,33 @@ export class UserEntity {
     })
     readonly gender: 'MALE' | 'FEMALE' | 'OTHER';
 
-    @ApiProperty({ example: 'https://example.com/avatar.png', required: false })
-    readonly avatar: string | null;
+    @ApiProperty({
+        example: {
+            url: 'https://res.cloudinary.com/...',
+            publicId: 'BRIX/users/avatars/abc123',
+            width: 400,
+            height: 400,
+            format: 'webp',
+        },
+        description: 'User avatar image data from Cloudinary',
+        required: false,
+        nullable: true,
+    })
+    readonly avatar: CloudinaryImageData | null;
 
-    @ApiProperty({ example: 'https://example.com/bg.png', required: false })
-    readonly background: string | null;
+    @ApiProperty({
+        example: {
+            url: 'https://res.cloudinary.com/...',
+            publicId: 'BRIX/users/backgrounds/xyz789',
+            width: 1920,
+            height: 1080,
+            format: 'webp',
+        },
+        description: 'User background image data from Cloudinary',
+        required: false,
+        nullable: true,
+    })
+    readonly background: CloudinaryImageData | null;
 
     @ApiProperty({ example: '123 Main St', required: false })
     readonly address: string | null;

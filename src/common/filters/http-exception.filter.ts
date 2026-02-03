@@ -33,11 +33,19 @@ export class HttpExceptionFilter implements ExceptionFilter {
                 : String(exceptionMessage);
         }
 
-        // Log the error
+        // Log the error with full details
         this.logger.error(
             `${request.method} ${request.url} - Status: ${status} - Message: ${message}`,
             exception.stack,
         );
+
+        // Log full exception response for debugging (especially validation errors)
+        if (status === 400) {
+            this.logger.error(
+                `Full exception response: ${JSON.stringify(exceptionResponse, null, 2)}`,
+            );
+            this.logger.error(`Request body: ${JSON.stringify(request.body, null, 2)}`);
+        }
 
         // Create standardized error response
         const errorResponse: ApiResponseDto<null> = {
@@ -73,6 +81,15 @@ export class AllExceptionsFilter implements ExceptionFilter {
             `${request.method} ${request.url} - Status: ${status} - Message: ${message}`,
             exception instanceof Error ? exception.stack : String(exception),
         );
+
+        // Log full details for 400 errors
+        if (status === 400 && exception instanceof HttpException) {
+            const exceptionResponse = exception.getResponse();
+            this.logger.error(
+                `Full exception response: ${JSON.stringify(exceptionResponse, null, 2)}`,
+            );
+            this.logger.error(`Request body: ${JSON.stringify(request.body, null, 2)}`);
+        }
 
         // Create standardized error response
         const errorResponse: ApiResponseDto<null> = {

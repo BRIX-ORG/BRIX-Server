@@ -4,6 +4,19 @@ import { UserRepository } from '@users/infrastructure';
 import { JwtTokenService } from '@auth/application';
 import type { AuthResponse } from '@auth/domain';
 import { UserResponseDto } from '@users/dto';
+import type { CloudinaryImageData } from '@users/domain';
+
+// Helper to create CloudinaryImageData from Google picture URL
+function createGoogleAvatarData(pictureUrl: string | undefined): CloudinaryImageData | null {
+    if (!pictureUrl) return null;
+    return {
+        url: pictureUrl,
+        publicId: '',
+        width: 0,
+        height: 0,
+        format: '',
+    };
+}
 
 @Injectable()
 export class VerifyGoogleTokenService {
@@ -39,10 +52,14 @@ export class VerifyGoogleTokenService {
                     );
                 }
 
-                // Update user info if needed (avatar, name, etc.)
-                if (user.avatar !== picture || user.fullName !== (name || email.split('@')[0])) {
+                // Update user info if Google picture or name changed
+                const currentAvatarUrl = user.avatar?.url;
+                if (
+                    currentAvatarUrl !== picture ||
+                    user.fullName !== (name || email.split('@')[0])
+                ) {
                     user = await this.userRepository.update(user.id, {
-                        avatar: picture ?? undefined,
+                        avatar: createGoogleAvatarData(picture),
                         fullName: name ?? user.fullName,
                     });
                 }
@@ -56,13 +73,14 @@ export class VerifyGoogleTokenService {
                     ? `${username}${Math.floor(Math.random() * 10000)}`
                     : username;
 
+                // Store Google picture URL in CloudinaryImageData format
                 user = await this.userRepository.create({
                     username: finalUsername,
                     fullName: name ?? email.split('@')[0],
                     email,
                     password: uid, // Use Firebase UID as password placeholder
                     gender: 'OTHER', // Default gender for Google auth
-                    avatar: picture ?? null,
+                    avatar: createGoogleAvatarData(picture),
                     provider: 'GOOGLE',
                 });
 

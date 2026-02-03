@@ -1,3 +1,14 @@
+/**
+ * Cloudinary image data stored as JSONB
+ */
+export interface CloudinaryImageData {
+    url: string;
+    publicId: string;
+    width?: number;
+    height?: number;
+    format?: string;
+}
+
 export interface UserEntityProps {
     id: string;
     username: string;
@@ -6,8 +17,8 @@ export interface UserEntityProps {
     phone: string | null;
     password: string;
     gender: 'MALE' | 'FEMALE' | 'OTHER';
-    avatar: string | null;
-    background: string | null;
+    avatar: CloudinaryImageData | null;
+    background: CloudinaryImageData | null;
     address: string | null;
     shortDescription: string | null;
     trustScore: number;
@@ -26,15 +37,16 @@ export interface CreateUserData {
     password: string;
     gender: 'MALE' | 'FEMALE' | 'OTHER';
     phone?: string;
-    avatar?: string | null;
+    avatar?: CloudinaryImageData | null;
     provider?: 'LOCAL' | 'GOOGLE';
 }
 
 export interface UpdateProfileData {
     fullName?: string;
     phone?: string;
-    avatar?: string;
-    background?: string;
+    gender?: 'MALE' | 'FEMALE' | 'OTHER';
+    avatar?: CloudinaryImageData | null;
+    background?: CloudinaryImageData | null;
     address?: string;
     shortDescription?: string;
     trustScore?: number;

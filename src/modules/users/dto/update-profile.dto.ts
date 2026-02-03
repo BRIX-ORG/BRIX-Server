@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, MaxLength, Matches } from 'class-validator';
+import { IsString, IsOptional, MaxLength, Matches, IsEnum } from 'class-validator';
+import { Gender } from '@prisma/client';
 
 export class UpdateProfileDto {
     @ApiProperty({ example: 'John Doe', description: 'The full name of the user', required: false })
@@ -21,17 +22,15 @@ export class UpdateProfileDto {
     @MaxLength(15, { message: 'Phone number cannot exceed 15 characters' })
     phone?: string;
 
-    @ApiProperty({ example: 'https://example.com/avatar.png', required: false })
+    @ApiProperty({
+        example: 'MALE',
+        description: 'The gender of the user',
+        enum: Gender,
+        required: false,
+    })
     @IsOptional()
-    @IsString({ message: 'Avatar URL must be a string' })
-    @MaxLength(255, { message: 'Avatar URL cannot exceed 255 characters' })
-    avatar?: string;
-
-    @ApiProperty({ example: 'https://example.com/bg.png', required: false })
-    @IsOptional()
-    @IsString({ message: 'Background URL must be a string' })
-    @MaxLength(255, { message: 'Background URL cannot exceed 255 characters' })
-    background?: string;
+    @IsEnum(Gender, { message: 'Gender must be MALE, FEMALE, or OTHER' })
+    gender?: Gender;
 
     @ApiProperty({ example: '123 Main St', required: false })
     @IsOptional()

@@ -4,9 +4,12 @@ import { UserRepository } from './infrastructure';
 import {
     CreateUserService,
     UpdateProfileService,
+    UpdatePasswordService,
     FindUserService,
     DeleteUserService,
     UserCleanupService,
+    UpdateAvatarService,
+    UpdateBackgroundService,
 } from './application';
 
 @Module({
@@ -17,9 +20,12 @@ import {
         // Application Services (Use Cases)
         CreateUserService,
         UpdateProfileService,
+        UpdatePasswordService,
         FindUserService,
         DeleteUserService,
         UserCleanupService,
+        UpdateAvatarService,
+        UpdateBackgroundService,
     ],
     exports: [FindUserService, CreateUserService, UserRepository],
 })

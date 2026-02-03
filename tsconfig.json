@@ -22,7 +22,8 @@
             "@firebase/*": ["src/firebase/*"],
             "@redis/*": ["src/redis/*"],
             "@email/*": ["src/email/*"],
-            "@cloudinary/*": ["src/cloudinary/*"]
+            "@cloudinary/*": ["src/cloudinary/*"],
+            "@minio/*": ["src/minio/*"]
         },
         "incremental": true,
         "skipLibCheck": true,

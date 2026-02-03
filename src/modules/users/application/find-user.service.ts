@@ -18,6 +18,14 @@ export class FindUserService {
         return user;
     }
 
+    async findByIdOrUsername(idOrUsername: string): Promise<UserEntity> {
+        const user = await this.userRepository.findByIdOrUsername(idOrUsername);
+        if (!user) {
+            throw new NotFoundException(`User "${idOrUsername}" not found`);
+        }
+        return user;
+    }
+
     async findByEmail(email: string): Promise<UserEntity | null> {
         return this.userRepository.findByEmail(email);
     }

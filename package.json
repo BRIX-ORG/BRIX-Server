@@ -140,7 +140,9 @@
             "^@auth/(.*)$": "<rootDir>/modules/auth/$1",
             "^@firebase/(.*)$": "<rootDir>/firebase/$1",
             "^@redis/(.*)$": "<rootDir>/redis/$1",
-            "^@email/(.*)$": "<rootDir>/email/$1"
+            "^@email/(.*)$": "<rootDir>/email/$1",
+            "^@cloudinary/(.*)$": "<rootDir>/cloudinary/$1",
+            "^@minio/(.*)$": "<rootDir>/minio/$1"
         }
     },
     "pnpm": {
