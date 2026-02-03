@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { UsersController } from './users.controller';
 import { UserRepository } from './infrastructure';
+import { PasswordService } from '@/common';
 import {
     CreateUserService,
     UpdateProfileService,
@@ -17,6 +18,8 @@ import {
     providers: [
         // Infrastructure
         UserRepository,
+        // Shared Services
+        PasswordService,
         // Application Services (Use Cases)
         CreateUserService,
         UpdateProfileService,

@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException, NotFoundException, Logger } from '@n
 import { RedisService } from '@/redis';
 import { QueueService } from '@/queue';
 import { UserRepository } from '@users/infrastructure';
-import { PasswordService } from './password.service';
+import { PasswordService } from '@/common';
 import type { ResetTokenData } from '@auth/domain';
 import * as crypto from 'crypto';
 

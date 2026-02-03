@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserRepository } from '@users/infrastructure';
-import { PasswordService } from '@auth/application';
+import { PasswordService } from '@/common';
 import type { UserEntity } from '@users/domain';
 
 @Injectable()

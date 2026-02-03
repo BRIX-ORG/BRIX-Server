@@ -1,11 +1,14 @@
 import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { UserRepository } from '@users/infrastructure';
 import { UserEntity } from '@users/domain';
-import * as bcrypt from 'bcrypt';
+import { PasswordService } from '@/common';
 
 @Injectable()
 export class UpdatePasswordService {
-    constructor(private readonly userRepository: UserRepository) {}
+    constructor(
+        private readonly userRepository: UserRepository,
+        private readonly passwordService: PasswordService,
+    ) {}
 
     async execute(
         userId: string,
@@ -19,14 +22,16 @@ export class UpdatePasswordService {
         }
 
         // Verify current password
-        const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+        const isPasswordValid = await this.passwordService.comparePasswords(
+            currentPassword,
+            user.password,
+        );
         if (!isPasswordValid) {
             throw new UnauthorizedException('Current password is incorrect');
         }
 
         // Hash new password
-        const saltRounds = 10;
-        const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+        const hashedPassword = await this.passwordService.hashPassword(newPassword);
 
         // Update password
         const updatedUser = await this.userRepository.update(userId, {

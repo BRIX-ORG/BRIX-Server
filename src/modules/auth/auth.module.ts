@@ -4,7 +4,6 @@ import { PassportModule } from '@nestjs/passport';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthController } from './auth.controller';
 import {
-    PasswordService,
     JwtTokenService,
     RegisterUserService,
     LoginUserService,
@@ -25,6 +24,7 @@ import { UsersModule } from '@users/users.module';
 import { RedisModule } from '@/redis';
 import { EmailModule } from '@/email';
 import { QueueModule } from '@/queue';
+import { PasswordService } from '@/common';
 
 @Module({
     imports: [
@@ -63,6 +63,6 @@ import { QueueModule } from '@/queue';
         EmailVerificationService,
         VerifyEmailOtpService,
     ],
-    exports: [JwtTokenService, PasswordService],
+    exports: [JwtTokenService],
 })
 export class AuthModule {}
