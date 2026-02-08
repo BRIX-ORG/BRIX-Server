@@ -9,6 +9,16 @@ export interface CloudinaryImageData {
     format?: string;
 }
 
+/**
+ * Address data stored as JSONB (from LocationIQ)
+ */
+export interface AddressData {
+    lat: string;
+    lon: string;
+    displayName: string;
+    country?: string;
+}
+
 export interface UserEntityProps {
     id: string;
     username: string;
@@ -19,7 +29,7 @@ export interface UserEntityProps {
     gender: 'MALE' | 'FEMALE' | 'OTHER';
     avatar: CloudinaryImageData | null;
     background: CloudinaryImageData | null;
-    address: string | null;
+    address: AddressData | null;
     shortDescription: string | null;
     trustScore: number;
     role: 'USER' | 'ADMIN';
@@ -47,7 +57,7 @@ export interface UpdateProfileData {
     gender?: 'MALE' | 'FEMALE' | 'OTHER';
     avatar?: CloudinaryImageData | null;
     background?: CloudinaryImageData | null;
-    address?: string;
+    address?: AddressData | null;
     shortDescription?: string;
     trustScore?: number;
     password?: string;

@@ -13,6 +13,7 @@ import { EmailModule } from '@/email';
 import { QueueModule } from '@/queue';
 import { CloudinaryModule } from '@/cloudinary';
 import { MinioModule } from '@/minio';
+import { LocationIqModule } from '@/location-iq';
 import { LoggerMiddleware } from '@/common';
 
 @Module({
@@ -29,6 +30,7 @@ import { LoggerMiddleware } from '@/common';
         QueueModule,
         CloudinaryModule,
         MinioModule,
+        LocationIqModule,
         PrismaModule,
         UsersModule,
         AuthModule,

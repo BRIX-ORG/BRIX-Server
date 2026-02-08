@@ -44,7 +44,7 @@ model User {
   gender           Gender   @default(OTHER)
   avatar           Json?     @db.JsonB
   background       Json?     @db.JsonB
-  address          String?
+  address          Json?     @db.JsonB
   shortDescription String?  @map("short_description")
   trustScore       Float    @default(0) @map("trust_score")
   role             Role     @default(USER)

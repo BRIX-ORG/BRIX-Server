@@ -1,6 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, MaxLength, Matches, IsEnum } from 'class-validator';
+import { IsString, IsOptional, MaxLength, Matches, IsEnum, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 import { Gender } from '@prisma/client';
+import { AddressDto } from './address.dto';
 
 export class UpdateProfileDto {
     @ApiProperty({ example: 'John Doe', description: 'The full name of the user', required: false })
@@ -32,11 +34,21 @@ export class UpdateProfileDto {
     @IsEnum(Gender, { message: 'Gender must be MALE, FEMALE, or OTHER' })
     gender?: Gender;
 
-    @ApiProperty({ example: '123 Main St', required: false })
+    @ApiProperty({
+        type: AddressDto,
+        description: 'User address with location data from LocationIQ',
+        required: false,
+        example: {
+            lat: '10.762622',
+            lon: '106.660172',
+            displayName: 'Ho Chi Minh City, Vietnam',
+            country: 'Vietnam',
+        },
+    })
     @IsOptional()
-    @IsString({ message: 'Address must be a string' })
-    @MaxLength(100, { message: 'Address cannot exceed 100 characters' })
-    address?: string;
+    @ValidateNested()
+    @Type(() => AddressDto)
+    address?: AddressDto;
 
     @ApiProperty({ example: 'Hello, I am John', required: false })
     @IsOptional()

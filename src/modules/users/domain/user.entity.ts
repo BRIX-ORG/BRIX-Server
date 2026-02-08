@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { UserEntityProps, CloudinaryImageData } from './user.types';
+import { UserEntityProps, CloudinaryImageData, AddressData } from './user.types';
 
 export class UserEntity {
     @ApiProperty({
@@ -57,8 +57,18 @@ export class UserEntity {
     })
     readonly background: CloudinaryImageData | null;
 
-    @ApiProperty({ example: '123 Main St', required: false })
-    readonly address: string | null;
+    @ApiProperty({
+        example: {
+            lat: '10.762622',
+            lon: '106.660172',
+            displayName: 'Ho Chi Minh City, Vietnam',
+            country: 'Vietnam',
+        },
+        description: 'User address with location data',
+        required: false,
+        nullable: true,
+    })
+    readonly address: AddressData | null;
 
     @ApiProperty({ example: 'Hello, I am John', required: false })
     readonly shortDescription: string | null;

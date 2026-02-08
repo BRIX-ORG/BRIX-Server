@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { UserEntity } from '@users/domain';
 import { CloudinaryImageDto } from './cloudinary-image.dto';
+import { AddressDto } from './address.dto';
 
 export class UserResponseDto {
     @ApiProperty({
@@ -58,8 +59,19 @@ export class UserResponseDto {
     })
     background: CloudinaryImageDto | null;
 
-    @ApiProperty({ example: '123 Main St', description: 'User address', required: false })
-    address: string | null;
+    @ApiProperty({
+        type: AddressDto,
+        description: 'User address with location data',
+        required: false,
+        nullable: true,
+        example: {
+            lat: '10.762622',
+            lon: '106.660172',
+            displayName: 'Ho Chi Minh City, Vietnam',
+            country: 'Vietnam',
+        },
+    })
+    address: AddressDto | null;
 
     @ApiProperty({
         example: 'Hello, I am John',

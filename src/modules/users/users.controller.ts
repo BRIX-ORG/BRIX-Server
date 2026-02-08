@@ -49,7 +49,7 @@ import {
     CloudinaryImageDto,
 } from '@users/dto';
 
-@ApiTags('users')
+@ApiTags('Users')
 @Controller('users')
 @ApiExtraModels(ApiResponseDto, UserResponseDto, CloudinaryImageDto)
 export class UsersController {

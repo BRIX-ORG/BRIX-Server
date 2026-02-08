@@ -1,6 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/prisma';
-import { UserEntity, CreateUserData, UpdateProfileData, CloudinaryImageData } from '../domain';
+import {
+    UserEntity,
+    CreateUserData,
+    UpdateProfileData,
+    CloudinaryImageData,
+    AddressData,
+} from '../domain';
 import { Prisma, type User } from '@prisma/client';
 
 // Helper function to check if string is a valid UUID
@@ -9,9 +15,9 @@ function isUUID(str: string): boolean {
     return uuidRegex.test(str);
 }
 
-// Helper to convert CloudinaryImageData to Prisma-compatible JSON input
+// Helper to convert JSON data to Prisma-compatible JSON input
 function toJsonInput(
-    data: CloudinaryImageData | null | undefined,
+    data: CloudinaryImageData | AddressData | null | undefined,
 ): Prisma.InputJsonValue | typeof Prisma.JsonNull | undefined {
     if (data === undefined) return undefined;
     if (data === null) return Prisma.JsonNull;
@@ -104,7 +110,7 @@ export class UserRepository {
                 gender: data.gender,
                 avatar: toJsonInput(data.avatar),
                 background: toJsonInput(data.background),
-                address: data.address,
+                address: toJsonInput(data.address),
                 shortDescription: data.shortDescription,
                 trustScore: data.trustScore,
                 password: data.password,
@@ -190,13 +196,14 @@ export class UserRepository {
     }
 
     /**
-     * Maps Prisma User to UserEntityProps, handling JSONB avatar/background fields
+     * Maps Prisma User to UserEntityProps, handling JSONB fields
      */
     private mapUserToEntity(user: User): UserEntity {
         return {
             ...user,
             avatar: user.avatar as CloudinaryImageData | null,
             background: user.background as CloudinaryImageData | null,
+            address: user.address as AddressData | null,
         } as UserEntity;
     }
 }
