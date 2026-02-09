@@ -7,6 +7,8 @@ import { appConfig, cloudinaryConfig } from '@/config';
 import { PrismaModule } from '@/prisma';
 import { UsersModule } from '@/modules/users';
 import { AuthModule } from '@/modules/auth';
+import { FollowsModule } from '@/modules/follows';
+import { NotificationsModule } from '@/modules/notifications';
 import { FirebaseModule } from '@/firebase';
 import { RedisModule } from '@/redis';
 import { EmailModule } from '@/email';
@@ -34,6 +36,8 @@ import { LoggerMiddleware } from '@/common';
         PrismaModule,
         UsersModule,
         AuthModule,
+        FollowsModule,
+        NotificationsModule,
     ],
     controllers: [AppController],
     providers: [AppService],

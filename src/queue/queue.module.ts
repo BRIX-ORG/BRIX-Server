@@ -36,6 +36,9 @@ import { EmailModule } from '@/email';
         BullModule.registerQueue({
             name: 'email',
         }),
+        BullModule.registerQueue({
+            name: 'notifications',
+        }),
         EmailModule,
     ],
     providers: [QueueService, EmailProcessor],

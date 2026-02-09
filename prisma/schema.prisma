@@ -34,6 +34,12 @@ enum Gender {
   OTHER
 }
 
+enum NotificationType {
+  LIKE_BRICK
+  COMMENT_BRICK
+  FOLLOW
+}
+
 model User {
   id               String   @id @default(uuid()) @db.Uuid
   username         String   @unique
@@ -56,7 +62,61 @@ model User {
 
   bricks Brick[]
 
+  // Follow relations
+  followers  Follow[] @relation("Following")
+  following  Follow[] @relation("Follower")
+
+  // Notification relations
+  receivedNotifications  NotificationGroup[] @relation("NotificationRecipient")
+  lastActorNotifications NotificationGroup[] @relation("NotificationLastActor")
+  notificationActors     NotificationActor[] @relation("NotificationActor")
+
   @@map("users")
+}
+
+model Follow {
+  followerId  String   @map("follower_id") @db.Uuid
+  followingId String   @map("following_id") @db.Uuid
+  follower    User     @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@id([followerId, followingId])
+  @@index([followingId], name: "idx_follows_following")
+  @@map("follows")
+}
+
+model NotificationGroup {
+  id          String           @id @default(uuid()) @db.Uuid
+  recipientId String           @map("recipient_id") @db.Uuid
+  recipient   User             @relation("NotificationRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  type        NotificationType
+  brickId     String?          @map("brick_id") @db.Uuid
+  commentId   String?          @map("comment_id") @db.Uuid
+  actorsCount Int              @default(1) @map("actors_count")
+  lastActorId String           @map("last_actor_id") @db.Uuid
+  lastActor   User             @relation("NotificationLastActor", fields: [lastActorId], references: [id], onDelete: Cascade)
+  isRead      Boolean          @default(false) @map("is_read")
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+
+  actors NotificationActor[]
+
+  @@index([recipientId, type, brickId, commentId, updatedAt], name: "idx_notification_group_aggregate")
+  @@index([recipientId, isRead, updatedAt(sort: Desc)], name: "idx_notification_feed")
+  @@map("notification_groups")
+}
+
+model NotificationActor {
+  id                  String            @id @default(uuid()) @db.Uuid
+  notificationGroupId String            @map("notification_group_id") @db.Uuid
+  notificationGroup   NotificationGroup @relation(fields: [notificationGroupId], references: [id], onDelete: Cascade)
+  actorId             String            @map("actor_id") @db.Uuid
+  actor               User              @relation("NotificationActor", fields: [actorId], references: [id], onDelete: Cascade)
+  createdAt           DateTime          @default(now()) @map("created_at")
+
+  @@unique([notificationGroupId, actorId])
+  @@map("notification_actors")
 }
 
 model Brick {

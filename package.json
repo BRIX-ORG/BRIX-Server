@@ -138,6 +138,8 @@
             "^@modules/(.*)$": "<rootDir>/modules/$1",
             "^@users/(.*)$": "<rootDir>/modules/users/$1",
             "^@auth/(.*)$": "<rootDir>/modules/auth/$1",
+            "^@follows/(.*)$": "<rootDir>/modules/follows/$1",
+            "^@notifications/(.*)$": "<rootDir>/modules/notifications/$1",
             "^@firebase/(.*)$": "<rootDir>/firebase/$1",
             "^@redis/(.*)$": "<rootDir>/redis/$1",
             "^@email/(.*)$": "<rootDir>/email/$1",

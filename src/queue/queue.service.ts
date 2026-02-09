@@ -14,7 +14,34 @@ import {
 export class QueueService {
     private readonly logger = new Logger(QueueService.name);
 
-    constructor(@InjectQueue('email') private emailQueue: Queue) {}
+    constructor(
+        @InjectQueue('email') private emailQueue: Queue,
+        @InjectQueue('notifications') private notificationQueue: Queue,
+    ) {}
+
+    // Add a notification flush job with 10 minutes delay
+    async addNotificationFlushJob(
+        type: string,
+        recipientId: string,
+        brickId?: string,
+        commentId?: string,
+        groupId?: string,
+    ): Promise<void> {
+        const jobId = `flush:${type}:${recipientId}:${brickId ?? 'null'}:${commentId ?? 'null'}:${groupId ?? 'new'}`;
+
+        await this.notificationQueue.add(
+            'flush-notification',
+            { type, recipientId, brickId, commentId, groupId },
+            {
+                delay: 10 * 60 * 1000, // 10 minutes
+                jobId, // Unique jobId prevents multiple jobs for same window
+                removeOnComplete: true,
+                removeOnFail: false,
+            },
+        );
+
+        this.logger.log(`Notification flush job added: ${jobId}`);
+    }
 
     // Add a welcome email job to the queue
     async sendWelcomeEmail(email: string, appUrl?: string): Promise<void> {

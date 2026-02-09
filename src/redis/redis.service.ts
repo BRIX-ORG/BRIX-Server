@@ -67,6 +67,26 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
         return await this.client.incr(key);
     }
 
+    async hIncrBy(key: string, field: string, increment: number): Promise<number> {
+        return await this.client.hincrby(key, field, increment);
+    }
+
+    async sAdd(key: string, ...members: string[]): Promise<number> {
+        return await this.client.sadd(key, ...members);
+    }
+
+    async sMembers(key: string): Promise<string[]> {
+        return await this.client.smembers(key);
+    }
+
+    async hSet(key: string, field: string, value: string): Promise<number> {
+        return await this.client.hset(key, field, value);
+    }
+
+    async hGetAll(key: string): Promise<Record<string, string>> {
+        return await this.client.hgetall(key);
+    }
+
     async expire(key: string, ttlSeconds: number): Promise<void> {
         await this.client.expire(key, ttlSeconds);
     }

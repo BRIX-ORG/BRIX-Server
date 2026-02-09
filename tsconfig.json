@@ -19,6 +19,8 @@
             "@modules/*": ["src/modules/*"],
             "@users/*": ["src/modules/users/*"],
             "@auth/*": ["src/modules/auth/*"],
+            "@follows/*": ["src/modules/follows/*"],
+            "@notifications/*": ["src/modules/notifications/*"],
             "@firebase/*": ["src/firebase/*"],
             "@redis/*": ["src/redis/*"],
             "@email/*": ["src/email/*"],
