@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { NotificationsController } from './notifications.controller';
 import { NotificationRepository } from './infrastructure';
@@ -8,7 +8,7 @@ import {
     ReadNotificationService,
     DeleteNotificationService,
 } from './application';
-import { NotificationProcessor } from './infrastructure/notification.processor';
+
 import { RedisModule } from '@redis/redis.module';
 import { QueueModule } from '@/queue/queue.module';
 
@@ -18,7 +18,7 @@ import { QueueModule } from '@/queue/queue.module';
             name: 'notifications',
         }),
         RedisModule,
-        QueueModule,
+        forwardRef(() => QueueModule),
     ],
     controllers: [NotificationsController],
     providers: [
@@ -27,8 +27,7 @@ import { QueueModule } from '@/queue/queue.module';
         GetNotificationsService,
         ReadNotificationService,
         DeleteNotificationService,
-        NotificationProcessor,
     ],
-    exports: [NotificationBatchService],
+    exports: [NotificationBatchService, NotificationRepository],
 })
 export class NotificationsModule {}

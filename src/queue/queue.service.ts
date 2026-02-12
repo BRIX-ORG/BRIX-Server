@@ -27,11 +27,12 @@ export class QueueService {
         commentId?: string,
         groupId?: string,
     ): Promise<void> {
-        const jobId = `flush:${type}:${recipientId}:${brickId ?? 'null'}:${commentId ?? 'null'}:${groupId ?? 'new'}`;
+        const baseKey = `notif:${type}:${recipientId}:${brickId ?? 'null'}:${commentId ?? 'null'}`;
+        const jobId = `flush:${baseKey}`;
 
         await this.notificationQueue.add(
             'flush-notification',
-            { type, recipientId, brickId, commentId, groupId },
+            { type, recipientId, brickId, commentId, groupId, baseKey },
             {
                 delay: 10 * 60 * 1000, // 10 minutes
                 jobId, // Unique jobId prevents multiple jobs for same window

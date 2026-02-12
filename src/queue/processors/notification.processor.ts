@@ -2,9 +2,8 @@ import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { Logger } from '@nestjs/common';
 import { RedisService } from '@redis/redis.service';
-import { NotificationRepository } from './notification.repository';
-import { NotificationType } from '@prisma/client';
-import { NotificationFlushData } from '../domain';
+import { NotificationRepository } from '@/modules/notifications/infrastructure/notification.repository';
+import { NotificationFlushData } from '@/queue/types';
 
 @Processor('notifications')
 export class NotificationProcessor extends WorkerHost {
@@ -23,16 +22,13 @@ export class NotificationProcessor extends WorkerHost {
         }
     }
 
-    private async handleNotificationFlush(data: {
-        type: NotificationType;
-        recipientId: string;
-        brickId?: string;
-        commentId?: string;
-        groupId?: string;
-    }) {
+    private async handleNotificationFlush(data: NotificationFlushData) {
         const { type, recipientId, brickId, commentId, groupId } = data;
 
-        const baseKey = `notif:${type}:${recipientId}:${brickId ?? 'null'}:${commentId ?? 'null'}`;
+        // Use provided baseKey or construct it (fallback for backward compatibility if any old jobs exist)
+        const baseKey =
+            data.baseKey ||
+            `notif:${type}:${recipientId}:${brickId ?? 'null'}:${commentId ?? 'null'}`;
         const batchKey = `${baseKey}:batch`;
         const actorsKey = `${baseKey}:actors`;
 
@@ -52,19 +48,19 @@ export class NotificationProcessor extends WorkerHost {
 
         // 2. Database Flush
         if (groupId) {
-            // Update existing group (The "Instant First" strategy)
-            await this.notificationRepository.updateGroup(groupId, {
-                actorsCount,
+            // Atomic increment (retry-safe, race-safe)
+            await this.notificationRepository.incrementGroup(groupId, {
+                delta: actorsCount,
                 lastActorId,
             });
 
-            // Add actors (idempotent)
+            // Add actors (idempotent via UNIQUE constraint)
             await this.notificationRepository.addActors(groupId, actorIds);
 
-            this.logger.log(`Notification group ${groupId} updated with ${actorsCount} new actors`);
+            this.logger.log(`Notification group ${groupId} incremented by ${actorsCount} actors`);
         } else {
-            // Fallback: UPSERT Strategy (if groupId is missing for some reason)
-            let group = await this.notificationRepository.findGroup(
+            // Fallback: find group by window parameters
+            const group = await this.notificationRepository.findGroup(
                 recipientId,
                 type,
                 brickId,
@@ -72,22 +68,18 @@ export class NotificationProcessor extends WorkerHost {
             );
 
             if (group) {
-                await this.notificationRepository.updateGroup(group.id, {
-                    actorsCount,
+                await this.notificationRepository.incrementGroup(group.id, {
+                    delta: actorsCount,
                     lastActorId,
                 });
+                await this.notificationRepository.addActors(group.id, actorIds);
+                this.logger.log(`Notification flushed via fallback lookup: ${group.id}`);
             } else {
-                group = await this.notificationRepository.createGroup({
-                    recipientId,
-                    type,
-                    brickId,
-                    commentId,
-                    actorsCount,
-                    lastActorId,
-                });
+                this.logger.error(
+                    `No groupId and no existing group found for flush: ${baseKey}. Skipping.`,
+                );
+                return;
             }
-            await this.notificationRepository.addActors(group.id, actorIds);
-            this.logger.log(`Notification flushed to DB via fallback UPSERT: ${group.id}`);
         }
 
         // 3. Cleanup Redis Batch

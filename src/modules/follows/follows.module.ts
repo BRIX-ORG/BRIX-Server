@@ -3,9 +3,10 @@ import { FollowsController } from './follows.controller';
 import { FollowRepository } from './infrastructure';
 import { FollowService, GetFollowersService, GetFollowingService } from './application';
 import { UsersModule } from '@users/users.module';
+import { NotificationsModule } from '@notifications/notifications.module';
 
 @Module({
-    imports: [UsersModule],
+    imports: [UsersModule, NotificationsModule],
     controllers: [FollowsController],
     providers: [
         // Infrastructure

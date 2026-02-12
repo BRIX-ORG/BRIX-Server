@@ -41,17 +41,17 @@ export class NotificationRepository {
         });
     }
 
-    async updateGroup(
-        id: string,
+    async incrementGroup(
+        groupId: string,
         data: {
-            actorsCount: number;
+            delta: number;
             lastActorId: string;
         },
     ) {
         return this.prisma.notificationGroup.update({
-            where: { id },
+            where: { id: groupId },
             data: {
-                actorsCount: { increment: data.actorsCount },
+                actorsCount: { increment: data.delta },
                 lastActorId: data.lastActorId,
                 updatedAt: new Date(),
             },

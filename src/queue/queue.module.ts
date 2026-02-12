@@ -2,8 +2,10 @@ import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { QueueService } from './queue.service';
-import { EmailProcessor } from './processors';
+import { EmailProcessor, NotificationProcessor } from './processors';
 import { EmailModule } from '@/email';
+import { forwardRef } from '@nestjs/common';
+import { NotificationsModule } from '@/modules/notifications/notifications.module';
 
 @Module({
     imports: [
@@ -40,8 +42,9 @@ import { EmailModule } from '@/email';
             name: 'notifications',
         }),
         EmailModule,
+        forwardRef(() => NotificationsModule),
     ],
-    providers: [QueueService, EmailProcessor],
+    providers: [QueueService, EmailProcessor, NotificationProcessor],
     exports: [QueueService],
 })
 export class QueueModule {}
