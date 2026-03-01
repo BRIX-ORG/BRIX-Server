@@ -25,7 +25,8 @@
             "@redis/*": ["src/redis/*"],
             "@email/*": ["src/email/*"],
             "@cloudinary/*": ["src/cloudinary/*"],
-            "@minio/*": ["src/minio/*"]
+            "@minio/*": ["src/minio/*"],
+            "@cron/*": ["src/cron/*"]
         },
         "incremental": true,
         "skipLibCheck": true,

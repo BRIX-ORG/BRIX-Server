@@ -1,6 +1,6 @@
 import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { ScheduleModule } from '@nestjs/schedule';
+import { CronModule } from '@/cron';
 import { AppController } from '@/app.controller';
 import { AppService } from '@/app.service';
 import { appConfig, cloudinaryConfig } from '@/config';
@@ -25,7 +25,7 @@ import { LoggerMiddleware } from '@/common';
             load: [appConfig, cloudinaryConfig],
             envFilePath: ['.env', '.env.local'],
         }),
-        ScheduleModule.forRoot(),
+        CronModule,
         FirebaseModule,
         RedisModule,
         EmailModule,
