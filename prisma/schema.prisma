@@ -37,6 +37,7 @@ enum Gender {
 enum NotificationType {
   LIKE_BRICK
   COMMENT_BRICK
+  REPLY_COMMENT
   FOLLOW
 }
 
@@ -70,6 +71,11 @@ model User {
   receivedNotifications  NotificationGroup[] @relation("NotificationRecipient")
   lastActorNotifications NotificationGroup[] @relation("NotificationLastActor")
   notificationActors     NotificationActor[] @relation("NotificationActor")
+
+  // Vote & Comment relations
+  brickVotes   BrickVote[]
+  comments     Comment[]
+  commentVotes CommentVote[]
 
   @@map("users")
 }
@@ -127,7 +133,8 @@ model Brick {
   thumbnailUrl String?   @map("thumbnail_url")
   watermarkUrl String?   @map("watermark_url")
   title        String
-  description  String?   @db.Text
+  description            String?   @db.Text
+  generatedDescription   String?   @map("generated_description") @db.Text
   mediaType    MediaType @map("media_type")
   tagType      TagType?  @map("tag_type")
   address      String?
@@ -137,20 +144,70 @@ model Brick {
   updatedAt    DateTime  @updatedAt @map("updated_at")
 
   metadata BrickMetadata?
+  votes    BrickVote[]
+  comments Comment[]
 
   @@map("bricks")
 }
 
 model BrickMetadata {
-  id         String    @id @default(uuid()) @db.Uuid
-  brickId    String    @unique @map("brick_id") @db.Uuid
-  brick      Brick     @relation(fields: [brickId], references: [id], onDelete: Cascade)
-  rawExif    Json?     @map("raw_exif")
-  modelData  Json?     @map("model_data")
-  hashSha256 String?   @map("hash_sha256")
-  onChainTx  String?   @map("on_chain_tx")
-  verifiedAt DateTime? @map("verified_at")
+  id                   String    @id @default(uuid()) @db.Uuid
+  brickId              String    @unique @map("brick_id") @db.Uuid
+  brick                Brick     @relation(fields: [brickId], references: [id], onDelete: Cascade)
+  rawExif              Json?     @map("raw_exif")
+  modelData            Json?     @map("model_data")
+  hashSha256           String?   @map("hash_sha256")
+  onChainTx            String?   @map("on_chain_tx")
+
+  verifiedAt           DateTime? @map("verified_at")
 
   @@map("brick_metadata")
+}
+
+model BrickVote {
+  id        String   @id @default(uuid()) @db.Uuid
+  brickId   String   @map("brick_id") @db.Uuid
+  brick     Brick    @relation(fields: [brickId], references: [id], onDelete: Cascade)
+  userId    String   @map("user_id") @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  value     Int      // +1 = upvote, -1 = downvote
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([brickId, userId])
+  @@index([brickId], name: "idx_brick_vote_brick")
+  @@map("brick_votes")
+}
+
+model Comment {
+  id        String    @id @default(uuid()) @db.Uuid
+  brickId   String    @map("brick_id") @db.Uuid
+  brick     Brick     @relation(fields: [brickId], references: [id], onDelete: Cascade)
+  userId    String    @map("user_id") @db.Uuid
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parentId  String?   @map("parent_id") @db.Uuid
+  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Comment[] @relation("CommentReplies")
+  content   String    @db.Text
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  votes CommentVote[]
+
+  @@index([brickId], name: "idx_comment_brick")
+  @@map("comments")
+}
+
+model CommentVote {
+  id        String   @id @default(uuid()) @db.Uuid
+  commentId String   @map("comment_id") @db.Uuid
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  userId    String   @map("user_id") @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  value     Int      // +1 = upvote, -1 = downvote
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([commentId, userId])
+  @@index([commentId], name: "idx_comment_vote_comment")
+  @@map("comment_votes")
 }
 
