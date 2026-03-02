@@ -28,16 +28,38 @@ export class CloudinaryService {
      * Upload a single image file
      * @param file - Multer file object
      * @param subfolder - Optional subfolder under BRIX (e.g., 'users', 'posts')
+     * @param watermark - Whether to overlay watermark on the image (default: false)
      */
-    async uploadImage(file: Express.Multer.File, subfolder?: string): Promise<UploadResult> {
+    async uploadImage(
+        file: Express.Multer.File,
+        subfolder?: string,
+        watermark: boolean = false,
+    ): Promise<UploadResult> {
         const folder = subfolder ? `${this.baseFolder}/${subfolder}` : this.baseFolder;
+
+        const transformations: Record<string, unknown>[] = [
+            { quality: 'auto' },
+            { fetch_format: 'auto' },
+        ];
+
+        if (watermark) {
+            transformations.push({
+                overlay: 'favicon_pcacy2',
+                gravity: 'south_east',
+                width: 0.1, // 10% of image width — scales proportionally
+                flags: 'relative',
+                opacity: 60,
+                x: 10,
+                y: 10,
+            });
+        }
 
         return new Promise((resolve, reject) => {
             const uploadStream = cloudinary.uploader.upload_stream(
                 {
                     folder,
                     resource_type: 'image',
-                    transformation: [{ quality: 'auto' }, { fetch_format: 'auto' }],
+                    transformation: transformations,
                 },
                 (error, result: UploadApiResponse) => {
                     if (error) {

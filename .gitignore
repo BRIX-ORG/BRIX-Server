@@ -43,3 +43,8 @@ Thumbs.db
 
 # Firebase
 **/*firebase-adminsdk*.json
+
+# Python
+venv/
+__pycache__/
+*.pyc

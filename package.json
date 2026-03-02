@@ -144,7 +144,9 @@
             "^@redis/(.*)$": "<rootDir>/redis/$1",
             "^@email/(.*)$": "<rootDir>/email/$1",
             "^@cloudinary/(.*)$": "<rootDir>/cloudinary/$1",
-            "^@minio/(.*)$": "<rootDir>/minio/$1"
+            "^@minio/(.*)$": "<rootDir>/minio/$1",
+            "^@cron/(.*)$": "<rootDir>/cron/$1",
+            "^@bricks/(.*)$": "<rootDir>/modules/bricks/$1"
         }
     },
     "pnpm": {

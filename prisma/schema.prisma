@@ -41,6 +41,11 @@ enum NotificationType {
   FOLLOW
 }
 
+enum CommentType {
+  COMMENT
+  REPLY
+}
+
 model User {
   id               String   @id @default(uuid()) @db.Uuid
   username         String   @unique
@@ -129,14 +134,15 @@ model Brick {
   id           String    @id @default(uuid()) @db.Uuid
   userId       String    @map("user_id") @db.Uuid
   user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  mediaUrl     String    @map("media_url")
-  thumbnailUrl String?   @map("thumbnail_url")
-  watermarkUrl String?   @map("watermark_url")
+  media        Json?     @db.JsonB
+  thumbnail    Json?     @db.JsonB
+  watermark    Json?     @db.JsonB
   title        String
   description            String?   @db.Text
   generatedDescription   String?   @map("generated_description") @db.Text
   mediaType    MediaType @map("media_type")
   tagType      TagType?  @map("tag_type")
+  isPublic     Boolean   @default(true) @map("is_public")
   address      String?
   latitude     Decimal?  @db.Decimal(9, 6)
   longitude    Decimal?  @db.Decimal(9, 6)
@@ -179,21 +185,24 @@ model BrickVote {
 }
 
 model Comment {
-  id        String    @id @default(uuid()) @db.Uuid
-  brickId   String    @map("brick_id") @db.Uuid
-  brick     Brick     @relation(fields: [brickId], references: [id], onDelete: Cascade)
-  userId    String    @map("user_id") @db.Uuid
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  parentId  String?   @map("parent_id") @db.Uuid
-  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
-  replies   Comment[] @relation("CommentReplies")
-  content   String    @db.Text
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
+  id        String      @id @default(uuid()) @db.Uuid
+  brickId   String      @map("brick_id") @db.Uuid
+  brick     Brick       @relation(fields: [brickId], references: [id], onDelete: Cascade)
+  userId    String      @map("user_id") @db.Uuid
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parentId  String?     @map("parent_id") @db.Uuid
+  parent    Comment?    @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Comment[]   @relation("CommentReplies")
+  type      CommentType @default(COMMENT)
+  content   String      @db.Text
+  images    Json?       @db.JsonB
+  createdAt DateTime    @default(now()) @map("created_at")
+  updatedAt DateTime    @updatedAt @map("updated_at")
 
   votes CommentVote[]
 
   @@index([brickId], name: "idx_comment_brick")
+  @@index([parentId], name: "idx_comment_parent")
   @@map("comments")
 }
 

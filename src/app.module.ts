@@ -8,6 +8,7 @@ import { PrismaModule } from '@/prisma';
 import { UsersModule } from '@/modules/users';
 import { AuthModule } from '@/modules/auth';
 import { FollowsModule } from '@/modules/follows';
+import { BricksModule } from '@/modules/bricks';
 import { NotificationsModule } from '@/modules/notifications';
 import { FirebaseModule } from '@/firebase';
 import { RedisModule } from '@/redis';
@@ -37,6 +38,7 @@ import { LoggerMiddleware } from '@/common';
         UsersModule,
         AuthModule,
         FollowsModule,
+        BricksModule,
         NotificationsModule,
     ],
     controllers: [AppController],

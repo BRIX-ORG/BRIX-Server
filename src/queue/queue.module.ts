@@ -2,10 +2,11 @@ import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { QueueService } from './queue.service';
-import { EmailProcessor, NotificationProcessor } from './processors';
+import { EmailProcessor, NotificationProcessor, BrickDescriptionProcessor } from './processors';
 import { EmailModule } from '@/email';
 import { forwardRef } from '@nestjs/common';
 import { NotificationsModule } from '@/modules/notifications/notifications.module';
+import { PrismaModule } from '@/prisma';
 
 @Module({
     imports: [
@@ -41,10 +42,14 @@ import { NotificationsModule } from '@/modules/notifications/notifications.modul
         BullModule.registerQueue({
             name: 'notifications',
         }),
+        BullModule.registerQueue({
+            name: 'brick-description',
+        }),
         EmailModule,
+        PrismaModule,
         forwardRef(() => NotificationsModule),
     ],
-    providers: [QueueService, EmailProcessor, NotificationProcessor],
+    providers: [QueueService, EmailProcessor, NotificationProcessor, BrickDescriptionProcessor],
     exports: [QueueService],
 })
 export class QueueModule {}

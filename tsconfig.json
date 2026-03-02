@@ -26,7 +26,8 @@
             "@email/*": ["src/email/*"],
             "@cloudinary/*": ["src/cloudinary/*"],
             "@minio/*": ["src/minio/*"],
-            "@cron/*": ["src/cron/*"]
+            "@cron/*": ["src/cron/*"],
+            "@bricks/*": ["src/modules/bricks/*"]
         },
         "incremental": true,
         "skipLibCheck": true,

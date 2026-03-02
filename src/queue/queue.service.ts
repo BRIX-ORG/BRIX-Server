@@ -8,6 +8,7 @@ import {
     PasswordResetSuccessEmailJob,
     EmailVerificationJob,
     ForgotPasswordOtpJob,
+    BrickDescriptionJobData,
 } from './types';
 
 @Injectable()
@@ -17,6 +18,7 @@ export class QueueService {
     constructor(
         @InjectQueue('email') private emailQueue: Queue,
         @InjectQueue('notifications') private notificationQueue: Queue,
+        @InjectQueue('brick-description') private brickDescriptionQueue: Queue,
     ) {}
 
     // Add a notification flush job with 10 minutes delay
@@ -137,5 +139,22 @@ export class QueueService {
             completed,
             failed,
         };
+    }
+
+    // Add a brick description generation job
+    async addBrickDescriptionJob(brickId: string, imageUrl: string): Promise<void> {
+        const jobData: BrickDescriptionJobData = { brickId, imageUrl };
+
+        await this.brickDescriptionQueue.add('generate-description', jobData, {
+            attempts: 3,
+            backoff: {
+                type: 'exponential',
+                delay: 5000,
+            },
+            removeOnComplete: true,
+            removeOnFail: false,
+        });
+
+        this.logger.log(`Brick description job added for brick ${brickId}`);
     }
 }
