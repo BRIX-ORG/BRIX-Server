@@ -1,6 +1,11 @@
 import { Injectable, Logger, HttpException, HttpStatus } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { AutocompleteQueryDto, AutocompleteResultDto } from './dto';
+import {
+    AutocompleteQueryDto,
+    AutocompleteResultDto,
+    ReverseGeocodingQueryDto,
+    ReverseGeocodingResultDto,
+} from './dto';
 
 @Injectable()
 export class LocationIqService {
@@ -99,6 +104,83 @@ export class LocationIqService {
             this.logger.error(`LocationIQ API request failed: ${message}`);
             throw new HttpException(
                 `Failed to fetch location data: ${message}`,
+                HttpStatus.BAD_GATEWAY,
+            );
+        }
+    }
+
+    /**
+     * Reverse geocoding to get address from coordinates
+     * @param query - Latitude and Longitude
+     * @returns Address information
+     */
+    async reverseGeocode(query: ReverseGeocodingQueryDto): Promise<ReverseGeocodingResultDto> {
+        if (!this.apiKey) {
+            throw new HttpException(
+                'LocationIQ API is not configured',
+                HttpStatus.SERVICE_UNAVAILABLE,
+            );
+        }
+
+        const params = new URLSearchParams({
+            key: this.apiKey,
+            lat: String(query.lat),
+            lon: String(query.lon),
+            format: 'json',
+            addressdetails: String(query.addressdetails ?? 1),
+            normalizeaddress: String(query.normalizeaddress ?? 1),
+        });
+
+        if (query.lang) {
+            params.append('accept-language', query.lang);
+        }
+
+        const url = `${this.baseUrl}/reverse?${params.toString()}`;
+
+        try {
+            this.logger.debug(`Calling LocationIQ Reverse API: ${url.replace(this.apiKey, '***')}`);
+
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    Accept: 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                this.logger.error(
+                    `LocationIQ Reverse API error: ${response.status} - ${errorText}`,
+                );
+
+                if (response.status === 401) {
+                    throw new HttpException('Invalid LocationIQ API key', HttpStatus.UNAUTHORIZED);
+                }
+
+                if (response.status === 429) {
+                    throw new HttpException(
+                        'LocationIQ rate limit exceeded',
+                        HttpStatus.TOO_MANY_REQUESTS,
+                    );
+                }
+
+                throw new HttpException(
+                    `LocationIQ API error: ${errorText}`,
+                    HttpStatus.BAD_GATEWAY,
+                );
+            }
+
+            const data = (await response.json()) as ReverseGeocodingResultDto;
+            return data;
+        } catch (error) {
+            if (error instanceof HttpException) {
+                throw error;
+            }
+
+            const message = error instanceof Error ? error.message : 'Unknown error';
+            this.logger.error(`LocationIQ Reverse API request failed: ${message}`);
+            throw new HttpException(
+                `Failed to fetch reverse geocoding data: ${message}`,
                 HttpStatus.BAD_GATEWAY,
             );
         }

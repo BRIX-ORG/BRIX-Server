@@ -103,7 +103,14 @@ export class BricksController {
             },
         },
     })
-    @ApiResponse({ status: 201, description: 'Brick created successfully.' })
+    @ApiResponse({
+        status: 201,
+        description:
+            'Art Brick created successfully. ' +
+            'media contains the original image (MinIO), ' +
+            'watermark contains the watermarked version (Cloudinary).',
+        type: BrickResponseDto,
+    })
     @ApiResponse({ status: 400, description: 'No file uploaded or invalid file type.' })
     @ApiResponse({ status: 401, description: 'Unauthorized.' })
     async uploadArt(
@@ -160,7 +167,15 @@ export class BricksController {
             },
         },
     })
-    @ApiResponse({ status: 201, description: 'GLB Brick created successfully.' })
+    @ApiResponse({
+        status: 201,
+        description:
+            'GLB Brick created successfully. ' +
+            'media contains the GLB file (Cloudinary), ' +
+            'thumbnail is an array of 1-5 thumbnails (Cloudinary), ' +
+            'watermark is the first thumbnail (used for description generation).',
+        type: BrickResponseDto,
+    })
     @ApiResponse({ status: 400, description: 'Missing files or invalid file type.' })
     @ApiResponse({ status: 401, description: 'Unauthorized.' })
     async uploadGlb(
