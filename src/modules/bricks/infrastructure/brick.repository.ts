@@ -49,10 +49,38 @@ export class BrickRepository {
         });
     }
 
+    async findByIdWithUser(id: string) {
+        return this.prisma.brick.findUnique({
+            where: { id },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        username: true,
+                        fullName: true,
+                        avatar: true,
+                    },
+                },
+                _count: {
+                    select: {
+                        votes: true,
+                        comments: true,
+                    },
+                },
+            },
+        });
+    }
+
     async findByUserId(userId: string): Promise<Brick[]> {
         return this.prisma.brick.findMany({
             where: { userId },
             orderBy: { createdAt: 'desc' },
+        });
+    }
+
+    async delete(id: string): Promise<Brick> {
+        return this.prisma.brick.delete({
+            where: { id },
         });
     }
 }

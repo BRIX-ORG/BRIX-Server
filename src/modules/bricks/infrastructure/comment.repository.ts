@@ -84,6 +84,20 @@ export class CommentRepository {
         return { comments, total };
     }
 
+    async update(id: string, userId: string, content: string) {
+        const comment = await this.prisma.comment.findUnique({ where: { id } });
+
+        if (!comment) throw new NotFoundException('Comment not found');
+        if (comment.userId !== userId)
+            throw new ForbiddenException('Not authorized to edit this comment');
+
+        return this.prisma.comment.update({
+            where: { id },
+            data: { content },
+            include: commentWithDetails,
+        });
+    }
+
     async delete(id: string, userId: string) {
         const comment = await this.prisma.comment.findUnique({ where: { id } });
 

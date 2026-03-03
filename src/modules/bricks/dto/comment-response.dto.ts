@@ -2,19 +2,19 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { CommentType } from '@prisma/client';
 import { CommentWithDetails } from '../infrastructure/comment.repository';
 
-class CommentAuthorDto {
-    @ApiProperty() id: string;
-    @ApiProperty() username: string;
-    @ApiProperty() fullName: string;
-    @ApiPropertyOptional() avatar?: unknown;
-}
-
 class CommentImageDto {
     @ApiProperty() url: string;
     @ApiProperty() publicId: string;
     @ApiPropertyOptional() width?: number;
     @ApiPropertyOptional() height?: number;
     @ApiPropertyOptional() format?: string;
+}
+
+class CommentAuthorDto {
+    @ApiProperty() id: string;
+    @ApiProperty() username: string;
+    @ApiProperty() fullName: string;
+    @ApiPropertyOptional({ type: CommentImageDto }) avatar?: CommentImageDto | null;
 }
 
 // Type for a reply (comment without nested replies)

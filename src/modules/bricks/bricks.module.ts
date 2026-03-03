@@ -2,47 +2,62 @@ import { Module } from '@nestjs/common';
 import { BricksController } from './bricks.controller';
 import {
     BrickRepository,
-    VoteRepository,
+    BrickVoteRepository,
     CommentRepository,
     CommentVoteRepository,
 } from './infrastructure';
 import {
     UploadArtService,
     UploadGlbService,
-    LikeBrickService,
+    VoteBrickService,
     CreateCommentService,
     DeleteCommentService,
     GetCommentsService,
-    LikeCommentService,
+    VoteCommentService,
     GetBricksService,
     UpdateBrickService,
     DeleteBrickThumbnailService,
     AddBrickThumbnailsService,
+    DeleteBrickService,
+    GetBrickUpvotersService,
+    GetCommentUpvotersService,
+    UpdateCommentService,
+    GetBrickVoteStatusService,
+    GetCommentVoteStatusService,
+    GetBrickDetailService,
 } from './application';
 import { QueueModule } from '@/queue';
 import { NotificationsModule } from '@/modules/notifications/notifications.module';
+import { UsersModule } from '@/modules/users/users.module';
 
 @Module({
-    imports: [QueueModule, NotificationsModule],
+    imports: [QueueModule, NotificationsModule, UsersModule],
     controllers: [BricksController],
     providers: [
         // Infrastructure
         BrickRepository,
-        VoteRepository,
+        BrickVoteRepository,
         CommentRepository,
         CommentVoteRepository,
         // Application Services
         UploadArtService,
         UploadGlbService,
-        LikeBrickService,
+        VoteBrickService,
         CreateCommentService,
         DeleteCommentService,
         GetCommentsService,
-        LikeCommentService,
+        VoteCommentService,
         GetBricksService,
         UpdateBrickService,
         DeleteBrickThumbnailService,
         AddBrickThumbnailsService,
+        DeleteBrickService,
+        GetBrickUpvotersService,
+        GetCommentUpvotersService,
+        UpdateCommentService,
+        GetBrickVoteStatusService,
+        GetCommentVoteStatusService,
+        GetBrickDetailService,
     ],
     exports: [BrickRepository],
 })

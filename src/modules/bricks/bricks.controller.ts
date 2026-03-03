@@ -26,6 +26,7 @@ import {
     ApiBody,
     ApiExtraModels,
     ApiQuery,
+    ApiParam,
 } from '@nestjs/swagger';
 import { ApiResponseDto } from '@/common/dto/response.dto';
 import { JwtAuthGuard, OptionalJwtAuthGuard } from '@/common/guards';
@@ -34,45 +35,69 @@ import { UserEntity } from '@users/domain';
 import {
     UploadArtService,
     UploadGlbService,
-    LikeBrickService,
+    VoteBrickService,
     CreateCommentService,
     DeleteCommentService,
     GetCommentsService,
-    LikeCommentService,
+    VoteCommentService,
     GetBricksService,
     UpdateBrickService,
     DeleteBrickThumbnailService,
     AddBrickThumbnailsService,
+    DeleteBrickService,
+    GetBrickUpvotersService,
+    GetCommentUpvotersService,
+    UpdateCommentService,
+    GetBrickVoteStatusService,
+    GetCommentVoteStatusService,
+    GetBrickDetailService,
 } from '@bricks/application';
 import {
+    CastVoteDto,
     CreateBrickDto,
     BrickResponseDto,
+    BrickDetailResponseDto,
     CreateCommentDto,
     CommentResponseDto,
     VoteResponseDto,
     BricksQueryDto,
     PaginatedBricksResponseDto,
+    PaginatedCommentsResponseDto,
     UpdateBrickDto,
+    UpvoterResponseDto,
+    UpdateCommentDto,
 } from '@bricks/dto';
-import { VoteRepository } from '@bricks/infrastructure';
 
 @ApiTags('Bricks')
 @Controller('bricks')
-@ApiExtraModels(ApiResponseDto, BrickResponseDto, CommentResponseDto, VoteResponseDto)
+@ApiExtraModels(
+    ApiResponseDto,
+    BrickResponseDto,
+    CommentResponseDto,
+    VoteResponseDto,
+    PaginatedCommentsResponseDto,
+    UpvoterResponseDto,
+)
 export class BricksController {
     constructor(
         private readonly uploadArtService: UploadArtService,
         private readonly uploadGlbService: UploadGlbService,
-        private readonly likeBrickService: LikeBrickService,
+        private readonly voteBrickService: VoteBrickService,
         private readonly createCommentService: CreateCommentService,
         private readonly deleteCommentService: DeleteCommentService,
         private readonly getCommentsService: GetCommentsService,
-        private readonly likeCommentService: LikeCommentService,
+        private readonly voteCommentService: VoteCommentService,
         private readonly getBricksService: GetBricksService,
         private readonly updateBrickService: UpdateBrickService,
         private readonly deleteBrickThumbnailService: DeleteBrickThumbnailService,
         private readonly addBrickThumbnailsService: AddBrickThumbnailsService,
-        private readonly voteRepository: VoteRepository,
+        private readonly deleteBrickService: DeleteBrickService,
+        private readonly getBrickUpvotersService: GetBrickUpvotersService,
+        private readonly getCommentUpvotersService: GetCommentUpvotersService,
+        private readonly updateCommentService: UpdateCommentService,
+        private readonly getBrickVoteStatusService: GetBrickVoteStatusService,
+        private readonly getCommentVoteStatusService: GetCommentVoteStatusService,
+        private readonly getBrickDetailService: GetBrickDetailService,
     ) {}
 
     // ─── Upload Art ──────────────────────────────────────────────────────────
@@ -207,33 +232,74 @@ export class BricksController {
         return BrickResponseDto.fromEntity(brick);
     }
 
-    // ─── Like Brick ──────────────────────────────────────────────────────────
+    // ─── Get Brick Detail ────────────────────────────────────────────────────
 
-    @Post(':id/like')
+    @Get(':id')
+    @ApiOperation({
+        summary: 'Get brick detail by ID',
+        description:
+            'Returns basic brick info with author and vote/comment counts. ' +
+            'Use separate APIs (votes, comments, upvoters) for more detail.',
+    })
+    @ApiResponse({ status: 200, description: 'Brick detail.', type: BrickDetailResponseDto })
+    @ApiResponse({ status: 404, description: 'Brick not found.' })
+    async getBrickDetail(@Param('id', ParseUUIDPipe) id: string): Promise<BrickDetailResponseDto> {
+        const brick = await this.getBrickDetailService.execute(id);
+        return BrickDetailResponseDto.fromEntity(brick);
+    }
+
+    // ─── Vote Brick ──────────────────────────────────────────────────────────
+
+    @Post(':id/vote')
     @UseGuards(JwtAuthGuard)
     @ApiBearerAuth()
     @HttpCode(HttpStatus.OK)
-    @ApiOperation({ summary: 'Toggle like on a brick (like/unlike)' })
-    @ApiResponse({ status: 200, description: 'Like toggled.', type: VoteResponseDto })
+    @ApiOperation({
+        summary: 'Upvote or downvote a brick',
+        description:
+            'Send value=1 to upvote, value=-1 to downvote. ' +
+            'Sending the same value again removes the vote (toggle off). ' +
+            'Sending the opposite value flips the vote.',
+    })
+    @ApiBody({ type: CastVoteDto })
+    @ApiResponse({ status: 200, description: 'Vote recorded.', type: VoteResponseDto })
     @ApiResponse({ status: 401, description: 'Unauthorized.' })
     @ApiResponse({ status: 404, description: 'Brick not found.' })
-    async likeBrick(
+    async voteBrick(
         @CurrentUser() user: UserEntity,
         @Param('id', ParseUUIDPipe) id: string,
+        @Body() dto: CastVoteDto,
     ): Promise<VoteResponseDto> {
-        return this.likeBrickService.execute(id, user.id);
+        return await this.voteBrickService.execute(id, user.id, dto.value);
     }
 
-    @Get(':id/likes')
-    @UseGuards(JwtAuthGuard)
+    @Get(':id/votes')
+    @UseGuards(OptionalJwtAuthGuard)
     @ApiBearerAuth()
-    @ApiOperation({ summary: 'Get like count and current user like status for a brick' })
-    @ApiResponse({ status: 200, description: 'Like status.', type: VoteResponseDto })
-    async getBrickLikes(
-        @CurrentUser() user: UserEntity,
+    @ApiOperation({
+        summary: 'Get vote status for a brick',
+        description:
+            'Returns upvote/downvote counts, net score, and current user vote (if authenticated).',
+    })
+    @ApiResponse({ status: 200, description: 'Vote status.', type: VoteResponseDto })
+    async getBrickVotes(
+        @CurrentUser() user: UserEntity | undefined,
         @Param('id', ParseUUIDPipe) id: string,
     ): Promise<VoteResponseDto> {
-        return this.voteRepository.getLikeStatus(id, user.id);
+        return this.getBrickVoteStatusService.execute(id, user?.id);
+    }
+
+    @Get(':id/upvoters')
+    @ApiOperation({ summary: 'Get list of users who upvoted this brick' })
+    @ApiResponse({
+        status: 200,
+        description: 'List of upvoters.',
+        type: [UpvoterResponseDto],
+    })
+    @ApiResponse({ status: 404, description: 'Brick not found.' })
+    async getBrickUpvoters(@Param('id', ParseUUIDPipe) id: string): Promise<UpvoterResponseDto[]> {
+        const users = await this.getBrickUpvotersService.execute(id);
+        return users.map((u) => UpvoterResponseDto.fromEntity(u));
     }
 
     // ─── Comments ────────────────────────────────────────────────────────────
@@ -302,13 +368,17 @@ export class BricksController {
         type: String,
         description: 'Last comment ID for cursor pagination',
     })
-    @ApiResponse({ status: 200, description: 'Comments list.' })
+    @ApiResponse({
+        status: 200,
+        description: 'Comments list.',
+        type: PaginatedCommentsResponseDto,
+    })
     @ApiResponse({ status: 404, description: 'Brick not found.' })
     async getComments(
         @Param('id', ParseUUIDPipe) id: string,
         @Query('limit') limit?: string,
         @Query('cursor') cursor?: string,
-    ) {
+    ): Promise<PaginatedCommentsResponseDto> {
         const parsedLimit = limit ? parseInt(limit, 10) : 20;
         const { comments, total } = await this.getCommentsService.execute(id, parsedLimit, cursor);
         return {
@@ -317,21 +387,79 @@ export class BricksController {
         };
     }
 
-    // ─── Comment Like ─────────────────────────────────────────────────────────
+    // ─── Comment Vote ─────────────────────────────────────────────────────────
 
-    @Post('comments/:commentId/like')
+    @Post('comments/:commentId/vote')
     @UseGuards(JwtAuthGuard)
     @ApiBearerAuth()
     @HttpCode(HttpStatus.OK)
-    @ApiOperation({ summary: 'Toggle like on a comment' })
-    @ApiResponse({ status: 200, description: 'Like toggled.', type: VoteResponseDto })
+    @ApiOperation({
+        summary: 'Upvote or downvote a comment',
+        description:
+            'Send value=1 to upvote, value=-1 to downvote. ' +
+            'Sending the same value again removes the vote (toggle off). ' +
+            'Sending the opposite value flips the vote.',
+    })
+    @ApiBody({ type: CastVoteDto })
+    @ApiResponse({ status: 200, description: 'Vote recorded.', type: VoteResponseDto })
     @ApiResponse({ status: 401, description: 'Unauthorized.' })
     @ApiResponse({ status: 404, description: 'Comment not found.' })
-    async likeComment(
+    async voteComment(
         @CurrentUser() user: UserEntity,
         @Param('commentId', ParseUUIDPipe) commentId: string,
+        @Body() dto: CastVoteDto,
     ): Promise<VoteResponseDto> {
-        return this.likeCommentService.execute(commentId, user.id);
+        return await this.voteCommentService.execute(commentId, user.id, dto.value);
+    }
+
+    @Get('comments/:commentId/upvoters')
+    @ApiOperation({ summary: 'Get list of users who upvoted this comment' })
+    @ApiResponse({
+        status: 200,
+        description: 'List of upvoters.',
+        type: [UpvoterResponseDto],
+    })
+    @ApiResponse({ status: 404, description: 'Comment not found.' })
+    async getCommentUpvoters(
+        @Param('commentId', ParseUUIDPipe) commentId: string,
+    ): Promise<UpvoterResponseDto[]> {
+        const users = await this.getCommentUpvotersService.execute(commentId);
+        return users.map((u) => UpvoterResponseDto.fromEntity(u));
+    }
+
+    @Get('comments/:commentId/votes')
+    @UseGuards(OptionalJwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiOperation({
+        summary: 'Get vote status for a comment',
+        description:
+            'Returns upvote/downvote counts, net score, and current user vote (if authenticated).',
+    })
+    @ApiResponse({ status: 200, description: 'Vote status.', type: VoteResponseDto })
+    async getCommentVotes(
+        @CurrentUser() user: UserEntity | undefined,
+        @Param('commentId', ParseUUIDPipe) commentId: string,
+    ): Promise<VoteResponseDto> {
+        return this.getCommentVoteStatusService.execute(commentId, user?.id);
+    }
+
+    // ─── Update Comment ───────────────────────────────────────────────────────
+
+    @Put('comments/:commentId')
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Edit own comment content' })
+    @ApiResponse({ status: 200, description: 'Comment updated.', type: CommentResponseDto })
+    @ApiResponse({ status: 401, description: 'Unauthorized.' })
+    @ApiResponse({ status: 403, description: 'Forbidden — not the comment owner.' })
+    @ApiResponse({ status: 404, description: 'Comment not found.' })
+    async updateComment(
+        @CurrentUser() user: UserEntity,
+        @Param('commentId', ParseUUIDPipe) commentId: string,
+        @Body() dto: UpdateCommentDto,
+    ): Promise<CommentResponseDto> {
+        const comment = await this.updateCommentService.execute(commentId, user.id, dto.content);
+        return CommentResponseDto.fromEntity(comment);
     }
 
     // ─── Delete Comment ───────────────────────────────────────────────────────
@@ -354,14 +482,19 @@ export class BricksController {
 
     // ─── List User Bricks ─────────────────────────────────────────────────────
 
-    @Get('user/:userId')
+    @Get('user/:idOrUsername')
     @UseGuards(OptionalJwtAuthGuard)
     @ApiBearerAuth()
     @ApiOperation({
-        summary: 'Get bricks of a user with optional filter by type',
+        summary: 'Get bricks of a user by ID or username with optional filter by type',
         description:
-            'If the requester is the owner (valid JWT matching userId), all bricks are returned. ' +
+            'If the requester is the owner (valid JWT matching the resolved user), all bricks are returned. ' +
             'Otherwise only public bricks are returned.',
+    })
+    @ApiParam({
+        name: 'idOrUsername',
+        description: 'User ID (UUID) or unique username',
+        example: 'johndoe',
     })
     @ApiQuery({
         name: 'tagType',
@@ -376,13 +509,14 @@ export class BricksController {
         description: 'Paginated list of bricks.',
         type: PaginatedBricksResponseDto,
     })
+    @ApiResponse({ status: 404, description: 'User not found.' })
     async getUserBricks(
         @CurrentUser() user: UserEntity | undefined,
-        @Param('userId', ParseUUIDPipe) userId: string,
+        @Param('idOrUsername') idOrUsername: string,
         @Query() query: BricksQueryDto,
     ): Promise<PaginatedBricksResponseDto> {
         const { data, total, limit, offset } = await this.getBricksService.execute(
-            userId,
+            idOrUsername,
             user?.id,
             query.tagType,
             query.limit,
@@ -420,6 +554,22 @@ export class BricksController {
             isPublic: dto.isPublic,
         });
         return BrickResponseDto.fromEntity(brick);
+    }
+
+    @Delete(':id')
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @ApiOperation({ summary: 'Delete a brick (owner only)' })
+    @ApiResponse({ status: 204, description: 'Brick deleted.' })
+    @ApiResponse({ status: 401, description: 'Unauthorized.' })
+    @ApiResponse({ status: 403, description: 'Forbidden — not the brick owner.' })
+    @ApiResponse({ status: 404, description: 'Brick not found.' })
+    async deleteBrick(
+        @CurrentUser() user: UserEntity,
+        @Param('id', ParseUUIDPipe) id: string,
+    ): Promise<void> {
+        await this.deleteBrickService.execute(id, user.id);
     }
 
     // ─── Delete Single Thumbnail ──────────────────────────────────────────────

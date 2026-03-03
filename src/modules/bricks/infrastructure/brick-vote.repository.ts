@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
 
-export interface CommentVoteResult {
+export interface BrickVoteResult {
     userVote: 1 | -1 | 0;
     upvoteCount: number;
     downvoteCount: number;
@@ -9,47 +9,50 @@ export interface CommentVoteResult {
 }
 
 @Injectable()
-export class CommentVoteRepository {
+export class BrickVoteRepository {
     constructor(private readonly prisma: PrismaService) {}
 
     /**
-     * Cast or toggle a vote on a comment.
+     * Cast or toggle a vote on a brick.
      * - Same value as existing → remove vote (toggle off).
      * - Opposite value → update vote (flip).
      * - No existing vote → create.
      */
-    async vote(commentId: string, userId: string, value: 1 | -1): Promise<CommentVoteResult> {
-        const existing = await this.prisma.commentVote.findUnique({
-            where: { commentId_userId: { commentId, userId } },
+    async vote(brickId: string, userId: string, value: 1 | -1): Promise<BrickVoteResult> {
+        const existing = await this.prisma.brickVote.findUnique({
+            where: { brickId_userId: { brickId, userId } },
         });
 
         if (existing) {
             if (existing.value === value) {
-                await this.prisma.commentVote.delete({
-                    where: { commentId_userId: { commentId, userId } },
+                // Same vote → toggle off
+                await this.prisma.brickVote.delete({
+                    where: { brickId_userId: { brickId, userId } },
                 });
             } else {
-                await this.prisma.commentVote.update({
-                    where: { commentId_userId: { commentId, userId } },
+                // Opposite vote → flip
+                await this.prisma.brickVote.update({
+                    where: { brickId_userId: { brickId, userId } },
                     data: { value },
                 });
             }
         } else {
-            await this.prisma.commentVote.create({
-                data: { commentId, userId, value },
+            // No existing vote → create
+            await this.prisma.brickVote.create({
+                data: { brickId, userId, value },
             });
         }
 
-        return this.getVoteStatus(commentId, userId);
+        return this.getVoteStatus(brickId, userId);
     }
 
-    async getVoteStatus(commentId: string, userId?: string): Promise<CommentVoteResult> {
+    async getVoteStatus(brickId: string, userId?: string): Promise<BrickVoteResult> {
         const [upvoteCount, downvoteCount, userVoteRecord] = await Promise.all([
-            this.prisma.commentVote.count({ where: { commentId, value: 1 } }),
-            this.prisma.commentVote.count({ where: { commentId, value: -1 } }),
+            this.prisma.brickVote.count({ where: { brickId, value: 1 } }),
+            this.prisma.brickVote.count({ where: { brickId, value: -1 } }),
             userId
-                ? this.prisma.commentVote.findUnique({
-                      where: { commentId_userId: { commentId, userId } },
+                ? this.prisma.brickVote.findUnique({
+                      where: { brickId_userId: { brickId, userId } },
                   })
                 : null,
         ]);
@@ -62,9 +65,9 @@ export class CommentVoteRepository {
         };
     }
 
-    async findUpvotersByCommentId(commentId: string) {
-        const votes = await this.prisma.commentVote.findMany({
-            where: { commentId, value: 1 },
+    async findUpvotersByBrickId(brickId: string) {
+        const votes = await this.prisma.brickVote.findMany({
+            where: { brickId, value: 1 },
             include: {
                 user: {
                     select: {
