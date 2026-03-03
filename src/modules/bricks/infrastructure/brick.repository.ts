@@ -59,6 +59,7 @@ export class BrickRepository {
                         username: true,
                         fullName: true,
                         avatar: true,
+                        gender: true,
                     },
                 },
                 _count: {

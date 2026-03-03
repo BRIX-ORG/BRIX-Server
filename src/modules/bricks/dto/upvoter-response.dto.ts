@@ -13,12 +13,14 @@ interface UpvoterUser {
     username: string;
     fullName: string;
     avatar: unknown;
+    gender: string;
 }
 
 export class UpvoterResponseDto {
     @ApiProperty() id: string;
     @ApiProperty() username: string;
     @ApiProperty() fullName: string;
+    @ApiProperty({ enum: ['MALE', 'FEMALE', 'OTHER'] }) gender: string;
     @ApiPropertyOptional({ type: UpvoterAvatarDto }) avatar?: UpvoterAvatarDto | null;
 
     static fromEntity(user: UpvoterUser): UpvoterResponseDto {
@@ -26,6 +28,7 @@ export class UpvoterResponseDto {
         dto.id = user.id;
         dto.username = user.username;
         dto.fullName = user.fullName;
+        dto.gender = user.gender;
         dto.avatar = user.avatar as UpvoterAvatarDto | null;
         return dto;
     }

@@ -19,6 +19,7 @@ export const commentWithDetails = {
             username: true,
             fullName: true,
             avatar: true,
+            gender: true,
         },
     },
     _count: {
@@ -33,6 +34,7 @@ export const commentWithDetails = {
                     username: true,
                     fullName: true,
                     avatar: true,
+                    gender: true,
                 },
             },
             _count: {

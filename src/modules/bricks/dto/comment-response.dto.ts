@@ -14,6 +14,7 @@ class CommentAuthorDto {
     @ApiProperty() id: string;
     @ApiProperty() username: string;
     @ApiProperty() fullName: string;
+    @ApiProperty({ enum: ['MALE', 'FEMALE', 'OTHER'] }) gender: string;
     @ApiPropertyOptional({ type: CommentImageDto }) avatar?: CommentImageDto | null;
 }
 

@@ -5,6 +5,7 @@ class BrickAuthorDto {
     @ApiProperty() id: string;
     @ApiProperty() username: string;
     @ApiProperty() fullName: string;
+    @ApiProperty({ enum: ['MALE', 'FEMALE', 'OTHER'] }) gender: string;
     @ApiPropertyOptional({ type: Object }) avatar: unknown;
 }
 
@@ -34,7 +35,13 @@ export class BrickDetailResponseDto {
 
     static fromEntity(
         brick: Brick & {
-            user: { id: string; username: string; fullName: string; avatar: unknown };
+            user: {
+                id: string;
+                username: string;
+                fullName: string;
+                avatar: unknown;
+                gender: string;
+            };
             _count: { votes: number; comments: number };
         },
     ): BrickDetailResponseDto {

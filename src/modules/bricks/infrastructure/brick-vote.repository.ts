@@ -75,6 +75,7 @@ export class BrickVoteRepository {
                         username: true,
                         fullName: true,
                         avatar: true,
+                        gender: true,
                     },
                 },
             },

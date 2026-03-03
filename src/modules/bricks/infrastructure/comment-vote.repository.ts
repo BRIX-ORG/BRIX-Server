@@ -72,6 +72,7 @@ export class CommentVoteRepository {
                         username: true,
                         fullName: true,
                         avatar: true,
+                        gender: true,
                     },
                 },
             },
