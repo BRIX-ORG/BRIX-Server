@@ -66,6 +66,9 @@ model User {
   createdAt        DateTime @default(now()) @map("created_at")
   updatedAt        DateTime @updatedAt @map("updated_at")
 
+  isOnline   Boolean   @default(false) @map("is_online")
+  lastSeenAt DateTime? @map("last_seen_at")
+
   bricks Brick[]
 
   // Follow relations
@@ -81,6 +84,11 @@ model User {
   brickVotes   BrickVote[]
   comments     Comment[]
   commentVotes CommentVote[]
+
+  // Chat relations
+  sentMessages      Message[]      @relation("SentMessages")
+  conversationsAsU1 Conversation[] @relation("User1Conversations")
+  conversationsAsU2 Conversation[] @relation("User2Conversations")
 
   @@map("users")
 }
@@ -152,6 +160,7 @@ model Brick {
   metadata BrickMetadata?
   votes    BrickVote[]
   comments Comment[]
+  messages Message[]
 
   @@map("bricks")
 }
@@ -218,5 +227,68 @@ model CommentVote {
   @@unique([commentId, userId])
   @@index([commentId], name: "idx_comment_vote_comment")
   @@map("comment_votes")
+}
+
+model Conversation {
+  id        String    @id @default(uuid()) @db.Uuid
+  user1Id   String    @map("user1_id") @db.Uuid
+  user2Id   String    @map("user2_id") @db.Uuid
+  user1     User      @relation("User1Conversations", fields: [user1Id], references: [id], onDelete: Cascade)
+  user2     User      @relation("User2Conversations", fields: [user2Id], references: [id], onDelete: Cascade)
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  // For soft delete/hiding the chat for one person
+  user1HiddenAt DateTime? @map("user1_hidden_at")
+  user2HiddenAt DateTime? @map("user2_hidden_at")
+
+  messages  Message[]
+
+  @@unique([user1Id, user2Id]) // Strictly one conversation between two users
+  @@index([user1Id])
+  @@index([user2Id])
+  @@map("conversations")
+}
+
+model Message {
+  id             String       @id @default(uuid()) @db.Uuid
+  conversationId String       @map("conversation_id") @db.Uuid
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  senderId       String       @map("sender_id") @db.Uuid
+  sender         User         @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+
+  content        String?      @db.Text
+
+  // Image support (1-3 images as requested)
+  // Format: [{ url: string, width: number, height: number }, ...]
+  images         Json?        @db.JsonB
+
+  // Voice message support
+  voice          Json?        @db.JsonB
+
+  // File support
+  file           Json?        @db.JsonB
+
+  // Brick sharing
+  brickId        String?      @map("brick_id") @db.Uuid
+  brick          Brick?       @relation(fields: [brickId], references: [id], onDelete: SetNull)
+
+  // Reactions (stored as text/json)
+  // Format: { "👍": ["userId1"], "❤️": ["userId2"] }
+  reactions      Json?        @db.JsonB
+
+  isRead         Boolean      @default(false) @map("is_read")
+
+  // Soft delete for the message
+  deletedAt      DateTime?    @map("deleted_at")
+
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+
+  @@index([conversationId])
+  @@index([senderId])
+  @@map("messages")
 }
 
