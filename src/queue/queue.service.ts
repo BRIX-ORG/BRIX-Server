@@ -9,6 +9,7 @@ import {
     EmailVerificationJob,
     ForgotPasswordOtpJob,
     BrickDescriptionJobData,
+    PhotoUploadJobData,
 } from './types';
 
 @Injectable()
@@ -19,6 +20,7 @@ export class QueueService {
         @InjectQueue('email') private emailQueue: Queue,
         @InjectQueue('notifications') private notificationQueue: Queue,
         @InjectQueue('brick-description') private brickDescriptionQueue: Queue,
+        @InjectQueue('photo-upload') private photoUploadQueue: Queue,
     ) {}
 
     // Add a notification flush job with 10 minutes delay
@@ -156,5 +158,22 @@ export class QueueService {
         });
 
         this.logger.log(`Brick description job added for brick ${brickId}`);
+    }
+
+    // Add a photo upload processing job
+    async addPhotoUploadJob(data: PhotoUploadJobData): Promise<void> {
+        await this.photoUploadQueue.add('process-photo-upload', data, {
+            attempts: 3,
+            backoff: {
+                type: 'exponential',
+                delay: 5000,
+            },
+            removeOnComplete: true,
+            removeOnFail: false,
+        });
+
+        this.logger.log(
+            `Photo upload job added for session ${data.sessionId}, user ${data.userId}`,
+        );
     }
 }

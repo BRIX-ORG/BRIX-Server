@@ -1,5 +1,10 @@
 import { Module } from '@nestjs/common';
-import { BricksController } from './bricks.controller';
+import {
+    BricksController,
+    BrickCommentsController,
+    BrickVotesController,
+    PhotoUploadController,
+} from './controllers';
 import {
     BrickRepository,
     BrickVoteRepository,
@@ -25,6 +30,8 @@ import {
     GetBrickVoteStatusService,
     GetCommentVoteStatusService,
     GetBrickDetailService,
+    CreatePhotoSessionService,
+    UploadPhotoService,
 } from './application';
 import { QueueModule } from '@/queue';
 import { NotificationsModule } from '@/modules/notifications/notifications.module';
@@ -32,7 +39,12 @@ import { UsersModule } from '@/modules/users/users.module';
 
 @Module({
     imports: [QueueModule, NotificationsModule, UsersModule],
-    controllers: [BricksController],
+    controllers: [
+        PhotoUploadController,
+        BricksController,
+        BrickCommentsController,
+        BrickVotesController,
+    ],
     providers: [
         // Infrastructure
         BrickRepository,
@@ -58,6 +70,8 @@ import { UsersModule } from '@/modules/users/users.module';
         GetBrickVoteStatusService,
         GetCommentVoteStatusService,
         GetBrickDetailService,
+        CreatePhotoSessionService,
+        UploadPhotoService,
     ],
     exports: [BrickRepository],
 })

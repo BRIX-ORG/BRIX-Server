@@ -1,5 +1,5 @@
 export * from './bricks.module';
-export * from './bricks.controller';
+export * from './controllers';
 export * from './application';
 export * from './domain';
 export * from './dto';

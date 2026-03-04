@@ -16,3 +16,5 @@ export * from './update-comment.service';
 export * from './get-brick-vote-status.service';
 export * from './get-comment-vote-status.service';
 export * from './get-brick-detail.service';
+export * from './create-photo-session.service';
+export * from './upload-photo.service';

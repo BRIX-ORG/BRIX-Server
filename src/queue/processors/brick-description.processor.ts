@@ -10,7 +10,7 @@ import { BrickDescriptionJobData } from '../types';
 })
 export class BrickDescriptionProcessor extends WorkerHost {
     private readonly logger = new Logger(BrickDescriptionProcessor.name);
-    private readonly blipUrl: string;
+    private readonly visionUrl: string;
     private readonly minioPublicUrl: string;
     private readonly minioExternalUrl: string;
 
@@ -19,9 +19,9 @@ export class BrickDescriptionProcessor extends WorkerHost {
         private readonly configService: ConfigService,
     ) {
         super();
-        this.blipUrl = this.configService.get<string>('BLIP_API_URL', 'http://localhost:8000');
+        this.visionUrl = this.configService.get<string>('VISION_API_URL', 'http://localhost:8000');
 
-        // MinIO URL accessible from BLIP container (Docker network)
+        // MinIO URL accessible from Vision container (Docker network)
         this.minioPublicUrl = this.configService.get<string>(
             'MINIO_PUBLIC_URL',
             'http://localhost:9000',
@@ -39,11 +39,11 @@ export class BrickDescriptionProcessor extends WorkerHost {
         this.logger.log(`Processing brick description job ${job.id} for brick ${brickId}`);
 
         try {
-            // Replace MinIO URL with one accessible from BLIP container
+            // Replace MinIO URL with one accessible from Vision container
             const accessibleUrl = imageUrl.replace(this.minioExternalUrl, this.minioPublicUrl);
             this.logger.log(`Image URL: ${imageUrl} -> ${accessibleUrl}`);
 
-            // Call BLIP service to generate description
+            // Call Vision service to generate description (BLIP)
             const description = await this.generateDescription(accessibleUrl);
 
             // Update brick with generated description
@@ -69,7 +69,7 @@ export class BrickDescriptionProcessor extends WorkerHost {
         const timeout = setTimeout(() => controller.abort(), 5 * 60 * 1000);
 
         try {
-            const response = await fetch(`${this.blipUrl}/describe`, {
+            const response = await fetch(`${this.visionUrl}/describe`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -80,7 +80,7 @@ export class BrickDescriptionProcessor extends WorkerHost {
             });
 
             if (!response.ok) {
-                throw new Error(`BLIP API error: ${response.status} ${response.statusText}`);
+                throw new Error(`Vision API error: ${response.status} ${response.statusText}`);
             }
 
             const result = (await response.json()) as { description: string };

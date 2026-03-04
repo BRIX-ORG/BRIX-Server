@@ -2,11 +2,18 @@ import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { QueueService } from './queue.service';
-import { EmailProcessor, NotificationProcessor, BrickDescriptionProcessor } from './processors';
+import {
+    EmailProcessor,
+    NotificationProcessor,
+    BrickDescriptionProcessor,
+    PhotoUploadProcessor,
+} from './processors';
 import { EmailModule } from '@/email';
 import { forwardRef } from '@nestjs/common';
 import { NotificationsModule } from '@/modules/notifications/notifications.module';
 import { PrismaModule } from '@/prisma';
+import { CloudinaryModule } from '@/cloudinary';
+import { MinioModule } from '@/minio';
 
 @Module({
     imports: [
@@ -45,11 +52,22 @@ import { PrismaModule } from '@/prisma';
         BullModule.registerQueue({
             name: 'brick-description',
         }),
+        BullModule.registerQueue({
+            name: 'photo-upload',
+        }),
         EmailModule,
         PrismaModule,
+        CloudinaryModule,
+        MinioModule,
         forwardRef(() => NotificationsModule),
     ],
-    providers: [QueueService, EmailProcessor, NotificationProcessor, BrickDescriptionProcessor],
+    providers: [
+        QueueService,
+        EmailProcessor,
+        NotificationProcessor,
+        BrickDescriptionProcessor,
+        PhotoUploadProcessor,
+    ],
     exports: [QueueService],
 })
 export class QueueModule {}

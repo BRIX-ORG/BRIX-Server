@@ -52,19 +52,19 @@ services:
             retries: 5
         command: server /data --console-address ":9001"
 
-    blip:
+    vision:
         build:
-            context: ./python/blip
+            context: ./python/vision
             dockerfile: Dockerfile
-        container_name: brix-blip
+        container_name: brix-vision
         restart: unless-stopped
         ports:
-            - '${BLIP_PORT:-8000}:8000'
+            - '${VISION_PORT:-8000}:8000'
         environment:
-            MOONDREAM_PORT: 8000
+            VISION_PORT: 8000
             BLIP_MODEL_ID: ${BLIP_MODEL_ID:-Salesforce/blip-image-captioning-base}
         volumes:
-            - blip_cache:/root/.cache/huggingface
+            - vision_cache:/root/.cache/huggingface
         healthcheck:
             test: ['CMD', 'curl', '-f', 'http://localhost:8000/health']
             interval: 90s
@@ -94,7 +94,7 @@ services:
             MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minioadmin}
             MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minioadmin}
             MINIO_PUBLIC_URL: http://minio:9000
-            BLIP_API_URL: http://blip:8000
+            VISION_API_URL: http://vision:8000
             DATABASE_URL: postgresql://${DB_USERNAME:-brix_user}:${DB_PASSWORD:-brix_password}@postgres:5432/${DB_DATABASE:-brix_db}
         env_file:
             - .env
@@ -105,11 +105,11 @@ services:
                 condition: service_healthy
             minio:
                 condition: service_healthy
-            blip:
+            vision:
                 condition: service_healthy
 
 volumes:
     postgres_data:
     redis_data:
     minio_data:
-    blip_cache:
+    vision_cache:

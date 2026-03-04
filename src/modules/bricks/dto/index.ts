@@ -11,3 +11,5 @@ export * from './paginated-comments-response.dto';
 export * from './upvoter-response.dto';
 export * from './update-brick.dto';
 export * from './update-comment.dto';
+export * from './photo-session-response.dto';
+export * from './upload-photo.dto';
