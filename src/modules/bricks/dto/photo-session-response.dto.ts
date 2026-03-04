@@ -7,9 +7,12 @@ export class PhotoSessionResponseDto {
     })
     sessionId: string;
 
-    @ApiProperty({ description: 'One-time nonce to display on screen', example: 'A91DFK' })
-    nonce: string;
+    @ApiProperty({
+        description: 'Base64-encoded HMAC-signed token. Render as QR code on canvas.',
+        example: 'eyJub25jZSI6IkE5MURGSyIsInRzIjoxNzA5NTM4MDAwMDAwLCJzaWciOiIuLi4ifQ==',
+    })
+    qrToken: string;
 
-    @ApiProperty({ description: 'Session expiry in seconds', example: 30 })
+    @ApiProperty({ description: 'Session expiry in seconds', example: 90 })
     expiresIn: number;
 }

@@ -2,6 +2,7 @@ import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Job } from 'bullmq';
+import { createHmac } from 'crypto';
 import { PrismaService } from '@/prisma/prisma.service';
 import { CloudinaryService } from '@/cloudinary/cloudinary.service';
 import { MinioService } from '@/minio/minio.service';
@@ -11,13 +12,14 @@ import { MediaType, TagType } from '@prisma/client';
 import { randomUUID } from 'crypto';
 
 @Processor('photo-upload', {
-    concurrency: 1, // OCR is CPU-heavy, limit concurrency
+    concurrency: 2, // QR decode is fast, safe to run 2 concurrently
 })
 export class PhotoUploadProcessor extends WorkerHost {
     private readonly logger = new Logger(PhotoUploadProcessor.name);
     private readonly visionUrl: string;
     private readonly minioPublicUrl: string;
     private readonly minioExternalUrl: string;
+    private readonly hmacSecret: string;
 
     constructor(
         private readonly prisma: PrismaService,
@@ -28,6 +30,8 @@ export class PhotoUploadProcessor extends WorkerHost {
     ) {
         super();
         this.visionUrl = this.configService.get<string>('VISION_API_URL', 'http://localhost:8000');
+
+        this.hmacSecret = this.configService.get<string>('QR_HMAC_SECRET', 'qrsecret');
 
         // MinIO URL accessible from Vision container (Docker network)
         this.minioPublicUrl = this.configService.get<string>(
@@ -98,7 +102,7 @@ export class PhotoUploadProcessor extends WorkerHost {
                 format: cloudinaryResult.format,
             };
 
-            // ─── OCR Nonce Verification ──────────────────────────────────────
+            // ─── QR Challenge Verification ───────────────────────────────────
             let isVerified = false;
             if (nonce) {
                 try {
@@ -106,20 +110,20 @@ export class PhotoUploadProcessor extends WorkerHost {
                         this.minioExternalUrl,
                         this.minioPublicUrl,
                     );
-                    isVerified = await this.verifyNonceViaOcr(accessibleUrl, nonce);
+                    isVerified = await this.verifyQrChallenge(accessibleUrl, nonce);
 
                     if (isVerified) {
                         this.logger.log(
-                            `Nonce "${nonce}" verified in photo for session ${sessionId}`,
+                            `QR nonce "${nonce}" verified in photo for session ${sessionId}`,
                         );
                     } else {
                         this.logger.warn(
-                            `Nonce "${nonce}" NOT found in photo for session ${sessionId}`,
+                            `QR nonce "${nonce}" NOT found in photo for session ${sessionId}`,
                         );
                     }
                 } catch (err) {
                     this.logger.error(
-                        `OCR verification error: ${err instanceof Error ? err.message : 'Unknown'}`,
+                        `QR verification error: ${err instanceof Error ? err.message : 'Unknown'}`,
                     );
                 }
             }
@@ -141,7 +145,7 @@ export class PhotoUploadProcessor extends WorkerHost {
                     metadata: {
                         create: {
                             modelData: {
-                                ocr_status: isVerified ? 'verified' : 'failed',
+                                qr_status: isVerified ? 'verified' : 'failed',
                                 nonce: nonce || null,
                             },
                             ...(isVerified ? { verifiedAt: new Date() } : {}),
@@ -162,12 +166,23 @@ export class PhotoUploadProcessor extends WorkerHost {
         }
     }
 
-    private async verifyNonceViaOcr(imageUrl: string, expectedNonce: string): Promise<boolean> {
+    /**
+     * Decode QR code from image via Python service, then verify HMAC signature.
+     *
+     * Flow:
+     * 1. Call Python /decode-qr → get raw QR text (base64 JSON)
+     * 2. Decode base64 → parse JSON { nonce, ts, sig }
+     * 3. Recompute HMAC(secret, nonce|ts) and compare with sig
+     * 4. Check nonce matches expected nonce from Redis session
+     * 5. Check timestamp is within TTL (90s)
+     */
+    private async verifyQrChallenge(imageUrl: string, expectedNonce: string): Promise<boolean> {
         const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 60 * 1000); // 60s timeout
+        const timeout = setTimeout(() => controller.abort(), 30 * 1000); // 30s timeout (QR is fast)
 
         try {
-            const response = await fetch(`${this.visionUrl}/ocr`, {
+            // 1. Call Python service to decode QR codes from image
+            const response = await fetch(`${this.visionUrl}/decode-qr`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ image_url: imageUrl }),
@@ -175,16 +190,61 @@ export class PhotoUploadProcessor extends WorkerHost {
             });
 
             if (!response.ok) {
-                throw new Error(`Vision OCR API error: ${response.status}`);
+                throw new Error(`Vision QR API error: ${response.status}`);
             }
 
-            const result = (await response.json()) as { nonces: string[] };
+            const result = (await response.json()) as { qr_data: string[] };
 
-            // Python OCR returns nonces in "BRX-XXXXXX" format
-            // Redis stores raw nonce (e.g. "A91DFK"), so we compare with prefix
-            const expectedFull = `BRX-${expectedNonce.toUpperCase().trim()}`;
+            if (!result.qr_data || result.qr_data.length === 0) {
+                this.logger.warn('No QR codes found in image');
+                return false;
+            }
 
-            return result.nonces.some((n) => n.toUpperCase().trim() === expectedFull);
+            // 2. Try each decoded QR text
+            for (const qrText of result.qr_data) {
+                try {
+                    // Decode base64 → JSON
+                    const decoded = Buffer.from(qrText, 'base64').toString('utf-8');
+                    const payload = JSON.parse(decoded) as {
+                        nonce: string;
+                        ts: number;
+                        sig: string;
+                    };
+
+                    // 3. Verify HMAC signature
+                    const expectedSig = createHmac('sha256', this.hmacSecret)
+                        .update(`${payload.nonce}|${payload.ts}`)
+                        .digest('hex');
+
+                    if (payload.sig !== expectedSig) {
+                        this.logger.warn('QR HMAC signature mismatch');
+                        continue;
+                    }
+
+                    // 4. Check nonce matches session
+                    if (payload.nonce.toUpperCase() !== expectedNonce.toUpperCase()) {
+                        this.logger.warn(
+                            `QR nonce "${payload.nonce}" does not match expected "${expectedNonce}"`,
+                        );
+                        continue;
+                    }
+
+                    // 5. Check timestamp is within 90s
+                    const ageMs = Date.now() - payload.ts;
+                    if (ageMs > 90 * 1000) {
+                        this.logger.warn(`QR token expired (age: ${Math.round(ageMs / 1000)}s)`);
+                        continue;
+                    }
+
+                    // All checks passed
+                    return true;
+                } catch {
+                    // This QR text wasn't a valid token, try next
+                    continue;
+                }
+            }
+
+            return false;
         } finally {
             clearTimeout(timeout);
         }

@@ -2,11 +2,10 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-# Install system dependencies (libgl for OpenCV, libglib for EasyOCR)
+# Install system dependencies (libzbar0 for pyzbar QR decoding)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
-    libgl1 \
-    libglib2.0-0 \
+    libzbar0 \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first for layer caching

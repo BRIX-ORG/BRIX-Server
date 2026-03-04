@@ -1,36 +1,29 @@
 import io
 import os
-import re
 import logging
 from contextlib import asynccontextmanager
 
 import httpx
 import torch
-import easyocr
-import numpy as np
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from PIL import Image
+from pyzbar.pyzbar import decode as decode_qr
 from transformers import BlipProcessor, BlipForConditionalGeneration
 
 logger = logging.getLogger("vision")
 logging.basicConfig(level=logging.INFO)
 
-# Regex pattern to match nonce format: BRX-{4-8 alphanumeric chars}
-NONCE_PATTERN = re.compile(r"BRX-[A-Z0-9]{4,8}")
-
 # Global references
 model = None
 processor = None
-ocr_reader = None
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Load BLIP model and EasyOCR reader on startup."""
-    global model, processor, ocr_reader
+    """Load BLIP model on startup."""
+    global model, processor
 
-    # ─── BLIP (Image Captioning) ──────────────────────────────────────────
     model_id = os.getenv("BLIP_MODEL_ID", "Salesforce/blip-image-captioning-base")
 
     logger.info(f"Loading BLIP model: {model_id}")
@@ -49,11 +42,6 @@ async def lifespan(app: FastAPI):
 
     logger.info("BLIP model loaded successfully")
 
-    # ─── EasyOCR (Nonce Verification) ─────────────────────────────────────
-    logger.info("Loading EasyOCR reader (en)...")
-    ocr_reader = easyocr.Reader(["en"], gpu=(device == "cuda"))
-    logger.info("EasyOCR reader loaded successfully")
-
     yield
 
     logger.info("Shutting down BRIX Vision Service")
@@ -61,8 +49,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="BRIX Vision Service",
-    description="Image captioning (BLIP) and OCR nonce verification (EasyOCR)",
-    version="2.0.0",
+    description="Image captioning (BLIP) and QR code verification (pyzbar)",
+    version="3.0.0",
     lifespan=lifespan,
 )
 
@@ -79,12 +67,12 @@ class DescribeResponse(BaseModel):
     description: str
 
 
-class OcrRequest(BaseModel):
+class QrDecodeRequest(BaseModel):
     image_url: str
 
 
-class OcrResponse(BaseModel):
-    nonces: list[str]  # Extracted nonce strings matching BRX-XXXXXX
+class QrDecodeResponse(BaseModel):
+    qr_data: list[str]  # List of decoded QR code text strings
 
 
 # ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -106,7 +94,6 @@ async def health():
     return {
         "status": "ok",
         "blip_loaded": model is not None,
-        "ocr_loaded": ocr_reader is not None,
     }
 
 
@@ -151,70 +138,44 @@ async def describe_image(request: DescribeRequest):
         )
 
 
-@app.post("/ocr", response_model=OcrResponse)
-async def ocr_nonce(request: OcrRequest):
+@app.post("/decode-qr", response_model=QrDecodeResponse)
+async def decode_qr_code(request: QrDecodeRequest):
     """
-    Extract nonce from the bottom-left ROI of a webcam photo.
+    Decode QR codes from an uploaded webcam photo.
 
-    Frontend renders nonce as "BRX-{6_CHAR}" in bold monospace cyan text
-    at the bottom-left corner. We crop that region (35% width × 12% height)
-    and run OCR only on it to avoid false positives from environment text.
+    Frontend renders a QR code containing an HMAC-signed token
+    onto the captured image. This endpoint finds and decodes
+    all QR codes in the image, returning the raw text data.
+    Signature verification happens on the NestJS side.
     """
-    if ocr_reader is None:
-        raise HTTPException(status_code=503, detail="OCR reader not loaded yet")
-
     try:
         content = await download_image(request.image_url)
 
-        image = Image.open(io.BytesIO(content)).convert("RGB")
-        w, h = image.size
+        image = Image.open(io.BytesIO(content))
 
-        # ─── Crop ROI: bottom-left 35% width × 12% height ────────────────
-        roi_w = int(w * 0.35)
-        roi_h = int(h * 0.12)
-        roi = image.crop((0, h - roi_h, roi_w, h))
+        # pyzbar can decode QR codes from PIL images directly
+        decoded_objects = decode_qr(image)
 
-        logger.info(
-            f"Image {w}x{h}, cropped ROI: {roi_w}x{roi_h} (bottom-left)"
-        )
+        qr_data: list[str] = []
+        for obj in decoded_objects:
+            text = obj.data.decode("utf-8")
+            qr_data.append(text)
+            logger.info(f"QR decoded: type={obj.type}, data={text[:80]}...")
 
-        roi_np = np.array(roi)
+        if not qr_data:
+            logger.warning("No QR codes found in image")
 
-        # ─── EasyOCR with detail mode (for confidence scores) ─────────────
-        # detail=1 returns: [(bbox, text, confidence), ...]
-        results = ocr_reader.readtext(roi_np, detail=1)
-
-        logger.info(f"OCR raw results: {[(t, c) for (_, t, c) in results]}")
-
-        # ─── Extract nonces matching BRX-XXXXXX pattern ───────────────────
-        nonces: list[str] = []
-        for _, text, confidence in results:
-            if confidence < 0.5:
-                continue
-
-            # Clean up: remove spaces, uppercase
-            clean = text.replace(" ", "").upper()
-            match = NONCE_PATTERN.search(clean)
-            if match:
-                nonces.append(match.group())
-                logger.info(
-                    f"Nonce found: {match.group()} (confidence: {confidence:.2f})"
-                )
-
-        if not nonces:
-            logger.warn("No nonce pattern found in ROI")
-
-        return OcrResponse(nonces=nonces)
+        return QrDecodeResponse(qr_data=qr_data)
 
     except httpx.HTTPError as e:
-        logger.error(f"Failed to download image for OCR: {e}")
+        logger.error(f"Failed to download image for QR decode: {e}")
         raise HTTPException(
             status_code=400, detail=f"Failed to download image: {str(e)}"
         )
     except Exception as e:
-        logger.error(f"OCR processing failed: {e}")
+        logger.error(f"QR decode failed: {e}")
         raise HTTPException(
-            status_code=500, detail=f"OCR failed: {str(e)}"
+            status_code=500, detail=f"QR decode failed: {str(e)}"
         )
 
 

@@ -43,8 +43,8 @@ export class PhotoUploadController {
     @ApiOperation({
         summary: 'Create a challenge-based photo capture session',
         description:
-            'Generates a short-lived session with a nonce (90s TTL). ' +
-            'Client must display the nonce and use the sessionId when uploading. ' +
+            'Generates a short-lived session with an HMAC-signed QR token (90s TTL). ' +
+            'Client must render the qrToken as a QR code on the canvas and use the sessionId when uploading. ' +
             'Each session can only be used once.',
     })
     @ApiResponse({
@@ -75,7 +75,8 @@ export class PhotoUploadController {
             'Validates the challenge session (must be valid, not expired, not used), ' +
             'checks image integrity (magic bytes + sharp decode), ' +
             'then queues the upload for background processing via BullMQ. ' +
-            'The brick will be created asynchronously with tagType=REALTIME.',
+            'The worker will decode the QR code from the image, verify the HMAC signature, ' +
+            'and create the brick with tagType=REALTIME.',
     })
     @ApiBody({
         description: 'Photo file with session metadata',
