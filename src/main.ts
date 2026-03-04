@@ -67,6 +67,12 @@ async function bootstrap() {
         pc.blueBright(`MinIO Console is available at: `) +
             pc.cyan(`http://localhost:${minioConsolePort}`),
     );
+
+    const redisCommanderPort = configService.get<string>('REDIS_COMMANDER_PORT', '8081');
+    logger.log(
+        pc.blueBright(`Redis Commander is available at: `) +
+            pc.cyan(`http://localhost:${redisCommanderPort}`),
+    );
 }
 bootstrap().catch((err) => {
     console.error(err);

@@ -1,44 +1,42 @@
-# BRIX Server
+# BRIX Database Management (Prisma)
 
-## Database Workflow (Prisma)
+This project uses Prisma as an ORM to manage the PostgreSQL database. This document outlines the workflow for changing the database schema.
 
-Dự án sử dụng Prisma để quản lý Database. Dưới đây là quy trình khi bạn muốn thay đổi cấu trúc bảng (schema).
+## Database Workflow
 
-### 1. Bảng `_prisma_migrations` là gì?
+Whenever you need to add, modify, or delete columns/tables, follow these steps:
 
-Đây là bảng nội bộ của Prisma dùng để theo dõi lịch sử các bản cập nhật DB của bạn.
+### 1. The `_prisma_migrations` Table
 
-- Mỗi khi bạn chạy `prisma migrate dev`, Prisma sẽ lưu thông tin bản cập nhật vào bảng này.
-- **TUYỆT ĐỐI KHÔNG** xóa hoặc sửa bảng này thủ công.
+This is an internal Prisma table used to track the history of your database updates.
 
-### 2. Quy trình thay đổi Schema (Thiết kế lại bảng)
+- **NEVER** delete or modify this table manually.
+- Prisma uses it to ensure your development environment stays in sync with production.
 
-Mỗi khi bạn thêm/sửa/xóa column hoặc tạo bảng mới, hãy làm theo các bước sau:
+### 2. Changing the Schema
 
-1.  **Chỉnh sửa file schema**: Mở `prisma/schema.prisma` và thay đổi thiết kế bảng.
-2.  **Chạy Migration**:
+1.  **Modify the Schema**: Open `prisma/schema.prisma` and make your changes (e.g., adding a new field like `voice` to the `Message` model).
+2.  **Generate a Migration**:
 
     ```bash
-    pnpm prisma:migrate
+    npx prisma migrate dev --name your_migration_name
     ```
 
-    - Prisma sẽ so sánh schema của bạn với DB hiện tại.
-    - Nó sẽ hỏi bạn tên của migration (ví dụ: `add_user_avatar`).
-    - Nó sẽ tạo ra 1 file SQL trong thư mục `prisma/migrations` và thực thi nó vào DB.
+    - Prisma compares your schema with the current DB state.
+    - It generates a SQL file in `prisma/migrations` and executes it.
+    - This also automatically runs `prisma generate` to update the TypeScript types (Intellisense).
 
-3.  **Tự động cập nhật Client**: Sau khi migrate thành công, lệnh này cũng tự động chạy `prisma generate` để bạn có code gợi ý (Intellisense) mới nhất trong VS Code.
+### 3. Useful Commands
 
-### 3. Các lệnh Database hữu ích
-
-| Lệnh                   | Mô tả                                                                     |
-| :--------------------- | :------------------------------------------------------------------------ |
-| `pnpm prisma:migrate`  | Tạo migration mới và áp dụng vào DB (Dùng khi code)                       |
-| `pnpm prisma:generate` | Cập nhật Prisma Client (Code intellisense)                                |
-| `pnpm prisma:studio`   | Mở giao diện Web để xem/sửa data nhanh                                    |
-| `pnpm prisma:reset`    | **XÓA SẠCH DATA** và chạy lại toàn bộ migration từ đầu                    |
-| `pnpm prisma:push`     | Đẩy trực tiếp schema lên DB không qua migration (Chỉ dùng khi test nhanh) |
+| Command                    | Description                                                     |
+| :------------------------- | :-------------------------------------------------------------- |
+| `npx prisma migrate dev`   | Create a new migration and apply to DB (Development)            |
+| `npx prisma generate`      | Update Prisma Client (TypeScript types & Intellisense)          |
+| `npx prisma studio`        | Open Web UI to view and edit data easily                        |
+| `npx prisma migrate reset` | **ERASE ALL DATA** and restart all migrations from scratch      |
+| `npx prisma db push`       | Push schema directly to DB without migration (Use with caution) |
 
 ---
 
 > [!IMPORTANT]
-> Luôn sử dụng `prisma:migrate` thay vì `prisma:push` để đảm bảo project có lịch sử thay đổi (migrations history) đồng nhất giữa các thành viên trong team.
+> Always use `migrate dev` instead of `db push` to ensure a consistent migration history across the team.

@@ -27,7 +27,9 @@
             "@cloudinary/*": ["src/cloudinary/*"],
             "@minio/*": ["src/minio/*"],
             "@cron/*": ["src/cron/*"],
-            "@bricks/*": ["src/modules/bricks/*"]
+            "@bricks/*": ["src/modules/bricks/*"],
+            "@messages/*": ["src/modules/messages/*"],
+            "@socket/*": ["src/socket/*"]
         },
         "incremental": true,
         "skipLibCheck": true,

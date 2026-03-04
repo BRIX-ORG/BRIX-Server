@@ -17,6 +17,8 @@ import { QueueModule } from '@/queue';
 import { CloudinaryModule } from '@/cloudinary';
 import { MinioModule } from '@/minio';
 import { LocationIqModule } from '@/location-iq';
+import { SocketModule } from '@/socket';
+import { MessagesModule } from '@/modules/messages';
 import { LoggerMiddleware } from '@/common';
 
 @Module({
@@ -40,6 +42,8 @@ import { LoggerMiddleware } from '@/common';
         FollowsModule,
         BricksModule,
         NotificationsModule,
+        SocketModule,
+        MessagesModule,
     ],
     controllers: [AppController],
     providers: [AppService],
