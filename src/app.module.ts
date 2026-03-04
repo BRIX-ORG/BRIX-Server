@@ -1,5 +1,6 @@
 import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { CronModule } from '@/cron';
 import { AppController } from '@/app.controller';
 import { AppService } from '@/app.service';
@@ -19,6 +20,7 @@ import { MinioModule } from '@/minio';
 import { LocationIqModule } from '@/location-iq';
 import { SocketModule } from '@/socket';
 import { MessagesModule } from '@/modules/messages';
+import { HealthModule } from '@/modules/health/health.module';
 import { LoggerMiddleware } from '@/common';
 
 @Module({
@@ -28,6 +30,13 @@ import { LoggerMiddleware } from '@/common';
             load: [appConfig, cloudinaryConfig],
             envFilePath: ['.env', '.env.local'],
         }),
+        ThrottlerModule.forRoot([
+            {
+                ttl: 60000,
+                limit: 100,
+            },
+        ]),
+        HealthModule,
         CronModule,
         FirebaseModule,
         RedisModule,

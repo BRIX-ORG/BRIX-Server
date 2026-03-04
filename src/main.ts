@@ -5,6 +5,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from '@/app.module';
 import { ResponseInterceptor, HttpExceptionFilter, AllExceptionsFilter } from '@/common';
 import pc from 'picocolors';
+import helmet from 'helmet';
 // import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
@@ -15,6 +16,7 @@ async function bootstrap() {
     const logger = new Logger('Bootstrap');
 
     // Middlewares
+    app.use(helmet());
     // app.use(cookieParser());
 
     // Global validation pipe
@@ -52,6 +54,10 @@ async function bootstrap() {
     SwaggerModule.setup(`${apiPrefix}/docs`, app, document);
 
     const port = configService.get<number>('app.port', 3000);
+
+    // Enable graceful shutdown
+    app.enableShutdownHooks();
+
     await app.listen(port);
 
     logger.log(

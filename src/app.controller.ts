@@ -33,37 +33,4 @@ export class AppController {
     getHello() {
         return this.appService.getHello();
     }
-
-    @Get('health')
-    @ApiOperation({ summary: 'Check API health status' })
-    @ApiResponse({
-        status: 200,
-        description: 'API is healthy',
-        schema: {
-            type: 'object',
-            properties: {
-                message: { type: 'string', example: 'Success' },
-                code: { type: 'number', example: 200 },
-                data: {
-                    type: 'object',
-                    properties: {
-                        status: { type: 'string', example: 'ok' },
-                        timestamp: { type: 'string', example: '2024-01-28T12:00:00.000Z' },
-                        uptime: { type: 'number', example: 123.45 },
-                        memory: {
-                            type: 'object',
-                            properties: {
-                                rss: { type: 'string', example: '100 MB' },
-                                heapTotal: { type: 'string', example: '50 MB' },
-                                heapUsed: { type: 'string', example: '30 MB' },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-    })
-    checkHealth() {
-        return this.appService.getHealth();
-    }
 }
