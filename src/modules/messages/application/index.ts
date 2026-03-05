@@ -11,3 +11,4 @@ export * from './get-conversation-files.service';
 export * from './get-conversation-unread-count.service';
 export * from './get-conversation-by-id.service';
 export * from './delete-message.service';
+export * from './get-conversation-by-partner.service';

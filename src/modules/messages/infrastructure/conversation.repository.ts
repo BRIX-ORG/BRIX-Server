@@ -25,6 +25,17 @@ export class ConversationRepository {
     }
 
     /**
+     * Find a conversation between two users by their IDs.
+     */
+    async findByUsers(userAId: string, userBId: string) {
+        const [user1Id, user2Id] = userAId < userBId ? [userAId, userBId] : [userBId, userAId];
+
+        return this.prisma.conversation.findUnique({
+            where: { user1Id_user2Id: { user1Id, user2Id } },
+        });
+    }
+
+    /**
      * Find a conversation by ID with both users.
      */
     async findById(id: string) {

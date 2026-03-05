@@ -30,6 +30,7 @@ import {
     GetConversationFilesService,
     GetConversationUnreadCountService,
     GetConversationByIdService,
+    GetConversationByPartnerService,
 } from '@messages/application';
 import { ConversationMemberGuard } from '@messages/guards';
 import { GetConversation } from '@messages/decorators/get-conversation.decorator';
@@ -57,6 +58,7 @@ export class ConversationsController {
         private readonly deleteConversationService: DeleteConversationService,
         private readonly getConversationUnreadCountService: GetConversationUnreadCountService,
         private readonly getConversationByIdService: GetConversationByIdService,
+        private readonly getConversationByPartnerService: GetConversationByPartnerService,
     ) {}
 
     // ─── List Conversations ──────────────────────────────────────────────────
@@ -81,6 +83,28 @@ export class ConversationsController {
         @Query() query: MessagesQueryDto,
     ): Promise<PaginatedConversationsResponseDto> {
         return this.getConversationsService.execute(user.id, query.limit ?? 20, query.offset ?? 0);
+    }
+
+    // ─── Find Conversation by Partner ─────────────────────────────────────────
+
+    @Get('partner/:partnerId')
+    @ApiOperation({
+        summary: 'Find conversation by partner ID',
+        description:
+            'Returns conversation details between the current user and the specified partner.',
+    })
+    @ApiParam({ name: 'partnerId', description: 'Partner User ID (UUID)' })
+    @ApiResponse({
+        status: 200,
+        description: 'Conversation details retrieved.',
+        type: ConversationResponseDto,
+    })
+    @ApiResponse({ status: 404, description: 'Conversation or partner not found.' })
+    async getConversationByPartner(
+        @CurrentUser() user: UserEntity,
+        @Param('partnerId', ParseUUIDPipe) partnerId: string,
+    ): Promise<ConversationResponseDto> {
+        return this.getConversationByPartnerService.execute(user.id, partnerId);
     }
 
     // ─── Get Conversation Detail ──────────────────────────────────────────────

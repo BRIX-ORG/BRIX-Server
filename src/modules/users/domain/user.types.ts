@@ -36,6 +36,8 @@ export interface UserEntityProps {
     provider: 'LOCAL' | 'GOOGLE';
     verifiedAt: Date | null;
     refreshToken: string | null;
+    isOnline: boolean;
+    lastSeenAt: Date | null;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -63,4 +65,6 @@ export interface UpdateProfileData {
     password?: string;
     refreshToken?: string;
     verifiedAt?: Date | null;
+    isOnline?: boolean;
+    lastSeenAt?: Date | null;
 }

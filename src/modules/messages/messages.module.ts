@@ -15,10 +15,13 @@ import {
     DeleteConversationService,
     GetConversationUnreadCountService,
     GetConversationByIdService,
+    GetConversationByPartnerService,
 } from './application';
 import { ConversationMemberGuard } from './guards';
+import { UsersModule } from '@users/users.module';
 
 @Module({
+    imports: [UsersModule],
     controllers: [ConversationsController, MessagesController],
     providers: [
         // Infrastructure
@@ -38,6 +41,7 @@ import { ConversationMemberGuard } from './guards';
         DeleteConversationService,
         GetConversationUnreadCountService,
         GetConversationByIdService,
+        GetConversationByPartnerService,
         ConversationMemberGuard,
     ],
     exports: [ConversationRepository, MessageRepository, DeleteConversationService],

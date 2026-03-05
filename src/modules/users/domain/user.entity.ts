@@ -86,6 +86,14 @@ export class UserEntity {
     readonly verifiedAt: Date | null;
 
     readonly refreshToken: string | null;
+    @ApiProperty({ example: false, description: 'Whether the user is currently online' })
+    readonly isOnline: boolean;
+    @ApiProperty({
+        example: '2024-01-01T00:00:00Z',
+        description: 'When the user was last seen',
+        nullable: true,
+    })
+    readonly lastSeenAt: Date | null;
 
     @ApiProperty({ example: '2024-01-01T00:00:00Z', description: 'The date the user was created' })
     readonly createdAt: Date;
@@ -113,6 +121,8 @@ export class UserEntity {
         this.provider = props.provider;
         this.verifiedAt = props.verifiedAt;
         this.refreshToken = props.refreshToken;
+        this.isOnline = props.isOnline;
+        this.lastSeenAt = props.lastSeenAt;
         this.createdAt = props.createdAt;
         this.updatedAt = props.updatedAt;
     }
