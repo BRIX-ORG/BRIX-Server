@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '@/prisma/prisma.service';
 import { TagType } from '@prisma/client';
 import { FindUserService } from '@users/application';
+import { BrickRepository, FindBricksFilter } from '@bricks/infrastructure';
 
 @Injectable()
 export class GetBricksService {
     constructor(
-        private readonly prisma: PrismaService,
+        private readonly brickRepository: BrickRepository,
         private readonly findUserService: FindUserService,
     ) {}
 
@@ -25,21 +25,17 @@ export class GetBricksService {
         // Otherwise → only public bricks
         const isOwner = requesterId === userId;
 
-        const where = {
+        const filter: FindBricksFilter = {
             userId,
             ...(isOwner ? {} : { isPublic: true }),
-            ...(tagType ? { tagType } : {}),
+            tagType,
         };
 
-        const [data, total] = await Promise.all([
-            this.prisma.brick.findMany({
-                where,
-                orderBy: { createdAt: 'desc' },
-                take: limit,
-                skip: offset,
-            }),
-            this.prisma.brick.count({ where }),
-        ]);
+        const [data, total] = await this.brickRepository.findManyWithMetadata(
+            filter,
+            limit,
+            offset,
+        );
 
         return { data, total, limit, offset };
     }

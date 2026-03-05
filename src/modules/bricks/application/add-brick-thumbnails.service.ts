@@ -4,14 +4,14 @@ import {
     ForbiddenException,
     BadRequestException,
 } from '@nestjs/common';
-import { PrismaService } from '@/prisma/prisma.service';
 import { CloudinaryService } from '@/cloudinary/cloudinary.service';
 import { WatermarkData } from '@bricks/domain';
+import { BrickRepository } from '@bricks/infrastructure';
 
 @Injectable()
 export class AddBrickThumbnailsService {
     constructor(
-        private readonly prisma: PrismaService,
+        private readonly brickRepository: BrickRepository,
         private readonly cloudinaryService: CloudinaryService,
     ) {}
 
@@ -20,7 +20,7 @@ export class AddBrickThumbnailsService {
             throw new BadRequestException('At least one image is required');
         }
 
-        const brick = await this.prisma.brick.findUnique({ where: { id: brickId } });
+        const brick = await this.brickRepository.findById(brickId);
 
         if (!brick) throw new NotFoundException('Brick not found');
         if (brick.userId !== userId)
@@ -53,12 +53,9 @@ export class AddBrickThumbnailsService {
         // First thumbnail is always the watermark
         const watermark = merged[0];
 
-        return this.prisma.brick.update({
-            where: { id: brickId },
-            data: {
-                thumbnail: merged as object[],
-                watermark: watermark as object,
-            },
+        return this.brickRepository.update(brickId, {
+            thumbnail: merged as object[],
+            watermark: watermark as object,
         });
     }
 }

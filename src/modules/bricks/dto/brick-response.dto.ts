@@ -1,6 +1,26 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Brick, MediaType, TagType } from '@prisma/client';
 
+export class BrickMetadataDto {
+    @ApiProperty()
+    id: string;
+
+    @ApiPropertyOptional({ type: Object })
+    rawExif: unknown;
+
+    @ApiPropertyOptional({ type: Object })
+    modelData: unknown;
+
+    @ApiPropertyOptional()
+    hashSha256: string | null;
+
+    @ApiPropertyOptional()
+    onChainTx: string | null;
+
+    @ApiPropertyOptional()
+    verifiedAt: Date | null;
+}
+
 export class BrickResponseDto {
     @ApiProperty()
     id: string;
@@ -44,13 +64,16 @@ export class BrickResponseDto {
     @ApiPropertyOptional({ type: Number })
     longitude: number | null;
 
+    @ApiPropertyOptional({ type: BrickMetadataDto })
+    metadata?: BrickMetadataDto | null;
+
     @ApiProperty()
     createdAt: Date;
 
     @ApiProperty()
     updatedAt: Date;
 
-    static fromEntity(brick: Brick): BrickResponseDto {
+    static fromEntity(brick: Brick & { metadata?: any }): BrickResponseDto {
         const dto = new BrickResponseDto();
         dto.id = brick.id;
         dto.userId = brick.userId;
@@ -66,6 +89,7 @@ export class BrickResponseDto {
         dto.address = brick.address;
         dto.latitude = brick.latitude ? Number(brick.latitude) : null;
         dto.longitude = brick.longitude ? Number(brick.longitude) : null;
+        dto.metadata = brick.metadata as BrickMetadataDto;
         dto.createdAt = brick.createdAt;
         dto.updatedAt = brick.updatedAt;
         return dto;

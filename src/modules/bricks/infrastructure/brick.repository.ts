@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
-import { Brick, MediaType, TagType } from '@prisma/client';
+import { Brick, MediaType, TagType, Prisma } from '@prisma/client';
 
 export interface CreateBrickData {
     userId: string;
@@ -18,6 +18,12 @@ export interface CreateBrickData {
     address?: string;
     latitude?: number;
     longitude?: number;
+}
+
+export interface FindBricksFilter {
+    userId: string;
+    isPublic?: boolean;
+    tagType?: TagType;
 }
 
 @Injectable()
@@ -62,6 +68,7 @@ export class BrickRepository {
                         gender: true,
                     },
                 },
+                metadata: true,
                 _count: {
                     select: {
                         votes: true,
@@ -76,6 +83,36 @@ export class BrickRepository {
         return this.prisma.brick.findMany({
             where: { userId },
             orderBy: { createdAt: 'desc' },
+        });
+    }
+
+    async findManyWithMetadata(
+        filter: FindBricksFilter,
+        limit: number,
+        offset: number,
+    ): Promise<[Brick[], number]> {
+        const where = {
+            userId: filter.userId,
+            ...(filter.isPublic !== undefined ? { isPublic: filter.isPublic } : {}),
+            ...(filter.tagType ? { tagType: filter.tagType } : {}),
+        };
+
+        return Promise.all([
+            this.prisma.brick.findMany({
+                where,
+                include: { metadata: true },
+                orderBy: { createdAt: 'desc' },
+                take: limit,
+                skip: offset,
+            }),
+            this.prisma.brick.count({ where }),
+        ]);
+    }
+
+    async update(id: string, data: Prisma.BrickUpdateInput): Promise<Brick> {
+        return this.prisma.brick.update({
+            where: { id },
+            data,
         });
     }
 

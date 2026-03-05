@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { MediaType, TagType, Brick } from '@prisma/client';
+import { BrickMetadataDto } from './brick-response.dto';
 
 class BrickAuthorDto {
     @ApiProperty() id: string;
@@ -29,6 +30,10 @@ export class BrickDetailResponseDto {
     @ApiPropertyOptional() address: string | null;
     @ApiPropertyOptional({ type: Number }) latitude: number | null;
     @ApiPropertyOptional({ type: Number }) longitude: number | null;
+
+    @ApiPropertyOptional({ type: BrickMetadataDto })
+    metadata?: BrickMetadataDto | null;
+
     @ApiProperty({ type: BrickCountsDto }) _count: BrickCountsDto;
     @ApiProperty() createdAt: Date;
     @ApiProperty() updatedAt: Date;
@@ -43,6 +48,7 @@ export class BrickDetailResponseDto {
                 gender: string;
             };
             _count: { votes: number; comments: number };
+            metadata?: any;
         },
     ): BrickDetailResponseDto {
         const dto = new BrickDetailResponseDto();
@@ -60,6 +66,7 @@ export class BrickDetailResponseDto {
         dto.address = brick.address;
         dto.latitude = brick.latitude ? Number(brick.latitude) : null;
         dto.longitude = brick.longitude ? Number(brick.longitude) : null;
+        dto.metadata = brick.metadata as BrickMetadataDto;
         dto._count = brick._count;
         dto.createdAt = brick.createdAt;
         dto.updatedAt = brick.updatedAt;

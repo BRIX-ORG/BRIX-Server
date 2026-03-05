@@ -4,19 +4,19 @@ import {
     ForbiddenException,
     BadRequestException,
 } from '@nestjs/common';
-import { PrismaService } from '@/prisma/prisma.service';
 import { CloudinaryService } from '@/cloudinary/cloudinary.service';
 import { WatermarkData } from '@bricks/domain';
+import { BrickRepository } from '@bricks/infrastructure';
 
 @Injectable()
 export class DeleteBrickThumbnailService {
     constructor(
-        private readonly prisma: PrismaService,
+        private readonly brickRepository: BrickRepository,
         private readonly cloudinaryService: CloudinaryService,
     ) {}
 
     async execute(brickId: string, userId: string, publicId: string) {
-        const brick = await this.prisma.brick.findUnique({ where: { id: brickId } });
+        const brick = await this.brickRepository.findById(brickId);
 
         if (!brick) throw new NotFoundException('Brick not found');
         if (brick.userId !== userId)
@@ -42,12 +42,9 @@ export class DeleteBrickThumbnailService {
         // If deleted thumbnail was the watermark (first), promote the new first
         const newWatermark = remaining[0];
 
-        return this.prisma.brick.update({
-            where: { id: brickId },
-            data: {
-                thumbnail: remaining as object[],
-                watermark: newWatermark as object,
-            },
+        return this.brickRepository.update(brickId, {
+            thumbnail: remaining as object[],
+            watermark: newWatermark as object,
         });
     }
 }
