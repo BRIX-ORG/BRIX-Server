@@ -11,7 +11,6 @@ export interface CreateMessageData {
     file?: any;
     brickId?: string;
 }
-
 @Injectable()
 export class MessageRepository {
     constructor(private readonly prisma: PrismaService) {}
@@ -38,10 +37,19 @@ export class MessageRepository {
 
     /**
      * Get paginated messages in a conversation, sorted by createdAt desc.
-     * Excludes soft-deleted messages.
+     * Excludes soft-deleted messages and messages before 'since' date.
      */
-    async findByConversationId(conversationId: string, limit: number = 30, offset: number = 0) {
-        const where = { conversationId, deletedAt: null };
+    async findByConversationId(
+        conversationId: string,
+        limit: number = 30,
+        offset: number = 0,
+        since?: Date,
+    ) {
+        const where: Prisma.MessageWhereInput = { conversationId, deletedAt: null };
+
+        if (since) {
+            where.createdAt = { gt: since };
+        }
 
         const [data, total] = await Promise.all([
             this.prisma.message.findMany({
@@ -104,12 +112,16 @@ export class MessageRepository {
 
     /**
      * Count total unread messages across all conversations for a user.
+     * Excludes messages from currently hidden conversations.
      */
     async countUnread(userId: string): Promise<number> {
         return this.prisma.message.count({
             where: {
                 conversation: {
-                    OR: [{ user1Id: userId }, { user2Id: userId }],
+                    OR: [
+                        { user1Id: userId, user1HiddenAt: null },
+                        { user2Id: userId, user2HiddenAt: null },
+                    ],
                 },
                 senderId: { not: userId },
                 isRead: false,
@@ -120,27 +132,49 @@ export class MessageRepository {
 
     /**
      * Count unread messages in a specific conversation for a user.
+     * Respects 'since' (hiddenAt) filter.
      */
-    async countUnreadByConversation(conversationId: string, userId: string): Promise<number> {
-        return this.prisma.message.count({
-            where: {
-                conversationId,
-                senderId: { not: userId },
-                isRead: false,
-                deletedAt: null,
-            },
-        });
+    async countUnreadByConversation(
+        conversationId: string,
+        userId: string,
+        since?: Date,
+    ): Promise<number> {
+        const where: Prisma.MessageWhereInput = {
+            conversationId,
+            senderId: { not: userId },
+            isRead: false,
+            deletedAt: null,
+        };
+
+        if (since) {
+            where.createdAt = { gt: since };
+        }
+
+        return this.prisma.message.count({ where });
     }
 
     /**
      * Get messages with images in a conversation (paginated).
      */
-    async findImagesByConversation(conversationId: string, limit: number = 20, offset: number = 0) {
-        const where = {
+    async findImagesByConversation(
+        conversationId: string,
+        limit: number = 20,
+        offset: number = 0,
+        includeDeleted: boolean = false,
+        since?: Date,
+    ) {
+        const where: Prisma.MessageWhereInput = {
             conversationId,
             images: { not: Prisma.DbNull },
-            deletedAt: null,
         };
+
+        if (!includeDeleted) {
+            where.deletedAt = null;
+        }
+
+        if (since) {
+            where.createdAt = { gt: since };
+        }
 
         const [data, total] = await Promise.all([
             this.prisma.message.findMany({
@@ -164,12 +198,25 @@ export class MessageRepository {
     /**
      * Get messages with files in a conversation (paginated).
      */
-    async findFilesByConversation(conversationId: string, limit: number = 20, offset: number = 0) {
-        const where = {
+    async findFilesByConversation(
+        conversationId: string,
+        limit: number = 20,
+        offset: number = 0,
+        includeDeleted: boolean = false,
+        since?: Date,
+    ) {
+        const where: Prisma.MessageWhereInput = {
             conversationId,
             file: { not: Prisma.DbNull },
-            deletedAt: null,
         };
+
+        if (!includeDeleted) {
+            where.deletedAt = null;
+        }
+
+        if (since) {
+            where.createdAt = { gt: since };
+        }
 
         const [data, total] = await Promise.all([
             this.prisma.message.findMany({

@@ -1,6 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { BrickRepository } from '../infrastructure';
-import { BrickVoteRepository, BrickVoteResult } from '../infrastructure/brick-vote.repository';
+import { BrickRepository, BrickVoteRepository, BrickVoteResult } from '@bricks/infrastructure';
 import { NotificationBatchService } from '@/modules/notifications/application';
 import { NotificationType } from '@prisma/client';
 

@@ -12,7 +12,11 @@ import {
     GetConversationMediaService,
     GetConversationFilesService,
     DeleteMessageService,
+    DeleteConversationService,
+    GetConversationUnreadCountService,
+    GetConversationByIdService,
 } from './application';
+import { ConversationMemberGuard } from './guards';
 
 @Module({
     controllers: [ConversationsController, MessagesController],
@@ -31,7 +35,11 @@ import {
         GetConversationMediaService,
         GetConversationFilesService,
         DeleteMessageService,
+        DeleteConversationService,
+        GetConversationUnreadCountService,
+        GetConversationByIdService,
+        ConversationMemberGuard,
     ],
-    exports: [ConversationRepository, MessageRepository],
+    exports: [ConversationRepository, MessageRepository, DeleteConversationService],
 })
 export class MessagesModule {}

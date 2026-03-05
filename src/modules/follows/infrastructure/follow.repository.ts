@@ -1,18 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
-import { FollowerInfo } from '@follows/domain';
-
-export interface PaginationOptions {
-    limit?: number;
-    offset?: number;
-}
-
-export interface PaginatedResult<T> {
-    data: T[];
-    total: number;
-    limit: number | null;
-    offset: number;
-}
+import { FollowerInfo, PaginatedResult, PaginationOptions } from '@follows/domain';
 
 @Injectable()
 export class FollowRepository {

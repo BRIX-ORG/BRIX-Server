@@ -1,9 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CommentRepository } from '../infrastructure/comment.repository';
-import {
-    CommentVoteRepository,
-    CommentVoteResult,
-} from '../infrastructure/comment-vote.repository';
+import { CommentRepository } from '@bricks/infrastructure';
+import { CommentVoteRepository, CommentVoteResult } from '@bricks/infrastructure';
 import { NotificationBatchService } from '@/modules/notifications/application';
 import { NotificationType } from '@prisma/client';
 

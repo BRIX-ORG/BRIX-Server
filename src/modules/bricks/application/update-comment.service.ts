@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CommentRepository } from '../infrastructure/comment.repository';
+import { CommentRepository } from '@bricks/infrastructure';
 
 @Injectable()
 export class UpdateCommentService {

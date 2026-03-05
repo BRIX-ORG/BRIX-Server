@@ -1,10 +1,9 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { CommentRepository } from '../infrastructure/comment.repository';
-import { BrickRepository } from '../infrastructure';
+import { CommentRepository, BrickRepository } from '@bricks/infrastructure';
 import { NotificationBatchService } from '@/modules/notifications/application';
 import { CloudinaryService } from '@/cloudinary/cloudinary.service';
 import { NotificationType, CommentType } from '@prisma/client';
-import { CommentImageData } from '../domain';
+import { CommentImageData } from '@bricks/domain';
 
 @Injectable()
 export class CreateCommentService {

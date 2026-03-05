@@ -1,9 +1,9 @@
 import { Injectable, NotFoundException, ForbiddenException, Logger } from '@nestjs/common';
-import { BrickRepository } from '../infrastructure';
+import { BrickRepository } from '@bricks/infrastructure';
 import { CloudinaryService } from '@/cloudinary/cloudinary.service';
 import { MinioService } from '@/minio/minio.service';
 import { TagType } from '@prisma/client';
-import { MinioFileData, WatermarkData, CloudinaryFileData } from '../domain';
+import { MinioFileData, WatermarkData, CloudinaryFileData } from '@bricks/domain';
 
 @Injectable()
 export class DeleteBrickService {

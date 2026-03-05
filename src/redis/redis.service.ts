@@ -7,9 +7,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     private readonly logger = new Logger(RedisService.name);
     private client: Redis;
 
-    constructor(private readonly configService: ConfigService) {}
-
-    onModuleInit() {
+    constructor(private readonly configService: ConfigService) {
         const host = this.configService.get<string>('REDIS_HOST', 'localhost');
         const port = this.configService.get<number>('REDIS_PORT', 6379);
         const password = this.configService.get<string>('REDIS_PASSWORD');
@@ -33,6 +31,10 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
         this.client.on('error', (error) => {
             this.logger.error('Redis connection error', error);
         });
+    }
+
+    onModuleInit() {
+        // Initialization moved to constructor to support early usage in WebSocketAdapter
     }
 
     async onModuleDestroy() {
@@ -77,6 +79,42 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
 
     async sMembers(key: string): Promise<string[]> {
         return await this.client.smembers(key);
+    }
+    async sRem(key: string, ...members: string[]): Promise<number> {
+        return await this.client.srem(key, ...members);
+    }
+
+    async sCard(key: string): Promise<number> {
+        return await this.client.scard(key);
+    }
+
+    async sIsMember(key: string, member: string): Promise<boolean> {
+        const result = await this.client.sismember(key, member);
+        return result === 1;
+    }
+
+    async zAdd(key: string, score: number, member: string): Promise<number> {
+        return await this.client.zadd(key, score, member);
+    }
+
+    async zRem(key: string, ...members: string[]): Promise<number> {
+        return await this.client.zrem(key, ...members);
+    }
+
+    async zRangeByScore(
+        key: string,
+        min: number | string,
+        max: number | string,
+    ): Promise<string[]> {
+        return await this.client.zrangebyscore(key, min, max);
+    }
+
+    async zRemRangeByScore(
+        key: string,
+        min: number | string,
+        max: number | string,
+    ): Promise<number> {
+        return await this.client.zremrangebyscore(key, min, max);
     }
 
     async hSet(key: string, field: string, value: string): Promise<number> {

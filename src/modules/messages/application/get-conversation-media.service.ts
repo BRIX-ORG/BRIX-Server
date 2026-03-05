@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { MessageRepository } from '@messages/infrastructure';
 import { MediaItemResponseDto } from '@messages/dto';
+import { Conversation } from '@messages/domain';
 
 @Injectable()
 export class GetConversationMediaService {
@@ -9,11 +10,24 @@ export class GetConversationMediaService {
     /**
      * Get all images in a conversation, paginated.
      */
-    async execute(conversationId: string, limit: number = 20, offset: number = 0) {
+    async execute(
+        conversation: Conversation,
+        userId: string,
+        limit: number = 20,
+        offset: number = 0,
+        includeDeleted: boolean = false,
+    ) {
+        const hiddenAt =
+            conversation.user1Id === userId
+                ? conversation.user1HiddenAt
+                : conversation.user2HiddenAt;
+
         const { data, total } = await this.messageRepo.findImagesByConversation(
-            conversationId,
+            conversation.id,
             limit,
             offset,
+            includeDeleted,
+            hiddenAt || undefined,
         );
 
         const items: MediaItemResponseDto[] = data.map((msg) => {

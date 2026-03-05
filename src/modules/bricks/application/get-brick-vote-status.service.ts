@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { BrickVoteRepository, BrickVoteResult } from '../infrastructure/brick-vote.repository';
+import { BrickVoteRepository, BrickVoteResult } from '@bricks/infrastructure';
 
 @Injectable()
 export class GetBrickVoteStatusService {

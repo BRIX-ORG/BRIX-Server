@@ -1,8 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import {
-    CommentVoteRepository,
-    CommentVoteResult,
-} from '../infrastructure/comment-vote.repository';
+import { CommentVoteRepository, CommentVoteResult } from '@bricks/infrastructure';
 
 @Injectable()
 export class GetCommentVoteStatusService {

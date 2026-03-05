@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { BrickVoteRepository, BrickRepository } from '../infrastructure';
+import { BrickVoteRepository, BrickRepository } from '@bricks/infrastructure';
 
 @Injectable()
 export class GetBrickUpvotersService {

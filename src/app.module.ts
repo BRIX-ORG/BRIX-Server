@@ -20,7 +20,7 @@ import { MinioModule } from '@/minio';
 import { LocationIqModule } from '@/location-iq';
 import { SocketModule } from '@/socket';
 import { MessagesModule } from '@/modules/messages';
-import { HealthModule } from '@/modules/health/health.module';
+import { TerminusModule } from '@nestjs/terminus';
 import { LoggerMiddleware } from '@/common';
 
 @Module({
@@ -36,7 +36,7 @@ import { LoggerMiddleware } from '@/common';
                 limit: 100,
             },
         ]),
-        HealthModule,
+        TerminusModule,
         CronModule,
         FirebaseModule,
         RedisModule,

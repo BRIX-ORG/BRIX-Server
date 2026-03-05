@@ -16,4 +16,9 @@ export class MessagesQueryDto {
     @IsInt()
     @Min(0)
     offset?: number = 0;
+
+    @ApiPropertyOptional({ default: false })
+    @IsOptional()
+    @Type(() => Boolean)
+    includeDeleted?: boolean = false;
 }

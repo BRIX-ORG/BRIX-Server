@@ -45,6 +45,13 @@ export class SendMessageService {
         // Find or create conversation
         const conversation = await this.conversationRepo.findOrCreate(senderId, receiverId);
 
+        // If conversation was hidden for sender, un-hide it
+        if (conversation.user1Id === senderId && conversation.user1HiddenAt) {
+            await this.conversationRepo.touch(conversation.id, { user1HiddenAt: null });
+        } else if (conversation.user2Id === senderId && conversation.user2HiddenAt) {
+            await this.conversationRepo.touch(conversation.id, { user2HiddenAt: null });
+        }
+
         // Upload images to MinIO
         let images: MessageImageData[] | undefined;
         if (hasImages) {
@@ -100,19 +107,34 @@ export class SendMessageService {
             };
         }
 
-        // Create message
-        const message = await this.messageRepo.create({
-            conversationId: conversation.id,
-            senderId,
-            content: options.content,
-            images: images,
-            voice: voice,
-            file: file,
-            brickId: options.brickId,
-        });
+        // Prepare update data for conversation (to reset hidden status for recipient)
+        const conversationUpdateData: { user1HiddenAt?: null; user2HiddenAt?: null } = {};
+        if (conversation.user1Id === senderId) {
+            // Sender is user1, recipient is user2. Check if user2 had hidden the conversation.
+            if (conversation.user2HiddenAt) {
+                conversationUpdateData.user2HiddenAt = null;
+            }
+        } else {
+            // Sender is user2, recipient is user1. Check if user1 had hidden the conversation.
+            if (conversation.user1HiddenAt) {
+                conversationUpdateData.user1HiddenAt = null;
+            }
+        }
 
-        // Update conversation timestamp
-        await this.conversationRepo.touch(conversation.id);
+        // Create message and update conversation in parallel
+        const [message] = await Promise.all([
+            this.messageRepo.create({
+                conversationId: conversation.id,
+                senderId,
+                content: options.content,
+                images: images,
+                voice: voice,
+                file: file,
+                brickId: options.brickId,
+            }),
+            // Update conversation timestamp and reset hidden status for recipient
+            this.conversationRepo.touch(conversation.id, conversationUpdateData),
+        ]);
 
         // Emit real-time event
         const responseDto = MessageResponseDto.fromEntity(message);

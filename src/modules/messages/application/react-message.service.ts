@@ -1,12 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { SocketGateway } from '@/socket/socket.gateway';
-import { MessageRepository } from '@messages/infrastructure';
+import { MessageRepository, ConversationRepository } from '@messages/infrastructure';
 import { MessageReactions } from '@messages/domain';
 
 @Injectable()
 export class ReactMessageService {
     constructor(
         private readonly messageRepo: MessageRepository,
+        private readonly conversationRepo: ConversationRepository,
         private readonly socketGateway: SocketGateway,
     ) {}
 
@@ -18,6 +19,14 @@ export class ReactMessageService {
         const message = await this.messageRepo.findById(messageId);
         if (!message || message.deletedAt) {
             throw new NotFoundException('Message not found');
+        }
+
+        const isParticipant = await this.conversationRepo.isParticipant(
+            message.conversationId,
+            userId,
+        );
+        if (!isParticipant) {
+            throw new ForbiddenException('You are not a participant in this conversation');
         }
 
         const reactions: MessageReactions = (message.reactions as MessageReactions) || {};

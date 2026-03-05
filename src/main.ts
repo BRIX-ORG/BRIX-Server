@@ -4,6 +4,8 @@ import { ValidationPipe, Logger } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from '@/app.module';
 import { ResponseInterceptor, HttpExceptionFilter, AllExceptionsFilter } from '@/common';
+import { RedisIoAdapter } from '@/socket/redis-io.adapter';
+import { RedisService } from '@/redis/redis.service';
 import pc from 'picocolors';
 import helmet from 'helmet';
 // import cookieParser from 'cookie-parser';
@@ -42,6 +44,11 @@ async function bootstrap() {
 
     // CORS
     app.enableCors();
+
+    // Redis IO Adapter
+    const redisService = app.get(RedisService);
+    const redisIoAdapter = new RedisIoAdapter(app, redisService);
+    app.useWebSocketAdapter(redisIoAdapter);
 
     // Swagger
     const swaggerConfig = new DocumentBuilder()

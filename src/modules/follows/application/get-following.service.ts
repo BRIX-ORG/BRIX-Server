@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { FollowRepository, PaginatedResult } from '@follows/infrastructure';
-import { FollowerInfo } from '@follows/domain';
+import { FollowRepository } from '@follows/infrastructure';
+import { FollowerInfo, PaginatedResult, PaginationOptions } from '@follows/domain';
 import { FindUserService } from '@users/application';
 
 @Injectable()
@@ -12,7 +12,7 @@ export class GetFollowingService {
 
     async execute(
         idOrUsername: string,
-        options: { limit?: number; offset?: number } = {},
+        options: PaginationOptions = {},
         currentUserId?: string,
     ): Promise<PaginatedResult<FollowerInfo>> {
         // Find user by id or username

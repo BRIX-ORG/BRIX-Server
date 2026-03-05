@@ -1,5 +1,17 @@
 import { Gender, Provider, Role } from '@prisma/client';
 
+export interface PaginationOptions {
+    limit?: number;
+    offset?: number;
+}
+
+export interface PaginatedResult<T> {
+    data: T[];
+    total: number;
+    limit: number | null;
+    offset: number;
+}
+
 export interface FollowEntityProps {
     followerId: string;
     followingId: string;

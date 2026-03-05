@@ -1,6 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CommentVoteRepository } from '../infrastructure/comment-vote.repository';
-import { CommentRepository } from '../infrastructure/comment.repository';
+import { CommentVoteRepository, CommentRepository } from '@bricks/infrastructure';
 
 @Injectable()
 export class GetCommentUpvotersService {

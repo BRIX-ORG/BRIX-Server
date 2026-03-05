@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class ConversationRepository {
@@ -122,10 +123,49 @@ export class ConversationRepository {
     /**
      * Update updatedAt timestamp for a conversation.
      */
-    async touch(id: string) {
+    async touch(id: string, additionalData: Prisma.ConversationUpdateInput = {}) {
         return this.prisma.conversation.update({
             where: { id },
-            data: { updatedAt: new Date() },
+            data: {
+                ...additionalData,
+                updatedAt: new Date(),
+            },
         });
+    }
+
+    /**
+     * Soft delete a conversation for a user by setting hiddenAt.
+     */
+    async softDelete(id: string, userId: string) {
+        const conversation = await this.prisma.conversation.findUnique({
+            where: { id },
+        });
+
+        if (!conversation) return null;
+
+        const data: Prisma.ConversationUpdateInput = {};
+        if (conversation.user1Id === userId) {
+            data.user1HiddenAt = new Date();
+        } else if (conversation.user2Id === userId) {
+            data.user2HiddenAt = new Date();
+        }
+
+        return this.prisma.conversation.update({
+            where: { id },
+            data,
+        });
+    }
+
+    /**
+     * Check if a user is a participant in a conversation.
+     */
+    async isParticipant(conversationId: string, userId: string): Promise<boolean> {
+        const count = await this.prisma.conversation.count({
+            where: {
+                id: conversationId,
+                OR: [{ user1Id: userId }, { user2Id: userId }],
+            },
+        });
+        return count > 0;
     }
 }
