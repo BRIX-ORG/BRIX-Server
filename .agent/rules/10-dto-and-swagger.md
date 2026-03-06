@@ -17,8 +17,11 @@
 Complete documentation is required for all controllers.
 
 - `@ApiOperation({ summary: '...' })` on every endpoint.
-- `@ApiResponse` (or specific `@ApiOkResponse`) with the DTO class specified.
-- `@ApiProperty()` on **every** DTO field with `description` and `example`.
+- `@ApiResponse` (or specific hooks like `@ApiOkResponse`) with the DTO class specified. This is the **explicit contract** for the frontend to ensure accurate data shapes.
+- `@ApiProperty()` on **every** field of **every** DTO (Request & Response):
+    - **Description**: Explain what the field means in a business context.
+    - **Example**: Use realistic data so frontend devs can mock/integrate without clarification.
+- Document relevant error codes (e.g., `@ApiNotFoundResponse`) to help frontend handle edge cases efficiently.
 - `@ApiBearerAuth()` for protected routes.
 
 Example for Wrapped Responses:
