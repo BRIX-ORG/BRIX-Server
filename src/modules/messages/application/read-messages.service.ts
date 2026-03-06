@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { SocketGateway } from '@/socket/socket.gateway';
+import { ChatGateway } from '@/socket/chat.gateway';
 import { MessageRepository } from '@messages/infrastructure';
 
 @Injectable()
 export class ReadMessagesService {
     constructor(
         private readonly messageRepo: MessageRepository,
-        private readonly socketGateway: SocketGateway,
+        private readonly chatGateway: ChatGateway,
     ) {}
 
     /**
@@ -14,7 +14,7 @@ export class ReadMessagesService {
      */
     async execute(conversationId: string, userId: string) {
         const result = await this.messageRepo.markAsRead(conversationId, userId);
-        this.socketGateway.emitMessagesRead(conversationId, userId);
+        this.chatGateway.emitMessagesRead(conversationId, userId);
         return { markedAsRead: result.count };
     }
 }

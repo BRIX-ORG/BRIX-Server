@@ -1,9 +1,10 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
-import { Logger } from '@nestjs/common';
+import { Logger, Optional } from '@nestjs/common';
 import { RedisService } from '@redis/redis.service';
 import { NotificationRepository } from '@/modules/notifications/infrastructure/notification.repository';
 import { NotificationFlushData } from '@/queue/types';
+import { NotificationGateway } from '@/socket/notification.gateway';
 
 @Processor('notifications')
 export class NotificationProcessor extends WorkerHost {
@@ -12,6 +13,7 @@ export class NotificationProcessor extends WorkerHost {
     constructor(
         private readonly redisService: RedisService,
         private readonly notificationRepository: NotificationRepository,
+        @Optional() private readonly notificationGateway?: NotificationGateway,
     ) {
         super();
     }
@@ -25,7 +27,6 @@ export class NotificationProcessor extends WorkerHost {
     private async handleNotificationFlush(data: NotificationFlushData) {
         const { type, recipientId, brickId, commentId, groupId } = data;
 
-        // Use provided baseKey or construct it (fallback for backward compatibility if any old jobs exist)
         const baseKey =
             data.baseKey ||
             `notif:${type}:${recipientId}:${brickId ?? 'null'}:${commentId ?? 'null'}`;
@@ -47,19 +48,18 @@ export class NotificationProcessor extends WorkerHost {
         const lastActorId = batchData.last_actor_id;
 
         // 2. Database Flush
+        let updatedGroup: Awaited<
+            ReturnType<typeof this.notificationRepository.incrementGroup>
+        > | null = null;
+
         if (groupId) {
-            // Atomic increment (retry-safe, race-safe)
-            await this.notificationRepository.incrementGroup(groupId, {
+            updatedGroup = await this.notificationRepository.incrementGroup(groupId, {
                 delta: actorsCount,
                 lastActorId,
             });
-
-            // Add actors (idempotent via UNIQUE constraint)
             await this.notificationRepository.addActors(groupId, actorIds);
-
             this.logger.log(`Notification group ${groupId} incremented by ${actorsCount} actors`);
         } else {
-            // Fallback: find group by window parameters
             const group = await this.notificationRepository.findGroup(
                 recipientId,
                 type,
@@ -68,7 +68,7 @@ export class NotificationProcessor extends WorkerHost {
             );
 
             if (group) {
-                await this.notificationRepository.incrementGroup(group.id, {
+                updatedGroup = await this.notificationRepository.incrementGroup(group.id, {
                     delta: actorsCount,
                     lastActorId,
                 });
@@ -82,7 +82,19 @@ export class NotificationProcessor extends WorkerHost {
             }
         }
 
-        // 3. Cleanup Redis Batch
+        // 3. Push real-time update to recipient
+        if (updatedGroup) {
+            this.notificationGateway?.emitNotificationUpdated(recipientId, {
+                id: updatedGroup.id,
+                actorsCount: updatedGroup.actorsCount,
+                lastActorId: updatedGroup.lastActorId,
+                lastActor: updatedGroup.lastActor,
+                brick: updatedGroup.brick,
+                comment: updatedGroup.comment,
+            });
+        }
+
+        // 4. Cleanup Redis Batch
         await Promise.all([
             this.redisService.delete(batchKey),
             this.redisService.delete(actorsKey),

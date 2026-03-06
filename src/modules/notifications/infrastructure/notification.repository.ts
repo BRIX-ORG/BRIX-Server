@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
 import { NotificationType } from '@prisma/client';
+import { NotificationGroupDto } from '@notifications/dto';
 
 @Injectable()
 export class NotificationRepository {
@@ -12,7 +13,6 @@ export class NotificationRepository {
         brickId?: string,
         commentId?: string,
     ) {
-        // Query group matching criteria within 10 minutes window
         return this.prisma.notificationGroup.findFirst({
             where: {
                 recipientId,
@@ -38,6 +38,31 @@ export class NotificationRepository {
     }) {
         return this.prisma.notificationGroup.create({
             data,
+            include: {
+                lastActor: {
+                    select: {
+                        id: true,
+                        username: true,
+                        fullName: true,
+                        avatar: true,
+                    },
+                },
+                brick: {
+                    select: {
+                        id: true,
+                        title: true,
+                        watermark: true,
+                        mediaType: true,
+                    },
+                },
+                comment: {
+                    select: {
+                        id: true,
+                        content: true,
+                        type: true,
+                    },
+                },
+            },
         });
     }
 
@@ -54,6 +79,31 @@ export class NotificationRepository {
                 actorsCount: { increment: data.delta },
                 lastActorId: data.lastActorId,
                 updatedAt: new Date(),
+            },
+            include: {
+                lastActor: {
+                    select: {
+                        id: true,
+                        username: true,
+                        fullName: true,
+                        avatar: true,
+                    },
+                },
+                brick: {
+                    select: {
+                        id: true,
+                        title: true,
+                        watermark: true,
+                        mediaType: true,
+                    },
+                },
+                comment: {
+                    select: {
+                        id: true,
+                        content: true,
+                        type: true,
+                    },
+                },
             },
         });
     }
@@ -95,6 +145,21 @@ export class NotificationRepository {
                             },
                         },
                     },
+                    brick: {
+                        select: {
+                            id: true,
+                            title: true,
+                            watermark: true,
+                            mediaType: true,
+                        },
+                    },
+                    comment: {
+                        select: {
+                            id: true,
+                            content: true,
+                            type: true,
+                        },
+                    },
                 },
                 orderBy: { updatedAt: 'desc' },
                 ...(limit && { take: limit }),
@@ -103,12 +168,25 @@ export class NotificationRepository {
             this.prisma.notificationGroup.count({ where: { recipientId } }),
         ]);
 
-        return { notifications, total };
+        return { notifications: notifications as unknown as NotificationGroupDto[], total };
+    }
+
+    async countUnread(recipientId: string): Promise<number> {
+        return this.prisma.notificationGroup.count({
+            where: { recipientId, isRead: false },
+        });
     }
 
     async markAsRead(id: string, recipientId: string) {
         return this.prisma.notificationGroup.update({
             where: { id, recipientId },
+            data: { isRead: true },
+        });
+    }
+
+    async markAllAsRead(recipientId: string) {
+        return this.prisma.notificationGroup.updateMany({
+            where: { recipientId, isRead: false },
             data: { isRead: true },
         });
     }

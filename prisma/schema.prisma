@@ -36,6 +36,7 @@ enum Gender {
 
 enum NotificationType {
   UPVOTE_BRICK
+  UPVOTE_COMMENT
   COMMENT_BRICK
   REPLY_COMMENT
   FOLLOW
@@ -111,7 +112,9 @@ model NotificationGroup {
   recipient   User             @relation("NotificationRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
   type        NotificationType
   brickId     String?          @map("brick_id") @db.Uuid
+  brick       Brick?           @relation("NotificationBrick", fields: [brickId], references: [id], onDelete: SetNull)
   commentId   String?          @map("comment_id") @db.Uuid
+  comment     Comment?         @relation("NotificationComment", fields: [commentId], references: [id], onDelete: SetNull)
   actorsCount Int              @default(1) @map("actors_count")
   lastActorId String           @map("last_actor_id") @db.Uuid
   lastActor   User             @relation("NotificationLastActor", fields: [lastActorId], references: [id], onDelete: Cascade)
@@ -161,6 +164,7 @@ model Brick {
   votes    BrickVote[]
   comments Comment[]
   messages Message[]
+  notifications NotificationGroup[] @relation("NotificationBrick")
 
   @@map("bricks")
 }
@@ -209,6 +213,7 @@ model Comment {
   updatedAt DateTime    @updatedAt @map("updated_at")
 
   votes CommentVote[]
+  notifications NotificationGroup[] @relation("NotificationComment")
 
   @@index([brickId], name: "idx_comment_brick")
   @@index([parentId], name: "idx_comment_parent")

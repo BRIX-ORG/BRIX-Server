@@ -21,7 +21,7 @@ export class VoteCommentService {
         // Only notify on upvote, not downvote, and not self-vote
         if (value === 1 && result.userVote === 1 && comment.userId !== userId) {
             await this.notificationBatchService.addNotification({
-                type: NotificationType.REPLY_COMMENT,
+                type: NotificationType.UPVOTE_COMMENT,
                 recipientId: comment.userId,
                 actorId: userId,
                 brickId: comment.brickId,

@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
-import { SocketGateway } from '@/socket/socket.gateway';
+import { ChatGateway } from '@/socket/chat.gateway';
 import { MessageRepository } from '@messages/infrastructure';
 import { MessageResponseDto } from '@messages/dto';
 
@@ -7,7 +7,7 @@ import { MessageResponseDto } from '@messages/dto';
 export class UpdateMessageService {
     constructor(
         private readonly messageRepo: MessageRepository,
-        private readonly socketGateway: SocketGateway,
+        private readonly chatGateway: ChatGateway,
     ) {}
 
     async execute(messageId: string, userId: string, content: string): Promise<MessageResponseDto> {
@@ -21,7 +21,7 @@ export class UpdateMessageService {
 
         const updated = await this.messageRepo.updateContent(messageId, content);
         const responseDto = MessageResponseDto.fromEntity(updated);
-        this.socketGateway.emitMessageUpdated(message.conversationId, responseDto);
+        this.chatGateway.emitMessageUpdated(message.conversationId, responseDto);
         return responseDto;
     }
 }

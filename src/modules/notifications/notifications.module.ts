@@ -5,7 +5,9 @@ import { NotificationRepository } from './infrastructure';
 import {
     NotificationBatchService,
     GetNotificationsService,
+    GetUnreadNotificationCountService,
     ReadNotificationService,
+    ReadAllNotificationsService,
     DeleteNotificationService,
 } from './application';
 
@@ -25,7 +27,9 @@ import { QueueModule } from '@/queue/queue.module';
         NotificationRepository,
         NotificationBatchService,
         GetNotificationsService,
+        GetUnreadNotificationCountService,
         ReadNotificationService,
+        ReadAllNotificationsService,
         DeleteNotificationService,
     ],
     exports: [NotificationBatchService, NotificationRepository],

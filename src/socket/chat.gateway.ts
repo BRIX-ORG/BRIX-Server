@@ -14,29 +14,17 @@ import { PrismaService } from '@/prisma/prisma.service';
 import { MessageResponseDto } from '@messages/dto';
 import { MessageReactions } from '@messages/domain';
 import { RedisService } from '@/redis/redis.service';
-
-interface JwtPayload {
-    sub: string;
-    email: string;
-    iat: number;
-    exp: number;
-}
-
-interface AuthenticatedSocket extends Socket {
-    data: {
-        userId: string;
-    };
-}
+import { JwtPayload, AuthenticatedSocket } from './socket.types';
 
 @WebSocketGateway({
     cors: { origin: '*' },
     namespace: '/chat',
 })
-export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @WebSocketServer()
     server: Server;
 
-    private readonly logger = new Logger(SocketGateway.name);
+    private readonly logger = new Logger(ChatGateway.name);
 
     private readonly ONLINE_USERS_KEY_PREFIX = 'user:online:';
     private readonly TYPING_KEY_PREFIX = 'conversation:typing:';
@@ -89,7 +77,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
 
     async handleDisconnect(client: Socket) {
-        const userId = (client as AuthenticatedSocket).data.userId;
+        const userId = (client as AuthenticatedSocket).data?.userId;
         if (!userId) return;
 
         const userKey = `${this.ONLINE_USERS_KEY_PREFIX}${userId}`;

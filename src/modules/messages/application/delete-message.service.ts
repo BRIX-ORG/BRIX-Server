@@ -1,12 +1,12 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
-import { SocketGateway } from '@/socket/socket.gateway';
+import { ChatGateway } from '@/socket/chat.gateway';
 import { MessageRepository } from '@messages/infrastructure';
 
 @Injectable()
 export class DeleteMessageService {
     constructor(
         private readonly messageRepo: MessageRepository,
-        private readonly socketGateway: SocketGateway,
+        private readonly chatGateway: ChatGateway,
     ) {}
 
     async execute(messageId: string, userId: string) {
@@ -19,6 +19,6 @@ export class DeleteMessageService {
         }
 
         await this.messageRepo.softDelete(messageId);
-        this.socketGateway.emitMessageDeleted(message.conversationId, messageId);
+        this.chatGateway.emitMessageDeleted(message.conversationId, messageId);
     }
 }

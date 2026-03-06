@@ -1,7 +1,8 @@
 import { Global, Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { SocketGateway } from './socket.gateway';
+import { ChatGateway } from './chat.gateway';
+import { NotificationGateway } from './notification.gateway';
 
 @Global()
 @Module({
@@ -13,7 +14,7 @@ import { SocketGateway } from './socket.gateway';
             }),
         }),
     ],
-    providers: [SocketGateway],
-    exports: [SocketGateway],
+    providers: [ChatGateway, NotificationGateway],
+    exports: [ChatGateway, NotificationGateway],
 })
 export class SocketModule {}

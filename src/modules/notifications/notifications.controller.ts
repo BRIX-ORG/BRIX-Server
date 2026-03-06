@@ -1,7 +1,7 @@
 import {
     Controller,
     Get,
-    Patch,
+    Put,
     Delete,
     Param,
     Query,
@@ -15,10 +15,12 @@ import { CurrentUser } from '@/common';
 import { UserEntity } from '@users/domain';
 import {
     GetNotificationsService,
+    GetUnreadNotificationCountService,
     ReadNotificationService,
+    ReadAllNotificationsService,
     DeleteNotificationService,
 } from '@notifications/application';
-import { PaginatedNotificationsDto } from '@notifications/dto';
+import { PaginatedNotificationsDto, UnreadCountDto } from '@notifications/dto';
 import { PaginationQueryDto } from '@follows/dto/pagination-query.dto';
 
 @ApiTags('Notifications')
@@ -28,7 +30,9 @@ import { PaginationQueryDto } from '@follows/dto/pagination-query.dto';
 export class NotificationsController {
     constructor(
         private readonly getNotificationsService: GetNotificationsService,
+        private readonly getUnreadCountService: GetUnreadNotificationCountService,
         private readonly readNotificationService: ReadNotificationService,
+        private readonly readAllNotificationsService: ReadAllNotificationsService,
         private readonly deleteNotificationService: DeleteNotificationService,
     ) {}
 
@@ -55,12 +59,28 @@ export class NotificationsController {
         };
     }
 
-    @Patch(':id/read')
+    @Get('unread-count')
+    @ApiOperation({ summary: 'Get count of unread notifications' })
+    @ApiResponse({ status: 200, type: UnreadCountDto })
+    async getUnreadCount(@CurrentUser() user: UserEntity): Promise<UnreadCountDto> {
+        const count = await this.getUnreadCountService.execute(user.id);
+        return { count };
+    }
+
+    @Put(':id/read')
     @HttpCode(HttpStatus.OK)
-    @ApiOperation({ summary: 'Mark notification as read' })
+    @ApiOperation({ summary: 'Mark a notification as read' })
     @ApiResponse({ status: 200, description: 'Successfully marked as read' })
     async markAsRead(@CurrentUser() user: UserEntity, @Param('id') id: string) {
-        return await this.readNotificationService.execute(id, user.id);
+        return this.readNotificationService.execute(id, user.id);
+    }
+
+    @Put('read-all')
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Mark all notifications as read' })
+    @ApiResponse({ status: 200, description: 'All notifications marked as read' })
+    async markAllAsRead(@CurrentUser() user: UserEntity) {
+        return this.readAllNotificationsService.execute(user.id);
     }
 
     @Delete(':id')

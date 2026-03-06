@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { MinioService } from '@/minio/minio.service';
-import { SocketGateway } from '@/socket/socket.gateway';
+import { ChatGateway } from '@/socket/chat.gateway';
 import { ConversationRepository } from '@messages/infrastructure';
 import { MessageRepository } from '@messages/infrastructure';
 import { MessageResponseDto } from '@messages/dto';
@@ -13,7 +13,7 @@ export class SendMessageService {
         private readonly conversationRepo: ConversationRepository,
         private readonly messageRepo: MessageRepository,
         private readonly minioService: MinioService,
-        private readonly socketGateway: SocketGateway,
+        private readonly chatGateway: ChatGateway,
     ) {}
 
     async execute(
@@ -138,7 +138,7 @@ export class SendMessageService {
 
         // Emit real-time event
         const responseDto = MessageResponseDto.fromEntity(message);
-        this.socketGateway.emitNewMessage(conversation.id, responseDto);
+        this.chatGateway.emitNewMessage(conversation.id, responseDto);
 
         return responseDto;
     }

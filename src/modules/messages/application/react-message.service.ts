@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
-import { SocketGateway } from '@/socket/socket.gateway';
+import { ChatGateway } from '@/socket/chat.gateway';
 import { MessageRepository, ConversationRepository } from '@messages/infrastructure';
 import { MessageReactions } from '@messages/domain';
 
@@ -8,7 +8,7 @@ export class ReactMessageService {
     constructor(
         private readonly messageRepo: MessageRepository,
         private readonly conversationRepo: ConversationRepository,
-        private readonly socketGateway: SocketGateway,
+        private readonly chatGateway: ChatGateway,
     ) {}
 
     /**
@@ -50,7 +50,7 @@ export class ReactMessageService {
         const updatedReactions = Object.keys(reactions).length > 0 ? reactions : null;
         await this.messageRepo.updateReactions(messageId, updatedReactions);
 
-        this.socketGateway.emitMessageReaction(message.conversationId, messageId, updatedReactions);
+        this.chatGateway.emitMessageReaction(message.conversationId, messageId, updatedReactions);
 
         return { messageId, reactions: updatedReactions };
     }
