@@ -71,6 +71,7 @@ model User {
   lastSeenAt DateTime? @map("last_seen_at")
 
   bricks Brick[]
+  albums Album[]
 
   // Follow relations
   followers  Follow[] @relation("Following")
@@ -295,5 +296,22 @@ model Message {
   @@index([conversationId])
   @@index([senderId])
   @@map("messages")
+}
+
+model Album {
+  id               String   @id @default(uuid()) @db.Uuid
+  userId           String   @map("user_id") @db.Uuid
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name             String
+  description      String?  @db.Text
+  backgroundColor  String?  @map("background_color")
+  titleColor       String?  @map("title_color")
+  descriptionColor String?  @map("description_color")
+  // items: [{ image: Json, title: String, description: String }]
+  items            Json     @db.JsonB
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  @@map("albums")
 }
 

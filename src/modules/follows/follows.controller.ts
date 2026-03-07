@@ -18,6 +18,7 @@ import {
     ApiQuery,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
+import { OptionalJwtAuthGuard } from '@/common/guards/optional-jwt-auth.guard';
 import { CurrentUser } from '@/common';
 import { UserEntity } from '@users/domain';
 import { FollowService, GetFollowersService, GetFollowingService } from '@follows/application';
@@ -96,6 +97,8 @@ export class FollowsController {
     }
 
     @Get('users/:idOrUsername/followers')
+    @UseGuards(OptionalJwtAuthGuard)
+    @ApiBearerAuth()
     @ApiOperation({ summary: 'Get followers of a user' })
     @ApiParam({ name: 'idOrUsername', description: 'User ID or username' })
     @ApiQuery({
@@ -119,6 +122,8 @@ export class FollowsController {
     }
 
     @Get('users/:idOrUsername/following')
+    @UseGuards(OptionalJwtAuthGuard)
+    @ApiBearerAuth()
     @ApiOperation({ summary: 'Get users that a user is following' })
     @ApiParam({ name: 'idOrUsername', description: 'User ID or username' })
     @ApiQuery({

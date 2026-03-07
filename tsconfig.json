@@ -29,7 +29,8 @@
             "@cron/*": ["src/cron/*"],
             "@bricks/*": ["src/modules/bricks/*"],
             "@messages/*": ["src/modules/messages/*"],
-            "@socket/*": ["src/socket/*"]
+            "@socket/*": ["src/socket/*"],
+            "@albums/*": ["src/modules/albums/*"]
         },
         "incremental": true,
         "skipLibCheck": true,

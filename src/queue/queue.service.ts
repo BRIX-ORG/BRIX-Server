@@ -32,7 +32,7 @@ export class QueueService {
         groupId?: string,
     ): Promise<void> {
         const baseKey = `notif:${type}:${recipientId}:${brickId ?? 'null'}:${commentId ?? 'null'}`;
-        const jobId = `flush:${baseKey}`;
+        const jobId = `flush-${type}-${recipientId}-${brickId ?? 'null'}-${commentId ?? 'null'}`;
 
         await this.notificationQueue.add(
             'flush-notification',

@@ -155,7 +155,8 @@
             "^@cloudinary/(.*)$": "<rootDir>/cloudinary/$1",
             "^@minio/(.*)$": "<rootDir>/minio/$1",
             "^@cron/(.*)$": "<rootDir>/cron/$1",
-            "^@bricks/(.*)$": "<rootDir>/modules/bricks/$1"
+            "^@bricks/(.*)$": "<rootDir>/modules/bricks/$1",
+            "^@albums/(.*)$": "<rootDir>/modules/albums/$1"
         }
     },
     "pnpm": {

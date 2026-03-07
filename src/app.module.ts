@@ -20,6 +20,7 @@ import { MinioModule } from '@/minio';
 import { LocationIqModule } from '@/location-iq';
 import { SocketModule } from '@/socket';
 import { MessagesModule } from '@/modules/messages';
+import { AlbumsModule } from '@/modules/albums';
 import { TerminusModule } from '@nestjs/terminus';
 import { LoggerMiddleware } from '@/common';
 
@@ -53,6 +54,7 @@ import { LoggerMiddleware } from '@/common';
         NotificationsModule,
         SocketModule,
         MessagesModule,
+        AlbumsModule,
     ],
     controllers: [AppController],
     providers: [AppService],
