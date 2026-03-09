@@ -13,6 +13,13 @@ export class NotificationActorDto {
 
     @ApiPropertyOptional({ type: Object, nullable: true })
     avatar?: any;
+
+    @ApiProperty({
+        example: 'MALE',
+        description: 'The gender of the user',
+        enum: ['MALE', 'FEMALE', 'OTHER'],
+    })
+    gender: 'MALE' | 'FEMALE' | 'OTHER';
 }
 
 export class NotificationBrickDto {

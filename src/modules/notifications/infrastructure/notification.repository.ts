@@ -131,6 +131,7 @@ export class NotificationRepository {
                             username: true,
                             fullName: true,
                             avatar: true,
+                            gender: true,
                         },
                     },
                     actors: {
@@ -141,6 +142,7 @@ export class NotificationRepository {
                                     id: true,
                                     username: true,
                                     fullName: true,
+                                    gender: true,
                                 },
                             },
                         },
