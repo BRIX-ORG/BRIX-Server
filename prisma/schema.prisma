@@ -304,7 +304,8 @@ model Album {
   user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   name             String
   description      String?  @db.Text
-  backgroundColor  String?  @map("background_color")
+  // background: ["#hex1", "#hex2", "#hex3"] — array of 3 HEX colors
+  background       Json?    @db.JsonB
   titleColor       String?  @map("title_color")
   descriptionColor String?  @map("description_color")
   // items: [{ image: Json, title: String, description: String }]

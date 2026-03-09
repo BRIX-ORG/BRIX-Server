@@ -11,7 +11,7 @@ export class UpdateAlbumService {
         data: {
             name?: string;
             description?: string;
-            backgroundColor?: string;
+            background?: string[];
             titleColor?: string;
             descriptionColor?: string;
         },

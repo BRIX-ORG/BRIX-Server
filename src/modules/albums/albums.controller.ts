@@ -68,19 +68,22 @@ export class AlbumsController {
             properties: {
                 name: { type: 'string', example: 'My Vacation' },
                 description: { type: 'string', example: 'Photos from my trip' },
-                backgroundColor: {
-                    type: 'string',
-                    example: '#ffffff',
-                    description: 'Global background color (Hex)',
+                background: {
+                    type: 'array',
+                    items: { type: 'string' },
+                    minItems: 3,
+                    maxItems: 3,
+                    example: ['#1a1a2e', '#16213e', '#0f3460'],
+                    description: 'Exactly 3 background colors (Hex)',
                 },
                 titleColor: {
                     type: 'string',
-                    example: '#000000',
+                    example: '#ffffff',
                     description: 'Global title text color (Hex)',
                 },
                 descriptionColor: {
                     type: 'string',
-                    example: '#666666',
+                    example: '#aaaaaa',
                     description: 'Global description text color (Hex)',
                 },
                 items: {
@@ -114,7 +117,7 @@ export class AlbumsController {
             dto.items,
             files,
             {
-                backgroundColor: dto.backgroundColor,
+                background: dto.background,
                 titleColor: dto.titleColor,
                 descriptionColor: dto.descriptionColor,
             },

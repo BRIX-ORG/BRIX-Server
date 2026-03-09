@@ -7,7 +7,7 @@ export interface CreateAlbumData {
     userId: string;
     name: string;
     description?: string;
-    backgroundColor?: string;
+    background?: string[];
     titleColor?: string;
     descriptionColor?: string;
     items: AlbumItem[]; // JSONB
@@ -23,7 +23,7 @@ export class AlbumRepository {
                 userId: data.userId,
                 name: data.name,
                 description: data.description,
-                backgroundColor: data.backgroundColor,
+                background: data.background as unknown as Prisma.InputJsonValue,
                 titleColor: data.titleColor,
                 descriptionColor: data.descriptionColor,
                 items: data.items as unknown as Prisma.InputJsonValue,

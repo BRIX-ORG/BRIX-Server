@@ -16,7 +16,7 @@ export interface AlbumEntity {
     userId: string;
     name: string;
     description: string | null;
-    backgroundColor?: string | null;
+    background?: string[] | null;
     titleColor?: string | null;
     descriptionColor?: string | null;
     items: AlbumItem[];

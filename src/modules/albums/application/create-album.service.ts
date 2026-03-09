@@ -20,7 +20,7 @@ export class CreateAlbumService {
         }[],
         files: Express.Multer.File[],
         globalStyles: {
-            backgroundColor?: string;
+            background?: string[];
             titleColor?: string;
             descriptionColor?: string;
         },
@@ -58,7 +58,7 @@ export class CreateAlbumService {
             userId,
             name,
             description,
-            backgroundColor: globalStyles.backgroundColor,
+            background: globalStyles.background,
             titleColor: globalStyles.titleColor,
             descriptionColor: globalStyles.descriptionColor,
             items,

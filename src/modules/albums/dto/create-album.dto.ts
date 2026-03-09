@@ -6,6 +6,7 @@ import {
     IsArray,
     MaxLength,
     ArrayMaxSize,
+    ArrayMinSize,
     ValidateNested,
     IsHexColor,
 } from 'class-validator';
@@ -37,12 +38,16 @@ export class CreateAlbumDto {
     description?: string;
 
     @ApiPropertyOptional({
-        description: 'Global background color for the album (Hex)',
-        example: '#ffffff',
+        description: 'Array of exactly 3 background colors for the album (Hex)',
+        example: ['#1a1a2e', '#16213e', '#0f3460'],
+        type: [String],
     })
     @IsOptional()
-    @IsHexColor()
-    backgroundColor?: string;
+    @IsArray()
+    @ArrayMinSize(3)
+    @ArrayMaxSize(3)
+    @IsHexColor({ each: true })
+    background?: string[];
 
     @ApiPropertyOptional({
         description: 'Global title text color for the album (Hex)',

@@ -39,8 +39,12 @@ export class AlbumResponseDto {
     @ApiPropertyOptional()
     description: string | null;
 
-    @ApiPropertyOptional()
-    backgroundColor: string | null;
+    @ApiPropertyOptional({
+        description: 'Array of 3 background colors (Hex)',
+        example: ['#1a1a2e', '#16213e', '#0f3460'],
+        type: [String],
+    })
+    background: string[] | null;
 
     @ApiPropertyOptional()
     titleColor: string | null;
@@ -65,13 +69,13 @@ export class AlbumResponseDto {
         dto.description = album.description;
 
         const entity = album as unknown as {
-            backgroundColor: string | null;
+            background: string[] | null;
             titleColor: string | null;
             descriptionColor: string | null;
             items: unknown;
         };
 
-        dto.backgroundColor = entity.backgroundColor;
+        dto.background = entity.background ?? null;
         dto.titleColor = entity.titleColor;
         dto.descriptionColor = entity.descriptionColor;
 
