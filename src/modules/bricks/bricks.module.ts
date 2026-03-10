@@ -37,6 +37,7 @@ import {
     GetBrickLocationsService,
     GetFollowingBricksService,
     GetTopAuthorsService,
+    GetTopAuthorsPaginatedService,
 } from './application';
 import { QueueModule } from '@/queue';
 import { NotificationsModule } from '@/modules/notifications/notifications.module';
@@ -83,7 +84,8 @@ import { FollowsModule } from '@/modules/follows/follows.module';
         GetBrickLocationsService,
         GetFollowingBricksService,
         GetTopAuthorsService,
+        GetTopAuthorsPaginatedService,
     ],
-    exports: [BrickRepository, GetTopAuthorsService],
+    exports: [BrickRepository, GetTopAuthorsService, GetTopAuthorsPaginatedService],
 })
 export class BricksModule {}

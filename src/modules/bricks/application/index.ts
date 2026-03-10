@@ -5,6 +5,7 @@ export * from './create-comment.service';
 export * from './delete-comment.service';
 export * from './get-comments.service';
 export * from './vote-comment.service';
+export * from './get-top-authors-paginated.service';
 export * from './get-bricks.service';
 export * from './update-brick.service';
 export * from './delete-brick-thumbnail.service';

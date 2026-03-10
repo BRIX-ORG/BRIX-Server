@@ -14,6 +14,9 @@ export class FollowerResponseDto {
     @ApiPropertyOptional({ type: Object })
     avatar: unknown;
 
+    @ApiPropertyOptional({ type: Object })
+    background: unknown;
+
     @ApiProperty({ enum: Gender })
     gender: Gender;
 
@@ -28,6 +31,9 @@ export class FollowerResponseDto {
 
     @ApiPropertyOptional()
     isFollowing?: boolean;
+
+    @ApiPropertyOptional()
+    totalFollowers?: number;
 }
 
 export class PaginatedFollowersResponseDto {

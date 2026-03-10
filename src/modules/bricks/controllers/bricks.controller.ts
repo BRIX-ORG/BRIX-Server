@@ -41,6 +41,7 @@ import {
     AddBrickThumbnailsService,
     DeleteBrickService,
     GetBrickDetailService,
+    GetTopAuthorsPaginatedService,
 } from '@bricks/application';
 import {
     CreateBrickDto,
@@ -53,7 +54,10 @@ import {
     VoteResponseDto,
     PaginatedCommentsResponseDto,
     UpvoterResponseDto,
+    PaginatedTopAuthorsResponseDto,
+    TopAuthorResponseDto,
 } from '@bricks/dto';
+import { PaginationQueryDto } from '@follows/dto';
 
 @ApiTags('Bricks')
 @Controller('bricks')
@@ -64,6 +68,7 @@ import {
     VoteResponseDto,
     PaginatedCommentsResponseDto,
     UpvoterResponseDto,
+    PaginatedTopAuthorsResponseDto,
 )
 export class BricksController {
     constructor(
@@ -75,7 +80,38 @@ export class BricksController {
         private readonly addBrickThumbnailsService: AddBrickThumbnailsService,
         private readonly deleteBrickService: DeleteBrickService,
         private readonly getBrickDetailService: GetBrickDetailService,
+        private readonly getTopAuthorsPaginatedService: GetTopAuthorsPaginatedService,
     ) {}
+
+    // ─── Top Authors ─────────────────────────────────────────────────────────
+
+    @Get('top-authors')
+    @UseGuards(OptionalJwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Get top authors by brick upvotes (Paginated)' })
+    @ApiQuery({
+        name: 'limit',
+        required: false,
+        description: 'Number of items per page. If not provided, returns 10.',
+    })
+    @ApiQuery({ name: 'offset', required: false, description: 'Number of items to skip' })
+    @ApiResponse({
+        status: 200,
+        description: 'Top authors list',
+        type: PaginatedTopAuthorsResponseDto,
+    })
+    async getTopAuthors(
+        @Query() query: PaginationQueryDto,
+        @CurrentUser() user?: UserEntity,
+    ): Promise<PaginatedTopAuthorsResponseDto> {
+        const result = await this.getTopAuthorsPaginatedService.execute(query, user?.id);
+        return {
+            ...result,
+            data: result.data.map(
+                (r) => new TopAuthorResponseDto(r.user, r.totalVotes, r.isFollowing),
+            ),
+        };
+    }
 
     // ─── Upload Art ──────────────────────────────────────────────────────────
 

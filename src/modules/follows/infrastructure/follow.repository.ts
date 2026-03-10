@@ -55,6 +55,7 @@ export class FollowRepository {
                             username: true,
                             fullName: true,
                             avatar: true,
+                            background: true,
                             gender: true,
                             role: true,
                             provider: true,
@@ -110,6 +111,7 @@ export class FollowRepository {
                             username: true,
                             fullName: true,
                             avatar: true,
+                            background: true,
                             gender: true,
                             role: true,
                             provider: true,
@@ -216,5 +218,100 @@ export class FollowRepository {
         });
 
         return newestUsers.map((u) => u.id);
+    }
+
+    async getTopFollowedUsers(
+        options: PaginationOptions = {},
+        currentUserId?: string,
+    ): Promise<PaginatedResult<FollowerInfo>> {
+        const { limit = 10, offset = 0 } = options;
+
+        // 1. Get total count of users
+        const countResult = await this.prisma.$queryRaw<Array<{ count: bigint }>>`
+            SELECT COUNT(id) as count
+            FROM users
+        `;
+
+        const total = Number(countResult[0]?.count || 0);
+
+        if (total === 0) {
+            return { data: [], total: 0, limit, offset };
+        }
+
+        // 2. Get paginated users ordered by followers, including those with 0 followers
+        const result = await this.prisma.$queryRaw<
+            Array<{ following_id: string; total_followers: bigint }>
+        >`
+            SELECT u.id as following_id, COUNT(f.follower_id) as total_followers
+            FROM users u
+            LEFT JOIN follows f ON u.id = f.following_id
+            GROUP BY u.id
+            ORDER BY total_followers DESC
+            LIMIT ${limit}
+            OFFSET ${offset}
+        `;
+
+        if (result.length === 0) {
+            return { data: [], total, limit, offset };
+        }
+
+        const userIds = result.map((r) => r.following_id);
+        const data = await this.getFollowerInfos(userIds, currentUserId);
+
+        return { data, total, limit, offset };
+    }
+
+    async getFollowerInfos(userIds: string[], currentUserId?: string): Promise<FollowerInfo[]> {
+        if (userIds.length === 0) return [];
+
+        // 1. Fetch user details
+        const users = await this.prisma.user.findMany({
+            where: { id: { in: userIds } },
+            select: {
+                id: true,
+                username: true,
+                fullName: true,
+                avatar: true,
+                background: true,
+                gender: true,
+                role: true,
+                provider: true,
+                shortDescription: true,
+            },
+        });
+
+        // 2. Fetch follower counts for these users
+        const followerCounts = await this.prisma.follow.groupBy({
+            by: ['followingId'],
+            where: { followingId: { in: userIds } },
+            _count: { followerId: true },
+        });
+        const countsMap = new Map(followerCounts.map((c) => [c.followingId, c._count.followerId]));
+
+        // 3. Check if current user follows each person
+        let followingMap: Map<string, boolean> = new Map();
+        if (currentUserId) {
+            const followingRelations = await this.prisma.follow.findMany({
+                where: {
+                    followerId: currentUserId,
+                    followingId: { in: userIds },
+                },
+                select: { followingId: true },
+            });
+            followingMap = new Map(followingRelations.map((r) => [r.followingId, true]));
+        }
+
+        // 4. Map back in preserved order
+        return userIds
+            .map((id): FollowerInfo | null => {
+                const user = users.find((u) => u.id === id);
+                if (!user) return null;
+                return {
+                    ...user,
+                    isFollowing: currentUserId ? (followingMap.get(id) ?? false) : undefined,
+                    totalFollowers: countsMap.get(id) ?? 0,
+                };
+            })
+            .filter((u): u is FollowerInfo => u !== null);
     }
 }

@@ -23,9 +23,11 @@ export interface FollowerInfo {
     username: string;
     fullName: string;
     avatar: unknown;
+    background: unknown;
     gender: Gender;
     role: Role;
     provider: Provider;
     shortDescription: string | null;
     isFollowing?: boolean; // Whether current user follows this person
+    totalFollowers?: number;
 }

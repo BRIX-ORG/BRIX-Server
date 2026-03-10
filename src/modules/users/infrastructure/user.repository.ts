@@ -204,9 +204,8 @@ export class UserRepository {
         const result = await this.prisma.$queryRaw<Array<{ id: string; total_votes: bigint }>>`
             SELECT u.id, COUNT(bv.id) AS total_votes
             FROM users u
-            JOIN bricks b ON b.user_id = u.id
-            JOIN brick_votes bv ON bv.brick_id = b.id
-            WHERE bv.value = 1 AND b.is_public = true
+            LEFT JOIN bricks b ON b.user_id = u.id AND b.is_public = true
+            LEFT JOIN brick_votes bv ON bv.brick_id = b.id AND bv.value = 1
             GROUP BY u.id
             ORDER BY total_votes DESC
             LIMIT ${limit}
@@ -229,6 +228,73 @@ export class UserRepository {
                 totalVotes: Number(row.total_votes),
             };
         });
+    }
+
+    async getTopAuthorsPaginated(
+        limit: number,
+        offset: number = 0,
+        currentUserId?: string,
+    ): Promise<{
+        data: { user: UserEntity; totalVotes: number; isFollowing?: boolean }[];
+        total: number;
+    }> {
+        // 1. Get total count of users
+        const countResult = await this.prisma.$queryRaw<Array<{ count: bigint }>>`
+            SELECT COUNT(id) as count
+            FROM users
+        `;
+
+        const total = Number(countResult[0]?.count || 0);
+
+        if (total === 0) {
+            return { data: [], total: 0 };
+        }
+
+        // 2. Get paginated authors including those with 0 votes
+        const result = await this.prisma.$queryRaw<Array<{ id: string; total_votes: bigint }>>`
+            SELECT u.id, COUNT(bv.id) AS total_votes
+            FROM users u
+            LEFT JOIN bricks b ON b.user_id = u.id AND b.is_public = true
+            LEFT JOIN brick_votes bv ON bv.brick_id = b.id AND bv.value = 1
+            GROUP BY u.id
+            ORDER BY total_votes DESC
+            LIMIT ${limit}
+            OFFSET ${offset}
+        `;
+
+        if (!result.length) return { data: [], total };
+
+        const userIds = result.map((r) => r.id);
+
+        // Fetch user details
+        const users = await this.prisma.user.findMany({
+            where: { id: { in: userIds } },
+        });
+
+        // Check if current user follows each author
+        let followingMap: Map<string, boolean> = new Map();
+        if (currentUserId) {
+            const followingRelations = await this.prisma.follow.findMany({
+                where: {
+                    followerId: currentUserId,
+                    followingId: { in: userIds },
+                },
+                select: { followingId: true },
+            });
+            followingMap = new Map(followingRelations.map((r) => [r.followingId, true]));
+        }
+
+        // Map them back
+        const data = result.map((row) => {
+            const user = users.find((u) => u.id === row.id)!;
+            return {
+                user: new UserEntity(this.mapUserToEntity(user)),
+                totalVotes: Number(row.total_votes),
+                isFollowing: currentUserId ? (followingMap.get(user.id) ?? false) : undefined,
+            };
+        });
+
+        return { data, total };
     }
 
     /**

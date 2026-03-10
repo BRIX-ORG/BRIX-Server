@@ -6,6 +6,7 @@ import {
     GetFollowersService,
     GetFollowingService,
     GetFollowRecommendationsService,
+    GetTopFollowedUsersService,
 } from './application';
 import { UsersModule } from '@users/users.module';
 import { NotificationsModule } from '@notifications/notifications.module';
@@ -21,6 +22,7 @@ import { NotificationsModule } from '@notifications/notifications.module';
         GetFollowersService,
         GetFollowingService,
         GetFollowRecommendationsService,
+        GetTopFollowedUsersService,
     ],
     exports: [FollowService, FollowRepository],
 })

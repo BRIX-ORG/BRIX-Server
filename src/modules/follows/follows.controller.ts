@@ -26,11 +26,14 @@ import {
     GetFollowersService,
     GetFollowingService,
     GetFollowRecommendationsService,
+    GetTopFollowedUsersService,
 } from '@follows/application';
 import {
     FollowStatusResponseDto,
     PaginatedFollowersResponseDto,
     PaginationQueryDto,
+    PaginatedTopFollowersResponseDto,
+    TopFollowerResponseDto,
 } from '@follows/dto';
 
 @ApiTags('Follows')
@@ -41,6 +44,7 @@ export class FollowsController {
         private readonly getFollowersService: GetFollowersService,
         private readonly getFollowingService: GetFollowingService,
         private readonly getFollowRecommendationsService: GetFollowRecommendationsService,
+        private readonly getTopFollowedUsersService: GetTopFollowedUsersService,
     ) {}
 
     @Post(':userId')
@@ -100,6 +104,38 @@ export class FollowsController {
     ): Promise<FollowStatusResponseDto> {
         const isFollowing = await this.followService.isFollowing(user.id, userId);
         return { isFollowing };
+    }
+
+    @Get('top-users')
+    @UseGuards(OptionalJwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiOperation({
+        summary: 'Get list of users sorted by their total followers count (Paginated)',
+    })
+    @ApiQuery({
+        name: 'limit',
+        required: false,
+        description: 'Number of items per page. If not provided, returns 10.',
+    })
+    @ApiQuery({ name: 'offset', required: false, description: 'Number of items to skip' })
+    @ApiResponse({
+        status: 200,
+        description: 'Top followed users list',
+        type: PaginatedTopFollowersResponseDto,
+    })
+    async getTopUsers(
+        @Query() query: PaginationQueryDto,
+        @CurrentUser() user?: UserEntity,
+    ): Promise<PaginatedTopFollowersResponseDto> {
+        const result = await this.getTopFollowedUsersService.execute(query, user?.id);
+        return {
+            ...result,
+            data: result.data.map((r) => {
+                const dto = new TopFollowerResponseDto();
+                Object.assign(dto, r);
+                return dto;
+            }),
+        };
     }
 
     @Get('recommendations')

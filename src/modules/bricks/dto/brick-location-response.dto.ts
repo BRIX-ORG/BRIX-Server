@@ -19,7 +19,7 @@ export class BrickLocationResponseDto {
         dto.id = brick.id;
         dto.latitude = brick.latitude !== null ? Number(brick.latitude) : undefined;
         dto.longitude = brick.longitude !== null ? Number(brick.longitude) : undefined;
-        dto.tagType = brick.tagType || TagType.ART; // Default fallback to satisfy TS
+        dto.tagType = brick.tagType || TagType.ART;
         return dto;
     }
 }
