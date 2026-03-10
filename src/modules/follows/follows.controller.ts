@@ -21,7 +21,12 @@ import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { OptionalJwtAuthGuard } from '@/common/guards/optional-jwt-auth.guard';
 import { CurrentUser } from '@/common';
 import { UserEntity } from '@users/domain';
-import { FollowService, GetFollowersService, GetFollowingService } from '@follows/application';
+import {
+    FollowService,
+    GetFollowersService,
+    GetFollowingService,
+    GetFollowRecommendationsService,
+} from '@follows/application';
 import {
     FollowStatusResponseDto,
     PaginatedFollowersResponseDto,
@@ -35,6 +40,7 @@ export class FollowsController {
         private readonly followService: FollowService,
         private readonly getFollowersService: GetFollowersService,
         private readonly getFollowingService: GetFollowingService,
+        private readonly getFollowRecommendationsService: GetFollowRecommendationsService,
     ) {}
 
     @Post(':userId')
@@ -94,6 +100,27 @@ export class FollowsController {
     ): Promise<FollowStatusResponseDto> {
         const isFollowing = await this.followService.isFollowing(user.id, userId);
         return { isFollowing };
+    }
+
+    @Get('recommendations')
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Get follow recommendations (friends of friends)' })
+    @ApiQuery({
+        name: 'limit',
+        required: false,
+        description: 'Number of recommendations to return.',
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'Recommended users list',
+        type: PaginatedFollowersResponseDto,
+    })
+    async getRecommendations(
+        @CurrentUser() user: UserEntity,
+        @Query() query: PaginationQueryDto,
+    ): Promise<PaginatedFollowersResponseDto> {
+        return this.getFollowRecommendationsService.execute(user.id, query);
     }
 
     @Get('users/:idOrUsername/followers')

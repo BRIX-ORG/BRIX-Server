@@ -157,4 +157,64 @@ export class FollowRepository {
     async countFollowing(userId: string): Promise<number> {
         return this.prisma.follow.count({ where: { followerId: userId } });
     }
+
+    async getAllFollowingIds(userId: string): Promise<string[]> {
+        const following = await this.prisma.follow.findMany({
+            where: { followerId: userId },
+            select: { followingId: true },
+        });
+        return following.map((f) => f.followingId);
+    }
+
+    async getRecommendations(userId: string, limit: number): Promise<string[]> {
+        // Find users that the people I follow are following.
+        // Exclude myself and people I am already following.
+
+        // 1. Get all IDs I currently follow
+        const myFollowingIds = await this.getAllFollowingIds(userId);
+
+        if (myFollowingIds.length === 0) {
+            // If I don't follow anyone, just return random newest users (fallback)
+            const newestUsers = await this.prisma.user.findMany({
+                where: { id: { not: userId } },
+                orderBy: { createdAt: 'desc' },
+                take: limit,
+                select: { id: true },
+            });
+            return newestUsers.map((u) => u.id);
+        }
+
+        // 2. Query to find recommendations
+        const result = await this.prisma.$queryRaw<
+            Array<{ following_id: string; common_count: bigint }>
+        >`
+            SELECT f2.following_id, COUNT(f2.follower_id) as common_count
+            FROM follows f1
+            JOIN follows f2 ON f1.following_id = f2.follower_id
+            WHERE f1.follower_id = CAST(${userId} AS uuid)
+              AND f2.following_id != CAST(${userId} AS uuid)
+              AND f2.following_id NOT IN (
+                  SELECT following_id FROM follows WHERE follower_id = CAST(${userId} AS uuid)
+              )
+            GROUP BY f2.following_id
+            ORDER BY common_count DESC
+            LIMIT ${limit}
+        `;
+
+        if (result.length > 0) {
+            return result.map((r) => r.following_id);
+        }
+
+        // Fallback: If no friends-of-friends exist, return newest users not followed yet
+        const newestUsers = await this.prisma.user.findMany({
+            where: {
+                id: { notIn: [...myFollowingIds, userId] },
+            },
+            orderBy: { createdAt: 'desc' },
+            take: limit,
+            select: { id: true },
+        });
+
+        return newestUsers.map((u) => u.id);
+    }
 }

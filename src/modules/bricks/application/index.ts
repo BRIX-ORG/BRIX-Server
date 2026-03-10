@@ -18,3 +18,7 @@ export * from './get-comment-vote-status.service';
 export * from './get-brick-detail.service';
 export * from './create-photo-session.service';
 export * from './upload-photo.service';
+export * from './get-newsfeed-bricks.service';
+export * from './get-brick-locations.service';
+export * from './get-following-bricks.service';
+export * from './get-top-authors.service';

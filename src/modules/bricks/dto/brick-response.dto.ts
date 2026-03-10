@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Brick, MediaType, TagType } from '@prisma/client';
+import { Brick, MediaType, TagType, User } from '@prisma/client';
 
 export class BrickMetadataDto {
     @ApiProperty()
@@ -21,12 +21,32 @@ export class BrickMetadataDto {
     verifiedAt: Date | null;
 }
 
+export class BrickAuthorDto {
+    @ApiProperty()
+    id: string;
+
+    @ApiProperty()
+    username: string;
+
+    @ApiProperty()
+    fullName: string;
+
+    @ApiPropertyOptional({ type: Object })
+    avatar: unknown;
+
+    @ApiProperty()
+    gender: string;
+}
+
 export class BrickResponseDto {
     @ApiProperty()
     id: string;
 
     @ApiProperty()
     userId: string;
+
+    @ApiPropertyOptional({ type: BrickAuthorDto })
+    user?: BrickAuthorDto | null;
 
     @ApiPropertyOptional({ type: Object })
     media: unknown;
@@ -73,10 +93,24 @@ export class BrickResponseDto {
     @ApiProperty()
     updatedAt: Date;
 
-    static fromEntity(brick: Brick & { metadata?: any }): BrickResponseDto {
+    static fromEntity(
+        brick: Brick & {
+            metadata?: any;
+            user?: Pick<User, 'id' | 'username' | 'fullName' | 'avatar' | 'gender'> | null;
+        },
+    ): BrickResponseDto {
         const dto = new BrickResponseDto();
         dto.id = brick.id;
         dto.userId = brick.userId;
+        dto.user = brick.user
+            ? {
+                  id: brick.user.id,
+                  username: brick.user.username,
+                  fullName: brick.user.fullName,
+                  avatar: brick.user.avatar,
+                  gender: brick.user.gender,
+              }
+            : undefined;
         dto.media = brick.media;
         dto.thumbnail = brick.thumbnail;
         dto.watermark = brick.watermark;

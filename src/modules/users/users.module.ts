@@ -1,7 +1,8 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { UsersController } from './users.controller';
 import { UserRepository } from './infrastructure';
 import { PasswordService } from '@/common';
+import { BricksModule } from '../bricks/bricks.module';
 import {
     CreateUserService,
     UpdateProfileService,
@@ -14,6 +15,7 @@ import {
 } from './application';
 
 @Module({
+    imports: [forwardRef(() => BricksModule)],
     controllers: [UsersController],
     providers: [
         // Infrastructure

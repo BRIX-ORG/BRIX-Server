@@ -1,12 +1,17 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { FollowsController } from './follows.controller';
 import { FollowRepository } from './infrastructure';
-import { FollowService, GetFollowersService, GetFollowingService } from './application';
+import {
+    FollowService,
+    GetFollowersService,
+    GetFollowingService,
+    GetFollowRecommendationsService,
+} from './application';
 import { UsersModule } from '@users/users.module';
 import { NotificationsModule } from '@notifications/notifications.module';
 
 @Module({
-    imports: [UsersModule, NotificationsModule],
+    imports: [forwardRef(() => UsersModule), NotificationsModule],
     controllers: [FollowsController],
     providers: [
         // Infrastructure
@@ -15,6 +20,7 @@ import { NotificationsModule } from '@notifications/notifications.module';
         FollowService,
         GetFollowersService,
         GetFollowingService,
+        GetFollowRecommendationsService,
     ],
     exports: [FollowService, FollowRepository],
 })

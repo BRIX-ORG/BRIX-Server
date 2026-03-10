@@ -1,9 +1,10 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import {
     BricksController,
     BrickCommentsController,
     BrickVotesController,
     PhotoUploadController,
+    BrickNewsfeedController,
 } from './controllers';
 import {
     BrickRepository,
@@ -32,14 +33,20 @@ import {
     GetBrickDetailService,
     CreatePhotoSessionService,
     UploadPhotoService,
+    GetNewsfeedBricksService,
+    GetBrickLocationsService,
+    GetFollowingBricksService,
+    GetTopAuthorsService,
 } from './application';
 import { QueueModule } from '@/queue';
 import { NotificationsModule } from '@/modules/notifications/notifications.module';
 import { UsersModule } from '@/modules/users/users.module';
+import { FollowsModule } from '@/modules/follows/follows.module';
 
 @Module({
-    imports: [QueueModule, NotificationsModule, UsersModule],
+    imports: [QueueModule, NotificationsModule, forwardRef(() => UsersModule), FollowsModule],
     controllers: [
+        BrickNewsfeedController,
         PhotoUploadController,
         BricksController,
         BrickCommentsController,
@@ -72,7 +79,11 @@ import { UsersModule } from '@/modules/users/users.module';
         GetBrickDetailService,
         CreatePhotoSessionService,
         UploadPhotoService,
+        GetNewsfeedBricksService,
+        GetBrickLocationsService,
+        GetFollowingBricksService,
+        GetTopAuthorsService,
     ],
-    exports: [BrickRepository],
+    exports: [BrickRepository, GetTopAuthorsService],
 })
 export class BricksModule {}

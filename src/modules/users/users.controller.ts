@@ -48,6 +48,8 @@ import {
     UserResponseDto,
     CloudinaryImageDto,
 } from '@users/dto';
+import { GetTopAuthorsService } from '@bricks/application';
+import { TopAuthorResponseDto } from '@bricks/dto';
 
 @ApiTags('Users')
 @Controller('users')
@@ -62,7 +64,31 @@ export class UsersController {
         private readonly userCleanupService: UserCleanupService,
         private readonly updateAvatarService: UpdateAvatarService,
         private readonly updateBackgroundService: UpdateBackgroundService,
+        private readonly getTopAuthorsService: GetTopAuthorsService,
     ) {}
+
+    @Get('top-authors')
+    @ApiOperation({ summary: 'Get list of top authors sorted by their total brick upvotes' })
+    @ApiOkResponse({
+        description: 'Return a list of top authors.',
+        schema: {
+            allOf: [
+                { $ref: getSchemaPath(ApiResponseDto) },
+                {
+                    properties: {
+                        data: {
+                            type: 'array',
+                            items: { $ref: getSchemaPath(TopAuthorResponseDto) },
+                        },
+                    },
+                },
+            ],
+        },
+    })
+    async getTopAuthors(): Promise<TopAuthorResponseDto[]> {
+        const results = await this.getTopAuthorsService.execute(10);
+        return results.map((r) => new TopAuthorResponseDto(r.user, r.totalVotes));
+    }
 
     @Get()
     @ApiOperation({ summary: 'Get all users' })

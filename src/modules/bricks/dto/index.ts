@@ -13,3 +13,8 @@ export * from './update-brick.dto';
 export * from './update-comment.dto';
 export * from './photo-session-response.dto';
 export * from './upload-photo.dto';
+export * from './get-newsfeed-bricks.dto';
+export * from './get-brick-locations.dto';
+export * from './brick-location-response.dto';
+export * from './get-following-bricks.dto';
+export * from './top-author-response.dto';

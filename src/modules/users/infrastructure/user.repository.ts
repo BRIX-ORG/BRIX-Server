@@ -195,6 +195,42 @@ export class UserRepository {
         return count > 0;
     }
 
+    async getTopAuthors(limit: number): Promise<{ user: UserEntity; totalVotes: number }[]> {
+        // Raw SQL to:
+        // 1. Join users, bricks, and brick_votes
+        // 2. Count total upvotes (value = 1) across all an author's bricks
+        // 3. Group by user, sort descending by the count, and take $limit
+
+        const result = await this.prisma.$queryRaw<Array<{ id: string; total_votes: bigint }>>`
+            SELECT u.id, COUNT(bv.id) AS total_votes
+            FROM users u
+            JOIN bricks b ON b.user_id = u.id
+            JOIN brick_votes bv ON bv.brick_id = b.id
+            WHERE bv.value = 1 AND b.is_public = true
+            GROUP BY u.id
+            ORDER BY total_votes DESC
+            LIMIT ${limit}
+        `;
+
+        if (!result.length) return [];
+
+        const userIds = result.map((r) => r.id);
+
+        // Fetch user details for the IDs
+        const users = await this.prisma.user.findMany({
+            where: { id: { in: userIds } },
+        });
+
+        // Map them back to the sorted order with their votes
+        return result.map((row) => {
+            const user = users.find((u) => u.id === row.id)!;
+            return {
+                user: new UserEntity(this.mapUserToEntity(user)),
+                totalVotes: Number(row.total_votes),
+            };
+        });
+    }
+
     /**
      * Maps Prisma User to UserEntityProps, handling JSONB fields
      */
