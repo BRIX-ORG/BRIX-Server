@@ -13,6 +13,7 @@ import {
     UserCleanupService,
     UpdateAvatarService,
     UpdateBackgroundService,
+    GetUserLocationsService,
 } from './application';
 
 @Module({
@@ -32,6 +33,7 @@ import {
         UserCleanupService,
         UpdateAvatarService,
         UpdateBackgroundService,
+        GetUserLocationsService,
     ],
     exports: [FindUserService, CreateUserService, UserRepository],
 })

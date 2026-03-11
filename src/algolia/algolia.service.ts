@@ -38,6 +38,15 @@ export class AlgoliaService implements OnModuleInit {
     }
 
     private mapUserToRecord(user: User) {
+        const address = user.address as Record<string, unknown> | null;
+        const _geoloc =
+            address?.lat &&
+            typeof address.lat === 'string' &&
+            address?.lon &&
+            typeof address.lon === 'string'
+                ? { lat: Number(address.lat), lng: Number(address.lon) }
+                : undefined;
+
         return {
             objectID: user.id,
             fullname: user.fullName,
@@ -45,6 +54,7 @@ export class AlgoliaService implements OnModuleInit {
             avatar: user.avatar,
             background: user.background,
             gender: user.gender,
+            _geoloc,
         };
     }
 

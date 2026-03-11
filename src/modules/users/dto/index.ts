@@ -5,3 +5,4 @@ export * from './update-password.dto';
 export * from './user-response.dto';
 export * from './cloudinary-image.dto';
 export * from './address.dto';
+export * from './user-location-response.dto';

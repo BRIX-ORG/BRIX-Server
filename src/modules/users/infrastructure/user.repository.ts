@@ -195,6 +195,24 @@ export class UserRepository {
         return count > 0;
     }
 
+    async findUserLocations(): Promise<{ id: string; address: AddressData }[]> {
+        const users = await this.prisma.user.findMany({
+            where: {
+                address: { not: Prisma.DbNull },
+            },
+            select: {
+                id: true,
+                address: true,
+            },
+        });
+
+        // Filter out those without proper json objects in memory
+        return users.filter((u) => {
+            const addr = u.address as Record<string, unknown> | null;
+            return addr && typeof addr.lat !== 'undefined' && typeof addr.lon !== 'undefined';
+        }) as unknown as { id: string; address: AddressData }[];
+    }
+
     async getTopAuthors(limit: number): Promise<{ user: UserEntity; totalVotes: number }[]> {
         // Raw SQL to:
         // 1. Join users, bricks, and brick_votes

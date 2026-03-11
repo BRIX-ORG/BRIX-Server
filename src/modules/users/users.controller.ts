@@ -40,6 +40,7 @@ import {
     UserCleanupService,
     UpdateAvatarService,
     UpdateBackgroundService,
+    GetUserLocationsService,
 } from '@users/application';
 import {
     CreateUserDto,
@@ -47,13 +48,14 @@ import {
     UpdatePasswordDto,
     UserResponseDto,
     CloudinaryImageDto,
+    UserLocationResponseDto,
 } from '@users/dto';
 import { GetTopAuthorsService } from '@bricks/application';
 import { TopAuthorResponseDto } from '@bricks/dto';
 
 @ApiTags('Users')
 @Controller('users')
-@ApiExtraModels(ApiResponseDto, UserResponseDto, CloudinaryImageDto)
+@ApiExtraModels(ApiResponseDto, UserResponseDto, CloudinaryImageDto, UserLocationResponseDto)
 export class UsersController {
     constructor(
         private readonly createUserService: CreateUserService,
@@ -65,6 +67,7 @@ export class UsersController {
         private readonly updateAvatarService: UpdateAvatarService,
         private readonly updateBackgroundService: UpdateBackgroundService,
         private readonly getTopAuthorsService: GetTopAuthorsService,
+        private readonly getUserLocationsService: GetUserLocationsService,
     ) {}
 
     @Get('top-authors')
@@ -88,6 +91,29 @@ export class UsersController {
     async getTopAuthors(): Promise<TopAuthorResponseDto[]> {
         const results = await this.getTopAuthorsService.execute(10);
         return results.map((r) => new TopAuthorResponseDto(r.user, r.totalVotes));
+    }
+
+    @Get('locations')
+    @ApiOperation({ summary: 'Get all user locations for map tracking' })
+    @ApiOkResponse({
+        description: 'Return all user locations.',
+        schema: {
+            allOf: [
+                { $ref: getSchemaPath(ApiResponseDto) },
+                {
+                    properties: {
+                        data: {
+                            type: 'array',
+                            items: { $ref: getSchemaPath(UserLocationResponseDto) },
+                        },
+                    },
+                },
+            ],
+        },
+    })
+    async getUserLocations(): Promise<UserLocationResponseDto[]> {
+        const locations = await this.getUserLocationsService.execute();
+        return locations.map((loc) => UserLocationResponseDto.fromRaw(loc)!).filter(Boolean);
     }
 
     @Get()
