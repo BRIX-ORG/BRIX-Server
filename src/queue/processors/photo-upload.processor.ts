@@ -6,8 +6,8 @@ import { createHmac } from 'crypto';
 import { PrismaService } from '@/prisma/prisma.service';
 import { CloudinaryService } from '@/cloudinary/cloudinary.service';
 import { MinioService } from '@/minio/minio.service';
-import { QueueService } from '../queue.service';
-import { PhotoUploadJobData } from '../types';
+import { QueueService } from '@/queue/queue.service';
+import { PhotoUploadJobData } from '@/queue/types';
 import { MediaType, TagType } from '@prisma/client';
 import { randomUUID } from 'crypto';
 
@@ -158,6 +158,9 @@ export class PhotoUploadProcessor extends WorkerHost {
 
             // Dispatch BLIP description job
             await this.queueService.addBrickDescriptionJob(brick.id, media.url);
+
+            // Re-sync the brick to Algolia to pick up the new media data via queue
+            void this.queueService.addSyncBrickJob(brick.id);
         } catch (error) {
             this.logger.error(
                 `Failed to process photo upload for session ${sessionId}: ${error instanceof Error ? error.message : 'Unknown error'}`,

@@ -10,10 +10,10 @@ import {
 import { Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
-import { PrismaService } from '@/prisma/prisma.service';
+import { PrismaService } from '@/prisma';
 import { MessageResponseDto } from '@messages/dto';
 import { MessageReactions } from '@messages/domain';
-import { RedisService } from '@/redis/redis.service';
+import { RedisService } from '@/redis';
 import { JwtPayload, AuthenticatedSocket } from './socket.types';
 
 @WebSocketGateway({

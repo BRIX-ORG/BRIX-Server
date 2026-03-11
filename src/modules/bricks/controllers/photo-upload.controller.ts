@@ -21,10 +21,8 @@ import {
 import { JwtAuthGuard } from '@/common/guards';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { UserEntity } from '@users/domain';
-import { CreatePhotoSessionService } from '@bricks/application/create-photo-session.service';
-import { UploadPhotoService } from '@bricks/application/upload-photo.service';
-import { PhotoSessionResponseDto } from '@bricks/dto/photo-session-response.dto';
-import { UploadPhotoDto } from '@bricks/dto/upload-photo.dto';
+import { CreatePhotoSessionService, UploadPhotoService } from '@bricks/application';
+import { PhotoSessionResponseDto, UploadPhotoDto } from '@bricks/dto';
 
 @ApiTags('Bricks')
 @Controller('bricks')

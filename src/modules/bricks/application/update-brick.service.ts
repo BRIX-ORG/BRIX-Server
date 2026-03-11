@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
+import { QueueService } from '@/queue';
 
 export interface UpdateBrickData {
     title?: string;
@@ -9,7 +10,10 @@ export interface UpdateBrickData {
 
 @Injectable()
 export class UpdateBrickService {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly queueService: QueueService,
+    ) {}
 
     async execute(brickId: string, userId: string, data: UpdateBrickData) {
         const brick = await this.prisma.brick.findUnique({ where: { id: brickId } });
@@ -23,9 +27,14 @@ export class UpdateBrickService {
             Object.entries(data).filter(([, v]) => v !== undefined),
         ) as UpdateBrickData;
 
-        return this.prisma.brick.update({
+        const updated = await this.prisma.brick.update({
             where: { id: brickId },
             data: updateData,
         });
+
+        // Sync with Algolia via queue
+        void this.queueService.addSyncBrickJob(brickId);
+
+        return updated;
     }
 }

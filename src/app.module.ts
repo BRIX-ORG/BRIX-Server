@@ -4,7 +4,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { CronModule } from '@/cron';
 import { AppController } from '@/app.controller';
 import { AppService } from '@/app.service';
-import { appConfig, cloudinaryConfig } from '@/config';
+import { appConfig, cloudinaryConfig, algoliaConfig } from '@/config';
 import { PrismaModule } from '@/prisma';
 import { UsersModule } from '@/modules/users';
 import { AuthModule } from '@/modules/auth';
@@ -21,6 +21,7 @@ import { LocationIqModule } from '@/location-iq';
 import { SocketModule } from '@/socket';
 import { MessagesModule } from '@/modules/messages';
 import { AlbumsModule } from '@/modules/albums';
+import { AlgoliaModule } from '@/algolia';
 import { TerminusModule } from '@nestjs/terminus';
 import { LoggerMiddleware } from '@/common';
 
@@ -28,7 +29,7 @@ import { LoggerMiddleware } from '@/common';
     imports: [
         ConfigModule.forRoot({
             isGlobal: true,
-            load: [appConfig, cloudinaryConfig],
+            load: [appConfig, cloudinaryConfig, algoliaConfig],
             envFilePath: ['.env', '.env.local'],
         }),
         ThrottlerModule.forRoot([
@@ -55,6 +56,7 @@ import { LoggerMiddleware } from '@/common';
         SocketModule,
         MessagesModule,
         AlbumsModule,
+        AlgoliaModule,
     ],
     controllers: [AppController],
     providers: [AppService],

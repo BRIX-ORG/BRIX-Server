@@ -1,7 +1,7 @@
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import { Server, ServerOptions } from 'socket.io';
 import { createAdapter } from '@socket.io/redis-adapter';
-import { RedisService } from '@/redis/redis.service';
+import { RedisService } from '@/redis';
 import { INestApplicationContext } from '@nestjs/common';
 
 export class RedisIoAdapter extends IoAdapter {

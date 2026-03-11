@@ -3,7 +3,7 @@ import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Job } from 'bullmq';
 import { PrismaService } from '@/prisma/prisma.service';
-import { BrickDescriptionJobData } from '../types';
+import { BrickDescriptionJobData } from '@/queue/types';
 
 @Processor('brick-description', {
     concurrency: 2,

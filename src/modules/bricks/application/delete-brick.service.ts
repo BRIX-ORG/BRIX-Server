@@ -1,9 +1,10 @@
 import { Injectable, NotFoundException, ForbiddenException, Logger } from '@nestjs/common';
 import { BrickRepository } from '@bricks/infrastructure';
-import { CloudinaryService } from '@/cloudinary/cloudinary.service';
-import { MinioService } from '@/minio/minio.service';
+import { CloudinaryService } from '@/cloudinary';
+import { MinioService } from '@/minio';
 import { TagType } from '@prisma/client';
 import { MinioFileData, WatermarkData, CloudinaryFileData } from '@bricks/domain';
+import { QueueService } from '@/queue';
 
 @Injectable()
 export class DeleteBrickService {
@@ -13,6 +14,7 @@ export class DeleteBrickService {
         private readonly brickRepository: BrickRepository,
         private readonly cloudinaryService: CloudinaryService,
         private readonly minioService: MinioService,
+        private readonly queueService: QueueService,
     ) {}
 
     async execute(id: string, userId: string): Promise<void> {
@@ -61,6 +63,10 @@ export class DeleteBrickService {
         }
 
         await this.brickRepository.delete(id);
+
+        // Remove from Algolia via queue
+        void this.queueService.addRemoveBrickJob(id);
+
         this.logger.log(`Brick ${id} deleted by user ${userId}`);
     }
 }

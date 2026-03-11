@@ -32,14 +32,14 @@ import {
     FindAlbumByIdService,
     UpdateAlbumService,
     DeleteAlbumService,
-} from './application';
+} from '@albums/application';
 import {
     CreateAlbumDto,
     UpdateAlbumDto,
     AlbumResponseDto,
     AlbumsQueryDto,
     PaginatedAlbumsResponseDto,
-} from './dto';
+} from '@albums/dto';
 
 @ApiTags('Albums')
 @Controller('albums')

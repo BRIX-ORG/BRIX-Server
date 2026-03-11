@@ -2,7 +2,7 @@ import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
 import { EmailService } from '@/email';
-import { EmailJobType, EmailJobData } from '../types';
+import { EmailJobType, EmailJobData } from '@/queue/types';
 
 @Processor('email', {
     concurrency: 5, // Process up to 5 email jobs concurrently

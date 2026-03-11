@@ -98,6 +98,9 @@ export class UploadGlbService {
         // Dispatch queue job to generate description from first thumbnail
         await this.queueService.addBrickDescriptionJob(brick.id, watermark.url);
 
+        // Sync with Algolia via queue
+        void this.queueService.addSyncBrickJob(brick.id);
+
         return brick;
     }
 }

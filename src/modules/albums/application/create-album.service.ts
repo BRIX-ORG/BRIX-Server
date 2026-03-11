@@ -1,5 +1,5 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
-import { CloudinaryService } from '@/cloudinary/cloudinary.service';
+import { CloudinaryService } from '@/cloudinary';
 import { AlbumRepository } from '@albums/infrastructure';
 import { AlbumItem } from '@albums/domain';
 

@@ -1,9 +1,9 @@
-import { Injectable, Logger, Optional } from '@nestjs/common';
-import { RedisService } from '@redis/redis.service';
-import { QueueService } from '@/queue/queue.service';
+import { Injectable, Logger, Optional, Inject, forwardRef } from '@nestjs/common';
+import { RedisService } from '@/redis';
+import { QueueService } from '@/queue';
 import { NotificationType } from '@prisma/client';
-import { NotificationRepository } from '../infrastructure/notification.repository';
-import { NotificationGateway } from '@/socket/notification.gateway';
+import { NotificationRepository } from '@notifications/infrastructure';
+import { NotificationGateway } from '@/socket';
 
 @Injectable()
 export class NotificationBatchService {
@@ -11,6 +11,7 @@ export class NotificationBatchService {
 
     constructor(
         private readonly redisService: RedisService,
+        @Inject(forwardRef(() => QueueService))
         private readonly queueService: QueueService,
         private readonly notificationRepository: NotificationRepository,
         @Optional() private readonly notificationGateway?: NotificationGateway,

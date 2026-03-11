@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ChatGateway } from '@/socket/chat.gateway';
+import { ChatGateway } from '@/socket';
 import { MessageRepository } from '@messages/infrastructure';
 
 @Injectable()

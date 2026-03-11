@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
-import { MinioService } from '@/minio/minio.service';
-import { ChatGateway } from '@/socket/chat.gateway';
+import { MinioService } from '@/minio';
+import { ChatGateway } from '@/socket';
 import { ConversationRepository } from '@messages/infrastructure';
 import { MessageRepository } from '@messages/infrastructure';
 import { MessageResponseDto } from '@messages/dto';

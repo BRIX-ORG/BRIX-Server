@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { AlbumRepository } from '@albums/infrastructure';
-import { PrismaService } from '@/prisma/prisma.service';
+import { PrismaService } from '@/prisma';
 
 @Injectable()
 export class FindUserAlbumsService {

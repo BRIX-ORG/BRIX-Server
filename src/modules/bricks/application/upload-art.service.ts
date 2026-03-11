@@ -81,6 +81,9 @@ export class UploadArtService {
         const mediaData = brick.media as { url: string };
         await this.queueService.addBrickDescriptionJob(brick.id, mediaData.url);
 
+        // Sync with Algolia via queue
+        void this.queueService.addSyncBrickJob(brick.id);
+
         return brick;
     }
 }

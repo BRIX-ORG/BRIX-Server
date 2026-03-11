@@ -28,7 +28,8 @@
         "prisma:reset": "prisma migrate reset",
         "prisma:studio": "prisma studio",
         "prisma:push": "prisma db push",
-        "postinstall": "prisma generate"
+        "postinstall": "prisma generate",
+        "reindex:algolia": "ts-node -r tsconfig-paths/register scripts/reindex-algolia.ts"
     },
     "lint-staged": {
         "src/**/*.{ts,js}": [
@@ -62,6 +63,7 @@
         "@prisma/client": "^7.4.2",
         "@sendgrid/mail": "^8.1.6",
         "@socket.io/redis-adapter": "^8.3.0",
+        "algoliasearch": "^5.49.2",
         "bcrypt": "^6.0.0",
         "bullmq": "^5.67.2",
         "class-transformer": "^0.5.1",
@@ -145,18 +147,26 @@
         "moduleNameMapper": {
             "^@/(.*)$": "<rootDir>/$1",
             "^@modules/(.*)$": "<rootDir>/modules/$1",
-            "^@users/(.*)$": "<rootDir>/modules/users/$1",
+            "^@albums/(.*)$": "<rootDir>/modules/albums/$1",
             "^@auth/(.*)$": "<rootDir>/modules/auth/$1",
-            "^@follows/(.*)$": "<rootDir>/modules/follows/$1",
-            "^@notifications/(.*)$": "<rootDir>/modules/notifications/$1",
-            "^@firebase/(.*)$": "<rootDir>/firebase/$1",
-            "^@redis/(.*)$": "<rootDir>/redis/$1",
-            "^@email/(.*)$": "<rootDir>/email/$1",
-            "^@cloudinary/(.*)$": "<rootDir>/cloudinary/$1",
-            "^@minio/(.*)$": "<rootDir>/minio/$1",
-            "^@cron/(.*)$": "<rootDir>/cron/$1",
             "^@bricks/(.*)$": "<rootDir>/modules/bricks/$1",
-            "^@albums/(.*)$": "<rootDir>/modules/albums/$1"
+            "^@follows/(.*)$": "<rootDir>/modules/follows/$1",
+            "^@messages/(.*)$": "<rootDir>/modules/messages/$1",
+            "^@notifications/(.*)$": "<rootDir>/modules/notifications/$1",
+            "^@users/(.*)$": "<rootDir>/modules/users/$1",
+            "^@algolia/(.*)$": "<rootDir>/algolia/$1",
+            "^@cloudinary/(.*)$": "<rootDir>/cloudinary/$1",
+            "^@common/(.*)$": "<rootDir>/common/$1",
+            "^@config/(.*)$": "<rootDir>/config/$1",
+            "^@cron/(.*)$": "<rootDir>/cron/$1",
+            "^@email/(.*)$": "<rootDir>/email/$1",
+            "^@firebase/(.*)$": "<rootDir>/firebase/$1",
+            "^@location-iq/(.*)$": "<rootDir>/location-iq/$1",
+            "^@minio/(.*)$": "<rootDir>/minio/$1",
+            "^@prisma/(.*)$": "<rootDir>/prisma/$1",
+            "^@queue/(.*)$": "<rootDir>/queue/$1",
+            "^@redis/(.*)$": "<rootDir>/redis/$1",
+            "^@socket/(.*)$": "<rootDir>/socket/$1"
         }
     },
     "pnpm": {

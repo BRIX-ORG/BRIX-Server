@@ -2,10 +2,14 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { UserRepository } from '@users/infrastructure';
 import { UserEntity } from '@users/domain';
 import { UpdateProfileDto } from '@users/dto';
+import { QueueService } from '@/queue';
 
 @Injectable()
 export class UpdateProfileService {
-    constructor(private readonly userRepository: UserRepository) {}
+    constructor(
+        private readonly userRepository: UserRepository,
+        private readonly queueService: QueueService,
+    ) {}
 
     async execute(id: string, dto: UpdateProfileDto): Promise<UserEntity> {
         // Check if user exists
@@ -21,6 +25,9 @@ export class UpdateProfileService {
             address: dto.address,
             shortDescription: dto.shortDescription,
         });
+
+        // Sync with Algolia asynchronously via queue
+        void this.queueService.addSyncUserJob(user.id);
 
         return user;
     }

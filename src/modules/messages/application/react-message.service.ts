@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
-import { ChatGateway } from '@/socket/chat.gateway';
+import { ChatGateway } from '@/socket';
 import { MessageRepository, ConversationRepository } from '@messages/infrastructure';
 import { MessageReactions } from '@messages/domain';
 

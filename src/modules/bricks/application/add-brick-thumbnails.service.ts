@@ -4,7 +4,7 @@ import {
     ForbiddenException,
     BadRequestException,
 } from '@nestjs/common';
-import { CloudinaryService } from '@/cloudinary/cloudinary.service';
+import { CloudinaryService } from '@/cloudinary';
 import { WatermarkData } from '@bricks/domain';
 import { BrickRepository } from '@bricks/infrastructure';
 

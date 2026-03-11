@@ -1,1 +1,1 @@
-export { default as appConfig, cloudinaryConfig } from './app.config';
+export { default as appConfig, cloudinaryConfig, algoliaConfig } from './app.config';

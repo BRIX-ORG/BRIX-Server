@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { AlbumRepository } from '@albums/infrastructure';
-import { CloudinaryService } from '@/cloudinary/cloudinary.service';
+import { CloudinaryService } from '@/cloudinary';
 import { AlbumItem } from '@albums/domain';
 
 @Injectable()

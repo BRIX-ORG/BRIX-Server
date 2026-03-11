@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { UserRepository } from '@users/infrastructure';
 import { UserEntity, CloudinaryImageData } from '@users/domain';
 import { CloudinaryService } from '@/cloudinary/cloudinary.service';
+import { QueueService } from '@/queue';
 
 @Injectable()
 export class UpdateAvatarService {
@@ -10,6 +11,7 @@ export class UpdateAvatarService {
     constructor(
         private readonly userRepository: UserRepository,
         private readonly cloudinaryService: CloudinaryService,
+        private readonly queueService: QueueService,
     ) {}
 
     async execute(userId: string, file: Express.Multer.File): Promise<UserEntity> {
@@ -45,6 +47,9 @@ export class UpdateAvatarService {
                 this.logger.warn(`Failed to delete old avatar: ${oldPublicId}`);
             }
         }
+
+        // Sync with Algolia asynchronously via queue
+        void this.queueService.addSyncUserJob(updatedUser.id);
 
         return updatedUser;
     }

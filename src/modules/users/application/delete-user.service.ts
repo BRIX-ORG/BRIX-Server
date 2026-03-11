@@ -1,9 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { UserRepository } from '@users/infrastructure';
+import { QueueService } from '@/queue';
 
 @Injectable()
 export class DeleteUserService {
-    constructor(private readonly userRepository: UserRepository) {}
+    constructor(
+        private readonly userRepository: UserRepository,
+        private readonly queueService: QueueService,
+    ) {}
 
     async execute(id: string): Promise<void> {
         // Check if user exists
@@ -13,5 +17,8 @@ export class DeleteUserService {
         }
 
         await this.userRepository.delete(id);
+
+        // Remove user from Algolia via queue
+        void this.queueService.addRemoveUserJob(id);
     }
 }

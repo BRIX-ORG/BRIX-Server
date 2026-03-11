@@ -6,7 +6,7 @@ import {
     UpdateProfileData,
     CloudinaryImageData,
     AddressData,
-} from '../domain';
+} from '@users/domain';
 import { Prisma, type User } from '@prisma/client';
 
 // Helper function to check if string is a valid UUID

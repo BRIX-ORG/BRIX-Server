@@ -10,7 +10,9 @@ import {
     ForgotPasswordOtpJob,
     BrickDescriptionJobData,
     PhotoUploadJobData,
-} from './types';
+    SyncUserJobData,
+    SyncBrickJobData,
+} from '@/queue/types';
 
 @Injectable()
 export class QueueService {
@@ -21,6 +23,7 @@ export class QueueService {
         @InjectQueue('notifications') private notificationQueue: Queue,
         @InjectQueue('brick-description') private brickDescriptionQueue: Queue,
         @InjectQueue('photo-upload') private photoUploadQueue: Queue,
+        @InjectQueue('algolia') private algoliaQueue: Queue,
     ) {}
 
     // Add a notification flush job with 10 minutes delay
@@ -175,5 +178,41 @@ export class QueueService {
         this.logger.log(
             `Photo upload job added for session ${data.sessionId}, user ${data.userId}`,
         );
+    }
+
+    async addSyncUserJob(userId: string): Promise<void> {
+        await this.algoliaQueue.add('sync-user', { userId } as SyncUserJobData, {
+            jobId: `sync-user-${userId}`,
+            attempts: 3,
+            backoff: { type: 'exponential', delay: 2000 },
+            removeOnComplete: true,
+        });
+    }
+
+    async addSyncBrickJob(brickId: string): Promise<void> {
+        await this.algoliaQueue.add('sync-brick', { brickId } as SyncBrickJobData, {
+            jobId: `sync-brick-${brickId}`,
+            attempts: 3,
+            backoff: { type: 'exponential', delay: 2000 },
+            removeOnComplete: true,
+        });
+    }
+
+    async addRemoveUserJob(userId: string): Promise<void> {
+        await this.algoliaQueue.add('remove-user', { userId } as SyncUserJobData, {
+            jobId: `remove-user-${userId}`,
+            attempts: 3,
+            backoff: { type: 'exponential', delay: 2000 },
+            removeOnComplete: true,
+        });
+    }
+
+    async addRemoveBrickJob(brickId: string): Promise<void> {
+        await this.algoliaQueue.add('remove-brick', { brickId } as SyncBrickJobData, {
+            jobId: `remove-brick-${brickId}`,
+            attempts: 3,
+            backoff: { type: 'exponential', delay: 2000 },
+            removeOnComplete: true,
+        });
     }
 }

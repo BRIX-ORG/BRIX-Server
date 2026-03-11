@@ -2,10 +2,14 @@ import { Injectable, ConflictException } from '@nestjs/common';
 import { UserRepository } from '@users/infrastructure';
 import { UserEntity } from '@users/domain';
 import { CreateUserDto } from '@users/dto';
+import { QueueService } from '@/queue';
 
 @Injectable()
 export class CreateUserService {
-    constructor(private readonly userRepository: UserRepository) {}
+    constructor(
+        private readonly userRepository: UserRepository,
+        private readonly queueService: QueueService,
+    ) {}
 
     async execute(dto: CreateUserDto): Promise<UserEntity> {
         // Check if email already exists
@@ -23,6 +27,9 @@ export class CreateUserService {
             gender: dto.gender,
             phone: dto.phone,
         });
+
+        // Sync with Algolia via queue
+        void this.queueService.addSyncUserJob(user.id);
 
         return user;
     }

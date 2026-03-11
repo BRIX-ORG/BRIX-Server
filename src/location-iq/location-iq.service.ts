@@ -5,7 +5,7 @@ import {
     AutocompleteResultDto,
     ReverseGeocodingQueryDto,
     ReverseGeocodingResultDto,
-} from './dto';
+} from '@/location-iq/dto';
 
 @Injectable()
 export class LocationIqService {

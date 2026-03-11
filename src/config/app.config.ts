@@ -18,3 +18,9 @@ export const cloudinaryConfig = registerAs('cloudinary', () => ({
     apiKey: process.env.CLOUDINARY_API_KEY,
     apiSecret: process.env.CLOUDINARY_API_SECRET,
 }));
+
+export const algoliaConfig = registerAs('algolia', () => ({
+    appId: process.env.ALGOLIA_APP_ID,
+    searchKey: process.env.ALGOLIA_SEARCH_KEY,
+    adminKey: process.env.ALGOLIA_ADMIN_KEY,
+}));

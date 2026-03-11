@@ -3,6 +3,7 @@ import { UsersController } from './users.controller';
 import { UserRepository } from './infrastructure';
 import { PasswordService } from '@/common';
 import { BricksModule } from '../bricks/bricks.module';
+import { QueueModule } from '@/queue';
 import {
     CreateUserService,
     UpdateProfileService,
@@ -15,7 +16,7 @@ import {
 } from './application';
 
 @Module({
-    imports: [forwardRef(() => BricksModule)],
+    imports: [forwardRef(() => BricksModule), QueueModule],
     controllers: [UsersController],
     providers: [
         // Infrastructure

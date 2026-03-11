@@ -7,6 +7,7 @@ import {
     NotificationProcessor,
     BrickDescriptionProcessor,
     PhotoUploadProcessor,
+    AlgoliaProcessor,
 } from './processors';
 import { EmailModule } from '@/email';
 import { forwardRef } from '@nestjs/common';
@@ -14,6 +15,7 @@ import { NotificationsModule } from '@/modules/notifications/notifications.modul
 import { PrismaModule } from '@/prisma';
 import { CloudinaryModule } from '@/cloudinary';
 import { MinioModule } from '@/minio';
+import { AlgoliaModule } from '@/algolia';
 
 @Module({
     imports: [
@@ -55,10 +57,14 @@ import { MinioModule } from '@/minio';
         BullModule.registerQueue({
             name: 'photo-upload',
         }),
+        BullModule.registerQueue({
+            name: 'algolia',
+        }),
         EmailModule,
         PrismaModule,
         CloudinaryModule,
         MinioModule,
+        AlgoliaModule,
         forwardRef(() => NotificationsModule),
     ],
     providers: [
@@ -67,6 +73,7 @@ import { MinioModule } from '@/minio';
         NotificationProcessor,
         BrickDescriptionProcessor,
         PhotoUploadProcessor,
+        AlgoliaProcessor,
     ],
     exports: [QueueService],
 })
