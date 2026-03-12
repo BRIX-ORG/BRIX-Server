@@ -23,3 +23,16 @@ export interface AlbumEntity {
     createdAt: Date;
     updatedAt: Date;
 }
+
+/**
+ * Data for creating a new album
+ */
+export interface CreateAlbumData {
+    userId: string;
+    name: string;
+    description?: string;
+    background?: string[];
+    titleColor?: string;
+    descriptionColor?: string;
+    items: AlbumItem[]; // JSONB
+}

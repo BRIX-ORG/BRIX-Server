@@ -1,17 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/prisma';
 import { Album, Prisma } from '@prisma/client';
-import { AlbumItem } from '@albums/domain';
-
-export interface CreateAlbumData {
-    userId: string;
-    name: string;
-    description?: string;
-    background?: string[];
-    titleColor?: string;
-    descriptionColor?: string;
-    items: AlbumItem[]; // JSONB
-}
+import { CreateAlbumData } from '@albums/domain';
 
 @Injectable()
 export class AlbumRepository {

@@ -1,16 +1,7 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
-import { CommentType, Prisma } from '@prisma/client';
-import { CommentImageData } from '../domain';
-
-export interface CreateCommentData {
-    brickId: string;
-    userId: string;
-    content: string;
-    type: CommentType;
-    parentId?: string;
-    images?: CommentImageData[];
-}
+import { Prisma } from '@prisma/client';
+import { CreateCommentData } from '@bricks/domain';
 
 export const commentWithDetails = {
     user: {

@@ -1,52 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
-import { Brick, MediaType, TagType, Prisma } from '@prisma/client';
-
-export interface CreateBrickData {
-    userId: string;
-
-    media: any;
-
-    watermark?: any;
-
-    thumbnail?: any;
-    title: string;
-    description?: string;
-    mediaType: MediaType;
-    tagType: TagType;
-    isPublic?: boolean;
-    address?: string;
-    latitude?: number;
-    longitude?: number;
-}
-
-export interface FindBricksFilter {
-    userId: string;
-    isPublic?: boolean;
-    tagType?: TagType;
-}
-
-export interface FindNewsfeedBricksFilter {
-    timeRange?: string; // DAY, WEEK, MONTH, ALL
-    isPublic?: boolean;
-    tagType?: TagType;
-    limit: number;
-    offset: number;
-}
-
-export interface FindBrickLocationsFilter {
-    userId?: string;
-    isPublic?: boolean;
-    tagType?: TagType;
-}
-
-export interface FindFollowingBricksFilter {
-    userIds: string[];
-    isPublic?: boolean;
-    tagType?: TagType;
-    limit: number;
-    offset: number;
-}
+import { Brick, Prisma } from '@prisma/client';
+import {
+    CreateBrickData,
+    FindBricksFilter,
+    FindNewsfeedBricksFilter,
+    FindBrickLocationsFilter,
+    FindFollowingBricksFilter,
+} from '@bricks/domain';
 
 @Injectable()
 export class BrickRepository {

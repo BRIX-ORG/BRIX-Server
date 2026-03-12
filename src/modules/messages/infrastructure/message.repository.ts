@@ -1,16 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/prisma';
 import { Prisma } from '@prisma/client';
+import { CreateMessageData } from '@messages/domain';
 
-export interface CreateMessageData {
-    conversationId: string;
-    senderId: string;
-    content?: string;
-    images?: any;
-    voice?: any;
-    file?: any;
-    brickId?: string;
-}
 @Injectable()
 export class MessageRepository {
     constructor(private readonly prisma: PrismaService) {}

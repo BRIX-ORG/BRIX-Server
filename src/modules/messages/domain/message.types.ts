@@ -36,3 +36,16 @@ export interface MessageVoiceData {
  * Reactions JSONB format: { "👍": ["userId1"], "❤️": ["userId2", "userId3"] }
  */
 export type MessageReactions = Record<string, string[]>;
+
+/**
+ * Data for creating a new message
+ */
+export interface CreateMessageData {
+    conversationId: string;
+    senderId: string;
+    content?: string;
+    images?: any;
+    voice?: any;
+    file?: any;
+    brickId?: string;
+}

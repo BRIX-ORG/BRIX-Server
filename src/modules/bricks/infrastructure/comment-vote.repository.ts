@@ -1,12 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
+import { VoteResult } from '@bricks/domain';
 
-export interface CommentVoteResult {
-    userVote: 1 | -1 | 0;
-    upvoteCount: number;
-    downvoteCount: number;
-    score: number;
-}
+export type CommentVoteResult = VoteResult;
 
 @Injectable()
 export class CommentVoteRepository {
