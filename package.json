@@ -81,6 +81,7 @@
         "passport-local": "^1.0.0",
         "pg": "^8.17.2",
         "picocolors": "^1.1.1",
+        "pinata": "^2.5.5",
         "reflect-metadata": "^0.2.2",
         "rxjs": "^7.8.2",
         "sharp": "^0.34.5",
@@ -166,7 +167,8 @@
             "^@prisma/(.*)$": "<rootDir>/prisma/$1",
             "^@queue/(.*)$": "<rootDir>/queue/$1",
             "^@redis/(.*)$": "<rootDir>/redis/$1",
-            "^@socket/(.*)$": "<rootDir>/socket/$1"
+            "^@socket/(.*)$": "<rootDir>/socket/$1",
+            "^@pinata/(.*)$": "<rootDir>/pinata/$1"
         }
     },
     "pnpm": {

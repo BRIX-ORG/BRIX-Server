@@ -17,6 +17,7 @@ import { EmailModule } from '@/email';
 import { QueueModule } from '@/queue';
 import { CloudinaryModule } from '@/cloudinary';
 import { MinioModule } from '@/minio';
+import { PinataModule } from '@/pinata';
 import { LocationIqModule } from '@/location-iq';
 import { SocketModule } from '@/socket';
 import { MessagesModule } from '@/modules/messages';
@@ -46,6 +47,7 @@ import { LoggerMiddleware } from '@/common';
         QueueModule,
         CloudinaryModule,
         MinioModule,
+        PinataModule,
         LocationIqModule,
         PrismaModule,
         UsersModule,

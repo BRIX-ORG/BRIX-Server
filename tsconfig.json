@@ -36,7 +36,8 @@
             "@prisma/*": ["src/prisma/*"],
             "@queue/*": ["src/queue/*"],
             "@redis/*": ["src/redis/*"],
-            "@socket/*": ["src/socket/*"]
+            "@socket/*": ["src/socket/*"],
+            "@pinata/*": ["src/pinata/*"]
         },
         "incremental": true,
         "skipLibCheck": true,
