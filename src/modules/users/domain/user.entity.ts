@@ -86,6 +86,7 @@ export class UserEntity {
     readonly verifiedAt: Date | null;
 
     readonly refreshToken: string | null;
+    readonly walletNonce: string | null;
     @ApiProperty({ example: false, description: 'Whether the user is currently online' })
     readonly isOnline: boolean;
     @ApiProperty({
@@ -121,6 +122,7 @@ export class UserEntity {
         this.provider = props.provider;
         this.verifiedAt = props.verifiedAt;
         this.refreshToken = props.refreshToken;
+        this.walletNonce = props.walletNonce;
         this.isOnline = props.isOnline;
         this.lastSeenAt = props.lastSeenAt;
         this.createdAt = props.createdAt;

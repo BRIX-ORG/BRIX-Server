@@ -48,34 +48,36 @@ enum CommentType {
 }
 
 model User {
-  id               String   @id @default(uuid()) @db.Uuid
-  username         String   @unique
-  fullName         String   @map("fullname")
-  email            String   @unique
+  id               String    @id @default(uuid()) @db.Uuid
+  username         String    @unique
+  fullName         String    @map("fullname")
+  email            String    @unique
   phone            String?
   password         String
-  gender           Gender   @default(OTHER)
+  gender           Gender    @default(OTHER)
   avatar           Json?     @db.JsonB
   background       Json?     @db.JsonB
   address          Json?     @db.JsonB
-  shortDescription String?  @map("short_description")
-  trustScore       Float    @default(0) @map("trust_score")
-  role             Role     @default(USER)
-  provider         Provider @default(LOCAL)
+  shortDescription String?   @map("short_description")
+  trustScore       Float     @default(0) @map("trust_score")
+  role             Role      @default(USER)
+  provider         Provider  @default(LOCAL)
   verifiedAt       DateTime? @map("verified_at")
-  refreshToken     String?  @map("refresh_token")
-  createdAt        DateTime @default(now()) @map("created_at")
-  updatedAt        DateTime @updatedAt @map("updated_at")
+  refreshToken     String?   @map("refresh_token")
+  walletNonce      String?   @map("wallet_nonce")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+  isOnline         Boolean   @default(false) @map("is_online")
+  lastSeenAt       DateTime? @map("last_seen_at")
 
-  isOnline   Boolean   @default(false) @map("is_online")
-  lastSeenAt DateTime? @map("last_seen_at")
+  wallets Wallet[]
 
   bricks Brick[]
   albums Album[]
 
   // Follow relations
-  followers  Follow[] @relation("Following")
-  following  Follow[] @relation("Follower")
+  followers Follow[] @relation("Following")
+  following Follow[] @relation("Follower")
 
   // Notification relations
   receivedNotifications  NotificationGroup[] @relation("NotificationRecipient")
@@ -143,45 +145,91 @@ model NotificationActor {
 }
 
 model Brick {
-  id           String    @id @default(uuid()) @db.Uuid
-  userId       String    @map("user_id") @db.Uuid
-  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  media        Json?     @db.JsonB
-  thumbnail    Json?     @db.JsonB
-  watermark    Json?     @db.JsonB
-  title        String
-  description            String?   @db.Text
-  generatedDescription   String?   @map("generated_description") @db.Text
-  mediaType    MediaType @map("media_type")
-  tagType      TagType?  @map("tag_type")
-  isPublic     Boolean   @default(true) @map("is_public")
-  address      String?
-  latitude     Decimal?  @db.Decimal(9, 6)
-  longitude    Decimal?  @db.Decimal(9, 6)
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @updatedAt @map("updated_at")
+  id                   String    @id @default(uuid()) @db.Uuid
+  userId               String    @map("user_id") @db.Uuid
+  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  media                Json?     @db.JsonB
+  thumbnail            Json?     @db.JsonB
+  watermark            Json?     @db.JsonB
+  title                String
+  description          String?   @db.Text
+  generatedDescription String?   @map("generated_description") @db.Text
+  mediaType            MediaType @map("media_type")
+  tagType              TagType?  @map("tag_type")
+  isPublic             Boolean   @default(true) @map("is_public")
+  address              String?
+  latitude             Decimal?  @db.Decimal(9, 6)
+  longitude            Decimal?  @db.Decimal(9, 6)
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
 
-  metadata BrickMetadata?
-  votes    BrickVote[]
-  comments Comment[]
-  messages Message[]
+  metadata      BrickMetadata?
+  donations     Donation[]
+  votes         BrickVote[]
+  comments      Comment[]
+  messages      Message[]
   notifications NotificationGroup[] @relation("NotificationBrick")
 
   @@map("bricks")
 }
 
 model BrickMetadata {
-  id                   String    @id @default(uuid()) @db.Uuid
-  brickId              String    @unique @map("brick_id") @db.Uuid
-  brick                Brick     @relation(fields: [brickId], references: [id], onDelete: Cascade)
-  rawExif              Json?     @map("raw_exif")
-  modelData            Json?     @map("model_data")
-  hashSha256           String?   @map("hash_sha256")
-  onChainTx            String?   @map("on_chain_tx")
+  id      String @id @default(uuid()) @db.Uuid
+  brickId String @unique @map("brick_id") @db.Uuid
+  brick   Brick  @relation(fields: [brickId], references: [id], onDelete: Cascade)
 
-  verifiedAt           DateTime? @map("verified_at")
+  // IPFS
+  ipfsCid  String? @map("ipfs_cid") // metadata CID
+  imageCid String? @map("image_cid") // optional image CID
+
+  // Verify
+  hashSha256 String? @map("hash_sha256")
+
+  // Onchain
+  onChainTx     String? @map("on_chain_tx")
+  contractAddr  String? @map("contract_address")
+  onChainStatus String? @map("on_chain_status") // pending | success | failed
+
+  // Raw data
+  rawExif   Json? @map("raw_exif")
+  modelData Json? @map("model_data")
+
+  verifiedAt DateTime? @map("verified_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("brick_metadata")
+}
+
+model Donation {
+  id      String @id @default(uuid()) @db.Uuid
+  brickId String @map("brick_id") @db.Uuid
+  brick   Brick  @relation(fields: [brickId], references: [id])
+
+  fromAddress String  @map("from_address")
+  amount      Decimal @db.Decimal(18, 8)
+
+  txHash    String   @unique @map("tx_hash")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([brickId])
+  @@map("donations")
+}
+
+model OnChainActivity {
+  id      String @id @default(uuid()) @db.Uuid
+  brickId String @map("brick_id") @db.Uuid
+
+  type    String // MINT | DONATE
+  txHash  String   @map("tx_hash")
+  gasUsed Decimal? @map("gas_used") @db.Decimal(18, 8)
+  status  String // pending | success | failed
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([brickId])
+  @@map("on_chain_activities")
 }
 
 model BrickVote {
@@ -190,7 +238,7 @@ model BrickVote {
   brick     Brick    @relation(fields: [brickId], references: [id], onDelete: Cascade)
   userId    String   @map("user_id") @db.Uuid
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  value     Int      // +1 = upvote, -1 = downvote
+  value     Int // +1 = upvote, -1 = downvote
   createdAt DateTime @default(now()) @map("created_at")
 
   @@unique([brickId, userId])
@@ -213,7 +261,7 @@ model Comment {
   createdAt DateTime    @default(now()) @map("created_at")
   updatedAt DateTime    @updatedAt @map("updated_at")
 
-  votes CommentVote[]
+  votes         CommentVote[]
   notifications NotificationGroup[] @relation("NotificationComment")
 
   @@index([brickId], name: "idx_comment_brick")
@@ -227,7 +275,7 @@ model CommentVote {
   comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
   userId    String   @map("user_id") @db.Uuid
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  value     Int      // +1 = upvote, -1 = downvote
+  value     Int // +1 = upvote, -1 = downvote
   createdAt DateTime @default(now()) @map("created_at")
 
   @@unique([commentId, userId])
@@ -236,20 +284,20 @@ model CommentVote {
 }
 
 model Conversation {
-  id        String    @id @default(uuid()) @db.Uuid
-  user1Id   String    @map("user1_id") @db.Uuid
-  user2Id   String    @map("user2_id") @db.Uuid
-  user1     User      @relation("User1Conversations", fields: [user1Id], references: [id], onDelete: Cascade)
-  user2     User      @relation("User2Conversations", fields: [user2Id], references: [id], onDelete: Cascade)
+  id      String @id @default(uuid()) @db.Uuid
+  user1Id String @map("user1_id") @db.Uuid
+  user2Id String @map("user2_id") @db.Uuid
+  user1   User   @relation("User1Conversations", fields: [user1Id], references: [id], onDelete: Cascade)
+  user2   User   @relation("User2Conversations", fields: [user2Id], references: [id], onDelete: Cascade)
 
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // For soft delete/hiding the chat for one person
   user1HiddenAt DateTime? @map("user1_hidden_at")
   user2HiddenAt DateTime? @map("user2_hidden_at")
 
-  messages  Message[]
+  messages Message[]
 
   @@unique([user1Id, user2Id]) // Strictly one conversation between two users
   @@index([user1Id])
@@ -262,36 +310,36 @@ model Message {
   conversationId String       @map("conversation_id") @db.Uuid
   conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 
-  senderId       String       @map("sender_id") @db.Uuid
-  sender         User         @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  senderId String @map("sender_id") @db.Uuid
+  sender   User   @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
 
-  content        String?      @db.Text
+  content String? @db.Text
 
   // Image support (1-3 images as requested)
   // Format: [{ url: string, width: number, height: number }, ...]
-  images         Json?        @db.JsonB
+  images Json? @db.JsonB
 
   // Voice message support
-  voice          Json?        @db.JsonB
+  voice Json? @db.JsonB
 
   // File support
-  file           Json?        @db.JsonB
+  file Json? @db.JsonB
 
   // Brick sharing
-  brickId        String?      @map("brick_id") @db.Uuid
-  brick          Brick?       @relation(fields: [brickId], references: [id], onDelete: SetNull)
+  brickId String? @map("brick_id") @db.Uuid
+  brick   Brick?  @relation(fields: [brickId], references: [id], onDelete: SetNull)
 
   // Reactions (stored as text/json)
   // Format: { "👍": ["userId1"], "❤️": ["userId2"] }
-  reactions      Json?        @db.JsonB
+  reactions Json? @db.JsonB
 
-  isRead         Boolean      @default(false) @map("is_read")
+  isRead Boolean @default(false) @map("is_read")
 
   // Soft delete for the message
-  deletedAt      DateTime?    @map("deleted_at")
+  deletedAt DateTime? @map("deleted_at")
 
-  createdAt      DateTime     @default(now()) @map("created_at")
-  updatedAt      DateTime     @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@index([conversationId])
   @@index([senderId])
@@ -316,3 +364,14 @@ model Album {
   @@map("albums")
 }
 
+model Wallet {
+  id      String @id @default(uuid()) @db.Uuid
+  address String @unique
+  userId  String @map("user_id") @db.Uuid
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("wallets")
+}

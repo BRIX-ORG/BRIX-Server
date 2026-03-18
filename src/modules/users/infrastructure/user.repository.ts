@@ -115,6 +115,7 @@ export class UserRepository {
                 trustScore: data.trustScore,
                 password: data.password,
                 refreshToken: data.refreshToken,
+                walletNonce: data.walletNonce,
                 verifiedAt: data.verifiedAt,
             },
         });

@@ -36,6 +36,7 @@ export interface UserEntityProps {
     provider: 'LOCAL' | 'GOOGLE';
     verifiedAt: Date | null;
     refreshToken: string | null;
+    walletNonce: string | null;
     isOnline: boolean;
     lastSeenAt: Date | null;
     createdAt: Date;
@@ -64,6 +65,7 @@ export interface UpdateProfileData {
     trustScore?: number;
     password?: string;
     refreshToken?: string;
+    walletNonce?: string | null;
     verifiedAt?: Date | null;
     isOnline?: boolean;
     lastSeenAt?: Date | null;

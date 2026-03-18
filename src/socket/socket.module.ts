@@ -3,6 +3,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { ChatGateway } from './chat.gateway';
 import { NotificationGateway } from './notification.gateway';
+import { OnchainGateway } from './onchain.gateway';
 
 @Global()
 @Module({
@@ -14,7 +15,7 @@ import { NotificationGateway } from './notification.gateway';
             }),
         }),
     ],
-    providers: [ChatGateway, NotificationGateway],
-    exports: [ChatGateway, NotificationGateway],
+    providers: [ChatGateway, NotificationGateway, OnchainGateway],
+    exports: [ChatGateway, NotificationGateway, OnchainGateway],
 })
 export class SocketModule {}

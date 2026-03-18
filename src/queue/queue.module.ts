@@ -8,6 +8,7 @@ import {
     BrickDescriptionProcessor,
     PhotoUploadProcessor,
     AlgoliaProcessor,
+    OnchainProcessor,
 } from './processors';
 import { EmailModule } from '@/email';
 import { forwardRef } from '@nestjs/common';
@@ -16,6 +17,7 @@ import { PrismaModule } from '@/prisma';
 import { CloudinaryModule } from '@/cloudinary';
 import { MinioModule } from '@/minio';
 import { AlgoliaModule } from '@/algolia';
+import { OnchainModule } from '@/modules/onchain/onchain.module';
 
 @Module({
     imports: [
@@ -60,11 +62,15 @@ import { AlgoliaModule } from '@/algolia';
         BullModule.registerQueue({
             name: 'algolia',
         }),
+        BullModule.registerQueue({
+            name: 'onchain',
+        }),
         EmailModule,
         PrismaModule,
         CloudinaryModule,
         MinioModule,
         AlgoliaModule,
+        OnchainModule,
         forwardRef(() => NotificationsModule),
     ],
     providers: [
@@ -74,6 +80,7 @@ import { AlgoliaModule } from '@/algolia';
         BrickDescriptionProcessor,
         PhotoUploadProcessor,
         AlgoliaProcessor,
+        OnchainProcessor,
     ],
     exports: [QueueService],
 })

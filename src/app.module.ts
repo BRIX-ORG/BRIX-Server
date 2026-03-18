@@ -22,9 +22,12 @@ import { LocationIqModule } from '@/location-iq';
 import { SocketModule } from '@/socket';
 import { MessagesModule } from '@/modules/messages';
 import { AlbumsModule } from '@/modules/albums';
+import { WalletsModule } from '@/modules/wallets';
 import { AlgoliaModule } from '@/algolia';
 import { TerminusModule } from '@nestjs/terminus';
 import { LoggerMiddleware } from '@/common';
+import { BlockchainModule } from '@/blockchain/blockchain.module';
+import { OnchainModule } from '@/modules/onchain/onchain.module';
 
 @Module({
     imports: [
@@ -58,7 +61,10 @@ import { LoggerMiddleware } from '@/common';
         SocketModule,
         MessagesModule,
         AlbumsModule,
+        WalletsModule,
         AlgoliaModule,
+        BlockchainModule,
+        OnchainModule,
     ],
     controllers: [AppController],
     providers: [AppService],

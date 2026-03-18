@@ -23,6 +23,7 @@
             "@follows/*": ["src/modules/follows/*"],
             "@messages/*": ["src/modules/messages/*"],
             "@notifications/*": ["src/modules/notifications/*"],
+            "@onchain/*": ["src/modules/onchain/*"],
             "@users/*": ["src/modules/users/*"],
             "@algolia/*": ["src/algolia/*"],
             "@cloudinary/*": ["src/cloudinary/*"],
@@ -37,7 +38,8 @@
             "@queue/*": ["src/queue/*"],
             "@redis/*": ["src/redis/*"],
             "@socket/*": ["src/socket/*"],
-            "@pinata/*": ["src/pinata/*"]
+            "@pinata/*": ["src/pinata/*"],
+            "@blockchain/*": ["src/blockchain/*"]
         },
         "incremental": true,
         "skipLibCheck": true,

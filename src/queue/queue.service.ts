@@ -12,6 +12,8 @@ import {
     PhotoUploadJobData,
     SyncUserJobData,
     SyncBrickJobData,
+    DistributeIpfsJobData,
+    MintSuccessJobData,
 } from '@/queue/types';
 
 @Injectable()
@@ -24,6 +26,7 @@ export class QueueService {
         @InjectQueue('brick-description') private brickDescriptionQueue: Queue,
         @InjectQueue('photo-upload') private photoUploadQueue: Queue,
         @InjectQueue('algolia') private algoliaQueue: Queue,
+        @InjectQueue('onchain') private onchainQueue: Queue,
     ) {}
 
     // Add a notification flush job with 10 minutes delay
@@ -214,5 +217,29 @@ export class QueueService {
             backoff: { type: 'exponential', delay: 2000 },
             removeOnComplete: true,
         });
+    }
+
+    // Add a job to handle Distribute IPFS logic after smart contract event
+    async addDistributeIpfsJob(userId: string, brickId: string, txHash: string): Promise<void> {
+        const jobData: DistributeIpfsJobData = { userId, brickId, txHash };
+        await this.onchainQueue.add('process-distribute-ipfs', jobData, {
+            attempts: 5, // Extra attempts for IPFS uploads
+            backoff: { type: 'exponential', delay: 5000 },
+            removeOnComplete: true,
+            removeOnFail: false,
+        });
+        this.logger.log(`Distribute IPFS job added for brick ${brickId}`);
+    }
+
+    // Add a job to handle Mint Success logic after smart contract event
+    async addMintSuccessJob(ipfsCid: string, txHash: string): Promise<void> {
+        const jobData: MintSuccessJobData = { ipfsCid, txHash };
+        await this.onchainQueue.add('process-mint-success', jobData, {
+            attempts: 5,
+            backoff: { type: 'exponential', delay: 5000 },
+            removeOnComplete: true,
+            removeOnFail: false,
+        });
+        this.logger.log(`Mint Success job added for IPFS CID ${ipfsCid}`);
     }
 }
