@@ -8,3 +8,12 @@ export interface MintSuccessJobData {
     ipfsCid: string;
     txHash: string;
 }
+
+export interface DonateJobData {
+    onChainBrickId: number;
+    donorAddress: string;
+    amount: string; // wei string
+    artistAmount: string;
+    platformAmount: string;
+    txHash: string;
+}

@@ -10,9 +10,11 @@ export class BlockchainListenerService implements OnModuleInit, OnModuleDestroy 
     private contract: Contract | null = null;
 
     private readonly ABI = [
-        'event PaidForIPFS(address indexed user, string brickId)',
-        'event BrickCreated(uint256 id, address indexed creator, string ipfsCid)',
-        'event Donated(uint256 brickId, address indexed donor, uint256 amount)',
+        'event PaidForIPFS(address indexed user, bytes32 brickId)',
+        'event BrickCreated(uint256 indexed id, address indexed creator, string ipfsCid)',
+        'event Donated(uint256 indexed brickId, address indexed donor, uint256 amount, uint256 artistAmount, uint256 platformAmount)',
+        'event FeesWithdrawn(address owner, uint256 amount)',
+        'event DonationWithdrawn(address account, uint256 amount)',
     ];
 
     constructor(
@@ -75,7 +77,36 @@ export class BlockchainListenerService implements OnModuleInit, OnModuleDestroy 
                 },
             );
 
-            // Note: Donated event can be supported similarly in the future
+            // 3. Listen for Donated (Donation Flow)
+            void this.contract.on(
+                'Donated',
+                (
+                    brickId: bigint,
+                    donorAddress: string,
+                    amount: bigint,
+                    artistAmount: bigint,
+                    platformAmount: bigint,
+                    event: ethers.EventLog,
+                ) => {
+                    this.logger.log(
+                        `Received Donated event: brickId=${brickId}, donor=${donorAddress}, amount=${amount}, txHash=${event.transactionHash}`,
+                    );
+                    void this.queueService
+                        .addDonateJob(
+                            Number(brickId),
+                            donorAddress,
+                            amount.toString(),
+                            artistAmount.toString(),
+                            platformAmount.toString(),
+                            event.transactionHash,
+                        )
+                        .catch((err) => {
+                            this.logger.error(
+                                `Failed to add Donate job: ${err instanceof Error ? err.message : String(err)}`,
+                            );
+                        });
+                },
+            );
         } catch (error) {
             this.logger.error(
                 `Failed to initialize BlockchainListener: ${error instanceof Error ? error.message : String(error)}`,

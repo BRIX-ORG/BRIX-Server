@@ -14,6 +14,7 @@ import {
     SyncBrickJobData,
     DistributeIpfsJobData,
     MintSuccessJobData,
+    DonateJobData,
 } from '@/queue/types';
 
 @Injectable()
@@ -241,5 +242,31 @@ export class QueueService {
             removeOnFail: false,
         });
         this.logger.log(`Mint Success job added for IPFS CID ${ipfsCid}`);
+    }
+
+    // Add a job to handle Donate logic after smart contract event
+    async addDonateJob(
+        onChainBrickId: number,
+        donorAddress: string,
+        amount: string,
+        artistAmount: string,
+        platformAmount: string,
+        txHash: string,
+    ): Promise<void> {
+        const jobData: DonateJobData = {
+            onChainBrickId,
+            donorAddress,
+            amount,
+            artistAmount,
+            platformAmount,
+            txHash,
+        };
+        await this.onchainQueue.add('process-donate', jobData, {
+            attempts: 5,
+            backoff: { type: 'exponential', delay: 5000 },
+            removeOnComplete: true,
+            removeOnFail: false,
+        });
+        this.logger.log(`Donate job added for onchain brick ${onChainBrickId} (txHash: ${txHash})`);
     }
 }
