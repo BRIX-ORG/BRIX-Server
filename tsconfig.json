@@ -25,7 +25,9 @@
             "@notifications/*": ["src/modules/notifications/*"],
             "@onchain/*": ["src/modules/onchain/*"],
             "@users/*": ["src/modules/users/*"],
+            "@wallets/*": ["src/modules/wallets/*"],
             "@algolia/*": ["src/algolia/*"],
+            "@blockchain/*": ["src/blockchain/*"],
             "@cloudinary/*": ["src/cloudinary/*"],
             "@common/*": ["src/common/*"],
             "@config/*": ["src/config/*"],
@@ -38,8 +40,7 @@
             "@queue/*": ["src/queue/*"],
             "@redis/*": ["src/redis/*"],
             "@socket/*": ["src/socket/*"],
-            "@pinata/*": ["src/pinata/*"],
-            "@blockchain/*": ["src/blockchain/*"]
+            "@pinata/*": ["src/pinata/*"]
         },
         "incremental": true,
         "skipLibCheck": true,

@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
-import { WalletRepository } from '../domain';
+import { WalletRepository } from '@wallets/domain';
 
 @Injectable()
 export class UnlinkWalletService {

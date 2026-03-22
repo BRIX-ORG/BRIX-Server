@@ -15,7 +15,19 @@ export class BrickMetadataDto {
     hashSha256: string | null;
 
     @ApiPropertyOptional()
+    ipfsCid: string | null;
+
+    @ApiPropertyOptional()
+    imageCid: string | null;
+
+    @ApiPropertyOptional()
     onChainTx: string | null;
+
+    @ApiPropertyOptional()
+    contractAddr: string | null;
+
+    @ApiPropertyOptional()
+    onChainStatus: string | null;
 
     @ApiPropertyOptional()
     verifiedAt: Date | null;

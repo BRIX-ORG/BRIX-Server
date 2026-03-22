@@ -1,8 +1,8 @@
 import { Injectable, BadRequestException, ConflictException } from '@nestjs/common';
 import { ethers } from 'ethers';
 import { UserRepository } from '@users/infrastructure';
-import { WalletRepository } from '../domain';
-import { LinkWalletDto, WalletResponseDto } from '../dto';
+import { WalletRepository } from '@wallets/domain';
+import { LinkWalletDto, WalletResponseDto } from '@wallets/dto';
 
 @Injectable()
 export class LinkWalletService {

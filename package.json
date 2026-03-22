@@ -158,7 +158,9 @@
             "^@notifications/(.*)$": "<rootDir>/modules/notifications/$1",
             "^@onchain/(.*)$": "<rootDir>/modules/onchain/$1",
             "^@users/(.*)$": "<rootDir>/modules/users/$1",
+            "^@wallets/(.*)$": "<rootDir>/modules/wallets/$1",
             "^@algolia/(.*)$": "<rootDir>/algolia/$1",
+            "^@blockchain/(.*)$": "<rootDir>/blockchain/$1",
             "^@cloudinary/(.*)$": "<rootDir>/cloudinary/$1",
             "^@common/(.*)$": "<rootDir>/common/$1",
             "^@config/(.*)$": "<rootDir>/config/$1",
@@ -171,8 +173,7 @@
             "^@queue/(.*)$": "<rootDir>/queue/$1",
             "^@redis/(.*)$": "<rootDir>/redis/$1",
             "^@socket/(.*)$": "<rootDir>/socket/$1",
-            "^@pinata/(.*)$": "<rootDir>/pinata/$1",
-            "^@blockchain/(.*)$": "<rootDir>/blockchain/$1"
+            "^@pinata/(.*)$": "<rootDir>/pinata/$1"
         }
     },
     "pnpm": {

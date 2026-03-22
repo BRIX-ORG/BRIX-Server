@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { WalletRepository } from '../domain';
-import { WalletResponseDto } from '../dto';
+import { WalletRepository } from '@wallets/domain';
+import { WalletResponseDto } from '@wallets/dto';
 
 @Injectable()
 export class GetUserWalletsService {

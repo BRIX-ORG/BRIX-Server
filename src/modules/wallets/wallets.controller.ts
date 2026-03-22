@@ -25,8 +25,8 @@ import {
     LinkWalletService,
     UnlinkWalletService,
     GetUserWalletsService,
-} from './application';
-import { LinkWalletDto, WalletResponseDto, WalletNonceResponseDto } from './dto';
+} from '@wallets/application';
+import { LinkWalletDto, WalletResponseDto, WalletNonceResponseDto } from '@wallets/dto';
 
 @ApiTags('Wallets')
 @Controller('wallets')
