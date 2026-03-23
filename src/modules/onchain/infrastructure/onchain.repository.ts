@@ -131,4 +131,44 @@ export class OnchainRepository {
             orderBy: { createdAt: 'desc' },
         });
     }
+
+    async findUserActivities(userId: string, limit: number, offset: number) {
+        const userBricks = await this.prisma.brick.findMany({
+            where: { userId },
+            select: { id: true },
+        });
+        const brickIds = userBricks.map((b) => b.id);
+
+        const where = {
+            brickId: { in: brickIds },
+        };
+
+        return Promise.all([
+            this.prisma.onChainActivity.findMany({
+                where,
+                orderBy: { createdAt: 'desc' },
+                take: limit,
+                skip: offset,
+            }),
+            this.prisma.onChainActivity.count({ where }),
+        ]);
+    }
+
+    async findUserDonations(userId: string, limit: number, offset: number) {
+        const where = {
+            brick: {
+                userId,
+            },
+        };
+
+        return Promise.all([
+            this.prisma.donation.findMany({
+                where,
+                orderBy: { createdAt: 'desc' },
+                take: limit,
+                skip: offset,
+            }),
+            this.prisma.donation.count({ where }),
+        ]);
+    }
 }
