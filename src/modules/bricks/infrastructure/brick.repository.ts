@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
-import { Brick, Prisma } from '@prisma/client';
+import { Brick, Prisma, TagType } from '@prisma/client';
 import {
     CreateBrickData,
     FindBricksFilter,
@@ -238,5 +238,84 @@ export class BrickRepository {
             }),
             this.prisma.brick.count({ where }),
         ]);
+    }
+
+    async findUserRealtimeBricks(
+        userId: string,
+        onChainStatus?: string,
+        limit: number = 20,
+        offset: number = 0,
+    ) {
+        const where: Prisma.BrickWhereInput = {
+            userId,
+            tagType: TagType.REALTIME,
+        };
+
+        if (onChainStatus) {
+            where.metadata = {
+                onChainStatus,
+            };
+        }
+
+        return Promise.all([
+            this.prisma.brick.findMany({
+                where,
+                include: {
+                    user: {
+                        select: {
+                            id: true,
+                            username: true,
+                            fullName: true,
+                            avatar: true,
+                            gender: true,
+                        },
+                    },
+                    metadata: true,
+                    donations: {
+                        select: {
+                            amount: true,
+                        },
+                    },
+                },
+                orderBy: { createdAt: 'desc' },
+                take: limit,
+                skip: offset,
+            }),
+            this.prisma.brick.count({ where }),
+        ]);
+    }
+
+    async getUserBrickStats(userId: string) {
+        const [totalBricks, ipfsBricks, onchainBricks, totalUpvotes, tagTypeGroups, donationsSum] =
+            await Promise.all([
+                this.prisma.brick.count({ where: { userId } }),
+                this.prisma.brick.count({
+                    where: { userId, metadata: { ipfsCid: { not: null } } },
+                }),
+                this.prisma.brick.count({
+                    where: { userId, metadata: { onChainStatus: 'onchain' } },
+                }),
+                this.prisma.brickVote.count({
+                    where: { brick: { userId }, value: 1 },
+                }),
+                this.prisma.brick.groupBy({
+                    by: ['tagType'],
+                    where: { userId },
+                    _count: true,
+                }),
+                this.prisma.donation.aggregate({
+                    where: { brick: { userId } },
+                    _sum: { amount: true },
+                }),
+            ]);
+
+        return {
+            totalBricks,
+            ipfsBricks,
+            onchainBricks,
+            totalUpvotes,
+            tagTypeGroups,
+            totalDonations: donationsSum._sum.amount,
+        };
     }
 }

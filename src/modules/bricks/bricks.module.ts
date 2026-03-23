@@ -38,6 +38,8 @@ import {
     GetFollowingBricksService,
     GetTopAuthorsService,
     GetTopAuthorsPaginatedService,
+    GetUserRealtimeBricksService,
+    GetUserBrickStatsService,
 } from './application';
 import { QueueModule } from '@/queue';
 import { NotificationsModule } from '@/modules/notifications/notifications.module';
@@ -92,6 +94,8 @@ import { OnchainModule } from '@/modules/onchain/onchain.module';
         GetFollowingBricksService,
         GetTopAuthorsService,
         GetTopAuthorsPaginatedService,
+        GetUserRealtimeBricksService,
+        GetUserBrickStatsService,
     ],
     exports: [BrickRepository, GetTopAuthorsService, GetTopAuthorsPaginatedService],
 })

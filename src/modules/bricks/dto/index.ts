@@ -19,3 +19,7 @@ export * from './get-brick-locations.dto';
 export * from './brick-location-response.dto';
 export * from './get-following-bricks.dto';
 export * from './top-author-response.dto';
+export * from './get-realtime-bricks-query.dto';
+export * from './realtime-brick-response.dto';
+export * from './paginated-realtime-bricks-response.dto';
+export * from './user-brick-stats-response.dto';

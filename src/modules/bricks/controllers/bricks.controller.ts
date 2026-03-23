@@ -42,6 +42,8 @@ import {
     DeleteBrickService,
     GetBrickDetailService,
     GetTopAuthorsPaginatedService,
+    GetUserRealtimeBricksService,
+    GetUserBrickStatsService,
 } from '@bricks/application';
 import { GetDonationsService } from '@onchain/application';
 import { DonationResponseDto } from '@onchain/dto/donation-response.dto';
@@ -58,6 +60,10 @@ import {
     UpvoterResponseDto,
     PaginatedTopAuthorsResponseDto,
     TopAuthorResponseDto,
+    GetRealtimeBricksQueryDto,
+    PaginatedRealtimeBricksResponseDto,
+    RealtimeBrickResponseDto,
+    UserBrickStatsResponseDto,
 } from '@bricks/dto';
 import { PaginationQueryDto } from '@follows/dto';
 
@@ -71,6 +77,7 @@ import { PaginationQueryDto } from '@follows/dto';
     PaginatedCommentsResponseDto,
     UpvoterResponseDto,
     PaginatedTopAuthorsResponseDto,
+    UserBrickStatsResponseDto,
 )
 export class BricksController {
     constructor(
@@ -84,6 +91,8 @@ export class BricksController {
         private readonly getBrickDetailService: GetBrickDetailService,
         private readonly getTopAuthorsPaginatedService: GetTopAuthorsPaginatedService,
         private readonly getDonationsService: GetDonationsService,
+        private readonly getUserRealtimeBricksService: GetUserRealtimeBricksService,
+        private readonly getUserBrickStatsService: GetUserBrickStatsService,
     ) {}
 
     // ─── Top Authors ─────────────────────────────────────────────────────────
@@ -336,6 +345,76 @@ export class BricksController {
             limit: limit ?? 20,
             offset: offset ?? 0,
         };
+    }
+
+    // ─── List User Realtime Bricks (Management) ───────────────────────────────
+
+    @Get('user/:idOrUsername/realtime')
+    @UseGuards(OptionalJwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiOperation({
+        summary: 'Get realtime bricks of a user by ID or username with revenue',
+        description:
+            'Returns ONLY REALTIME bricks with calculated donations revenue. Can optionally filter by onChainStatus.',
+    })
+    @ApiParam({
+        name: 'idOrUsername',
+        description: 'User ID (UUID) or unique username',
+        example: 'johndoe',
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'Paginated list of realtime bricks.',
+        type: PaginatedRealtimeBricksResponseDto,
+    })
+    @ApiResponse({ status: 404, description: 'User not found.' })
+    async getUserRealtimeBricks(
+        @Param('idOrUsername') idOrUsername: string,
+        @Query() query: GetRealtimeBricksQueryDto,
+    ): Promise<PaginatedRealtimeBricksResponseDto> {
+        const { data, total, limit, offset } = await this.getUserRealtimeBricksService.execute(
+            idOrUsername,
+            query,
+        );
+
+        return {
+            data: data.map((b) =>
+                RealtimeBrickResponseDto.fromEntityWithRevenue(
+                    b as unknown as Parameters<
+                        typeof RealtimeBrickResponseDto.fromEntityWithRevenue
+                    >[0],
+                ),
+            ),
+            total,
+            limit,
+            offset,
+        };
+    }
+
+    // ─── Get User Brick Stats ─────────────────────────────────────────────────
+
+    @Get('user/:idOrUsername/stats')
+    @ApiOperation({
+        summary: 'Get public and onchain stats of a user by ID or username',
+        description:
+            'Returns total bricks uploaded, ipfs bricks, onchain bricks, total upvotes, ' +
+            'bricks by tag type, and total received POL donations.',
+    })
+    @ApiParam({
+        name: 'idOrUsername',
+        description: 'User ID (UUID) or unique username',
+        example: 'johndoe',
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'User brick stats.',
+        type: UserBrickStatsResponseDto,
+    })
+    @ApiResponse({ status: 404, description: 'User not found.' })
+    async getUserBrickStats(
+        @Param('idOrUsername') idOrUsername: string,
+    ): Promise<UserBrickStatsResponseDto> {
+        return this.getUserBrickStatsService.execute(idOrUsername);
     }
 
     // ─── Update Brick Metadata ────────────────────────────────────────────────

@@ -7,3 +7,5 @@ export * from './get-bricks.service';
 export * from './update-brick.service';
 export * from './upload-art.service';
 export * from './upload-glb.service';
+export * from './get-user-realtime-bricks.service';
+export * from './get-user-brick-stats.service';
