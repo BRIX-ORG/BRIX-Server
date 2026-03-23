@@ -17,14 +17,17 @@ export class DistributeIpfsService {
     ) {}
 
     async execute(data: DistributeIpfsJobData): Promise<void> {
-        const { userId, brickId, txHash } = data;
+        const { brickId, txHash } = data;
 
         this.logger.log(`Starting Distribute IPFS for Brick ID: ${brickId} (txHash: ${txHash})`);
 
         const brick = await this.onchainRepository.getBrickForIpfs(brickId);
 
-        if (!brick || !brick.metadata) {
-            throw new BadRequestException('Brick or metadata not found');
+        if (!brick) {
+            throw new BadRequestException(`Brick not found in DB for id: ${brickId}`);
+        }
+        if (!brick.metadata) {
+            throw new BadRequestException(`Brick ${brickId} found but has no metadata record`);
         }
 
         // Prevent double processing
@@ -95,8 +98,8 @@ export class DistributeIpfsService {
 
             this.logger.log(`Successfully distributed brick ${brickId} to IPFS. CID: ${ipfsCid}`);
 
-            // 9. Notify Frontend
-            this.onchainGateway.emitIpfsUploaded(userId, {
+            // 9. Notify Frontend (use brick.userId, not data.userId which is the wallet address from the event)
+            this.onchainGateway.emitIpfsUploaded(brick.userId, {
                 brickId,
                 imageCid,
                 ipfsCid,

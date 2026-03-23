@@ -43,9 +43,16 @@ import { QueueModule } from '@/queue';
 import { NotificationsModule } from '@/modules/notifications/notifications.module';
 import { UsersModule } from '@/modules/users/users.module';
 import { FollowsModule } from '@/modules/follows/follows.module';
+import { OnchainModule } from '@/modules/onchain/onchain.module';
 
 @Module({
-    imports: [QueueModule, NotificationsModule, forwardRef(() => UsersModule), FollowsModule],
+    imports: [
+        QueueModule,
+        NotificationsModule,
+        forwardRef(() => UsersModule),
+        FollowsModule,
+        OnchainModule,
+    ],
     controllers: [
         BrickNewsfeedController,
         PhotoUploadController,

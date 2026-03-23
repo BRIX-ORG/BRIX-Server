@@ -233,8 +233,8 @@ export class QueueService {
     }
 
     // Add a job to handle Mint Success logic after smart contract event
-    async addMintSuccessJob(ipfsCid: string, txHash: string): Promise<void> {
-        const jobData: MintSuccessJobData = { ipfsCid, txHash };
+    async addMintSuccessJob(ipfsCid: string, txHash: string, onChainId: number): Promise<void> {
+        const jobData: MintSuccessJobData = { ipfsCid, txHash, onChainId };
         await this.onchainQueue.add('process-mint-success', jobData, {
             attempts: 5,
             backoff: { type: 'exponential', delay: 5000 },

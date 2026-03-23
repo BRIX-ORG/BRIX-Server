@@ -2,6 +2,7 @@ import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/commo
 import { ConfigService } from '@nestjs/config';
 import { ethers, Contract, Provider } from 'ethers';
 import { QueueService } from '@/queue';
+import { OnchainRepository } from '@/modules/onchain/infrastructure';
 
 @Injectable()
 export class BlockchainListenerService implements OnModuleInit, OnModuleDestroy {
@@ -20,6 +21,7 @@ export class BlockchainListenerService implements OnModuleInit, OnModuleDestroy 
     constructor(
         private readonly configService: ConfigService,
         private readonly queueService: QueueService,
+        private readonly onchainRepository: OnchainRepository,
     ) {}
 
     onModuleInit() {
@@ -46,12 +48,21 @@ export class BlockchainListenerService implements OnModuleInit, OnModuleDestroy 
             // 1. Listen for PaidForIPFS (Distribute Flow)
             void this.contract.on(
                 'PaidForIPFS',
-                (user: string, brickId: string, event: ethers.EventLog) => {
+                (user: string, brickId: string, event: ethers.ContractEventPayload) => {
+                    const parsedBrickId = this.bytes32ToUuid(brickId);
                     this.logger.log(
-                        `Received PaidForIPFS event: user=${user}, brickId=${brickId}, txHash=${event.transactionHash}`,
+                        `Received PaidForIPFS event: user=${user}, brickId=${parsedBrickId} (raw: ${brickId}), txHash=${event.log.transactionHash}`,
                     );
+
+                    // Optimistically mark as pending to prevent duplicate processing on frontend
+                    this.onchainRepository.updateIpfsPending(parsedBrickId).catch((err) => {
+                        this.logger.warn(
+                            `Failed to update status to pending for ${parsedBrickId}: ${err instanceof Error ? err.message : String(err)}`,
+                        );
+                    });
+
                     void this.queueService
-                        .addDistributeIpfsJob(user, brickId, event.transactionHash)
+                        .addDistributeIpfsJob(user, parsedBrickId, event.log.transactionHash)
                         .catch((err) => {
                             this.logger.error(
                                 `Failed to add Distribute IPFS job: ${err instanceof Error ? err.message : String(err)}`,
@@ -63,12 +74,17 @@ export class BlockchainListenerService implements OnModuleInit, OnModuleDestroy 
             // 2. Listen for BrickCreated (Mint Success Flow)
             void this.contract.on(
                 'BrickCreated',
-                (id: bigint, creator: string, ipfsCid: string, event: ethers.EventLog) => {
+                (
+                    id: bigint,
+                    creator: string,
+                    ipfsCid: string,
+                    event: ethers.ContractEventPayload,
+                ) => {
                     this.logger.log(
-                        `Received BrickCreated event: id=${id}, creator=${creator}, ipfsCid=${ipfsCid}, txHash=${event.transactionHash}`,
+                        `Received BrickCreated event: id=${id}, creator=${creator}, ipfsCid=${ipfsCid}, txHash=${event.log.transactionHash}`,
                     );
                     void this.queueService
-                        .addMintSuccessJob(ipfsCid, event.transactionHash)
+                        .addMintSuccessJob(ipfsCid, event.log.transactionHash, Number(id))
                         .catch((err) => {
                             this.logger.error(
                                 `Failed to add Mint Success job: ${err instanceof Error ? err.message : String(err)}`,
@@ -86,10 +102,10 @@ export class BlockchainListenerService implements OnModuleInit, OnModuleDestroy 
                     amount: bigint,
                     artistAmount: bigint,
                     platformAmount: bigint,
-                    event: ethers.EventLog,
+                    event: ethers.ContractEventPayload,
                 ) => {
                     this.logger.log(
-                        `Received Donated event: brickId=${brickId}, donor=${donorAddress}, amount=${amount}, txHash=${event.transactionHash}`,
+                        `Received Donated event: brickId=${brickId}, donor=${donorAddress}, amount=${amount}, txHash=${event.log.transactionHash}`,
                     );
                     void this.queueService
                         .addDonateJob(
@@ -98,7 +114,7 @@ export class BlockchainListenerService implements OnModuleInit, OnModuleDestroy 
                             amount.toString(),
                             artistAmount.toString(),
                             platformAmount.toString(),
-                            event.transactionHash,
+                            event.log.transactionHash,
                         )
                         .catch((err) => {
                             this.logger.error(
@@ -112,6 +128,24 @@ export class BlockchainListenerService implements OnModuleInit, OnModuleDestroy 
                 `Failed to initialize BlockchainListener: ${error instanceof Error ? error.message : String(error)}`,
             );
         }
+    }
+
+    /**
+     * Converts a bytes32 hex value (emitted by the smart contract) back to a UUID string.
+     * The Brick UUID (16 bytes) is stored as the first 16 bytes of a bytes32.
+     * e.g. "0xc9eab6aa34c5bfc29b68c04e7a09c517000...0" → "c9eab6aa-34c5-bfc2-9b68-c04e7a09c517"
+     */
+    private bytes32ToUuid(bytes32: string): string {
+        // Strip 0x prefix and take first 32 hex chars (= 16 bytes = UUID)
+        const hex = bytes32.startsWith('0x') ? bytes32.slice(2) : bytes32;
+        const uuidHex = hex.slice(0, 32);
+        return [
+            uuidHex.slice(0, 8),
+            uuidHex.slice(8, 12),
+            uuidHex.slice(12, 16),
+            uuidHex.slice(16, 20),
+            uuidHex.slice(20, 32),
+        ].join('-');
     }
 
     async onModuleDestroy() {

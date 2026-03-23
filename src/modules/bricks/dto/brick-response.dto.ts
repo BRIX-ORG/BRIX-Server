@@ -21,6 +21,9 @@ export class BrickMetadataDto {
     imageCid: string | null;
 
     @ApiPropertyOptional()
+    onChainId: number | null;
+
+    @ApiPropertyOptional()
     onChainTx: string | null;
 
     @ApiPropertyOptional()

@@ -186,9 +186,10 @@ model BrickMetadata {
   hashSha256 String? @map("hash_sha256")
 
   // Onchain
+  onChainId     Int?    @map("on_chain_id") // Sequential uint256 ID from smart contract
   onChainTx     String? @map("on_chain_tx")
   contractAddr  String? @map("contract_address")
-  onChainStatus String? @map("on_chain_status") // pending | success | failed
+  onChainStatus String? @map("on_chain_status") // pending | ipfs_uploaded | onchain | failed
 
   // Raw data
   rawExif   Json? @map("raw_exif")

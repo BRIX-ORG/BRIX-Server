@@ -13,9 +13,11 @@ export class MintSuccessService {
     ) {}
 
     async execute(data: MintSuccessJobData): Promise<void> {
-        const { ipfsCid, txHash } = data;
+        const { ipfsCid, txHash, onChainId } = data;
 
-        this.logger.log(`Starting Mint Success processing for CID: ${ipfsCid}`);
+        this.logger.log(
+            `Starting Mint Success processing for CID: ${ipfsCid}, onChainId: ${onChainId}`,
+        );
 
         const metadata = await this.onchainRepository.getMetadataByIpfsCid(ipfsCid);
 
@@ -30,7 +32,7 @@ export class MintSuccessService {
             return;
         }
 
-        await this.onchainRepository.markAsMinted(metadata.id, metadata.brickId, txHash);
+        await this.onchainRepository.markAsMinted(metadata.id, metadata.brickId, txHash, onChainId);
 
         this.logger.log(
             `Successfully completed onchain mint processing for brick ${metadata.brickId}`,

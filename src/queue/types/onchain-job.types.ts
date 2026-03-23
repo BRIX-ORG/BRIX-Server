@@ -7,6 +7,7 @@ export interface DistributeIpfsJobData {
 export interface MintSuccessJobData {
     ipfsCid: string;
     txHash: string;
+    onChainId: number;
 }
 
 export interface DonateJobData {

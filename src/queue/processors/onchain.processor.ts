@@ -1,8 +1,8 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { Logger } from '@nestjs/common';
-import { DistributeIpfsJobData, MintSuccessJobData } from '@/queue/types';
-import { DistributeIpfsService, MintSuccessService } from '@/modules/onchain';
+import { DistributeIpfsJobData, MintSuccessJobData, DonateJobData } from '@/queue/types';
+import { DistributeIpfsService, MintSuccessService, DonateService } from '@/modules/onchain';
 
 @Processor('onchain')
 export class OnchainProcessor extends WorkerHost {
@@ -11,11 +11,14 @@ export class OnchainProcessor extends WorkerHost {
     constructor(
         private readonly distributeIpfsService: DistributeIpfsService,
         private readonly mintSuccessService: MintSuccessService,
+        private readonly donateService: DonateService,
     ) {
         super();
     }
 
-    async process(job: Job<DistributeIpfsJobData | MintSuccessJobData>): Promise<void> {
+    async process(
+        job: Job<DistributeIpfsJobData | MintSuccessJobData | DonateJobData>,
+    ): Promise<void> {
         try {
             switch (job.name) {
                 case 'process-distribute-ipfs': {
@@ -26,6 +29,11 @@ export class OnchainProcessor extends WorkerHost {
                 case 'process-mint-success': {
                     const data = job.data as MintSuccessJobData;
                     await this.mintSuccessService.execute(data);
+                    break;
+                }
+                case 'process-donate': {
+                    const data = job.data as DonateJobData;
+                    await this.donateService.execute(data);
                     break;
                 }
                 default:

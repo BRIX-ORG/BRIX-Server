@@ -43,6 +43,8 @@ import {
     GetBrickDetailService,
     GetTopAuthorsPaginatedService,
 } from '@bricks/application';
+import { GetDonationsService } from '@onchain/application';
+import { DonationResponseDto } from '@onchain/dto/donation-response.dto';
 import {
     CreateBrickDto,
     BrickResponseDto,
@@ -81,6 +83,7 @@ export class BricksController {
         private readonly deleteBrickService: DeleteBrickService,
         private readonly getBrickDetailService: GetBrickDetailService,
         private readonly getTopAuthorsPaginatedService: GetTopAuthorsPaginatedService,
+        private readonly getDonationsService: GetDonationsService,
     ) {}
 
     // ─── Top Authors ─────────────────────────────────────────────────────────
@@ -259,6 +262,29 @@ export class BricksController {
     async getBrickDetail(@Param('id', ParseUUIDPipe) id: string): Promise<BrickDetailResponseDto> {
         const brick = await this.getBrickDetailService.execute(id);
         return BrickDetailResponseDto.fromEntity(brick);
+    }
+
+    // ─── Get Donations ───────────────────────────────────────────────────────
+
+    @Get(':id/donations')
+    @ApiOperation({
+        summary: 'Get all donations for a specific brick',
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'List of donations.',
+        type: [DonationResponseDto],
+    })
+    async getDonations(@Param('id', ParseUUIDPipe) id: string): Promise<DonationResponseDto[]> {
+        const donations = await this.getDonationsService.execute(id);
+        return donations.map((d) => ({
+            id: d.id,
+            brickId: d.brickId,
+            fromAddress: d.fromAddress,
+            amount: d.amount.toString(),
+            txHash: d.txHash,
+            createdAt: d.createdAt,
+        }));
     }
 
     // ─── List User Bricks ─────────────────────────────────────────────────────
