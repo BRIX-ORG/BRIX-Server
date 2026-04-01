@@ -6,7 +6,7 @@ import { PrismaService } from '@/prisma/prisma.service';
 import { BrickDescriptionJobData } from '@/queue/types';
 
 @Processor('brick-description', {
-    concurrency: 2,
+    concurrency: 4,
 })
 export class BrickDescriptionProcessor extends WorkerHost {
     private readonly logger = new Logger(BrickDescriptionProcessor.name);

@@ -4,7 +4,9 @@ import { Logger } from '@nestjs/common';
 import { AlgoliaService } from '@/algolia';
 import { SyncUserJobData, SyncBrickJobData } from '@/queue/types';
 
-@Processor('algolia')
+@Processor('algolia', {
+    concurrency: 5,
+})
 export class AlgoliaProcessor extends WorkerHost {
     private readonly logger = new Logger(AlgoliaProcessor.name);
 

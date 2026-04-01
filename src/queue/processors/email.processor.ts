@@ -5,7 +5,7 @@ import { EmailService } from '@/email';
 import { EmailJobType, EmailJobData } from '@/queue/types';
 
 @Processor('email', {
-    concurrency: 5, // Process up to 5 email jobs concurrently
+    concurrency: 10, // Process up to 10 email jobs concurrently
 })
 export class EmailProcessor extends WorkerHost {
     private readonly logger = new Logger(EmailProcessor.name);

@@ -12,7 +12,7 @@ import { MediaType, TagType } from '@prisma/client';
 import { randomUUID } from 'crypto';
 
 @Processor('photo-upload', {
-    concurrency: 2, // QR decode is fast, safe to run 2 concurrently
+    concurrency: 5, // Image processing and uploads are I/O bound
 })
 export class PhotoUploadProcessor extends WorkerHost {
     private readonly logger = new Logger(PhotoUploadProcessor.name);

@@ -4,7 +4,9 @@ import { Logger } from '@nestjs/common';
 import { DistributeIpfsJobData, MintSuccessJobData, DonateJobData } from '@/queue/types';
 import { DistributeIpfsService, MintSuccessService, DonateService } from '@/modules/onchain';
 
-@Processor('onchain')
+@Processor('onchain', {
+    concurrency: 5,
+})
 export class OnchainProcessor extends WorkerHost {
     private readonly logger = new Logger(OnchainProcessor.name);
 

@@ -6,7 +6,9 @@ import { NotificationRepository } from '@/modules/notifications/infrastructure/n
 import { NotificationFlushData } from '@/queue/types';
 import { NotificationGateway } from '@/socket/notification.gateway';
 
-@Processor('notifications')
+@Processor('notifications', {
+    concurrency: 10,
+})
 export class NotificationProcessor extends WorkerHost {
     private readonly logger = new Logger(NotificationProcessor.name);
 
