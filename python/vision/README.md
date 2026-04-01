@@ -38,7 +38,7 @@ Image processing microservice for the BRIX platform. This service provides AI-po
 
 ## Setup & Deployment
 
-### Hardware Requirements
+### Hardware Requirementss
 
 - **CUDA Support**: Recommended for faster BLIP inference.
 - **CPU Fallback**: Automatically falls back to CPU (torch float32) if CUDA is unavailable.
