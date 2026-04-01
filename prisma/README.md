@@ -2,7 +2,7 @@
 
 This project uses Prisma as an ORM to manage the PostgreSQL database. This document outlines the workflow for changing the database schema.
 
-## Database Workfloww
+## Database Workflow
 
 Whenever you need to add, modify, or delete columns/tables, follow these steps:
 

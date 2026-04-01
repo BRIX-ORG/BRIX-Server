@@ -62,7 +62,7 @@ export class OnchainGateway implements OnGatewayConnection, OnGatewayDisconnect 
     }
 
     /**
-     * Notify frontend that a brick has been successfully minted on chain
+     * Notify frontend that a brick has been successfully minted on chainn
      */
     emitBrickMinted(userId: string, data: { brickId: string; txHash: string }) {
         this.server.to(`user:${userId}`).emit('brick_minted', data);
