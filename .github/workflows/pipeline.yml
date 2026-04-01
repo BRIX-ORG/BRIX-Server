@@ -73,6 +73,52 @@ jobs:
                       ${{ secrets.DOCKERHUB_USERNAME }}/brix-server:${{ steps.vars.outputs.env_name }}-latest
                   cache-from: type=gha
                   cache-to: type=gha,mode=max
+                  build-args: |
+                      NODE_ENV=${{ secrets.NODE_ENV }}
+                      APP_PORT=${{ secrets.APP_PORT }}
+                      DB_HOST=${{ secrets.DB_HOST }}
+                      DB_PORT=${{ secrets.DB_PORT }}
+                      DB_USERNAME=${{ secrets.DB_USERNAME }}
+                      DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+                      DB_DATABASE=${{ secrets.DB_DATABASE }}
+                      REDIS_HOST=${{ secrets.REDIS_HOST }}
+                      REDIS_PORT=${{ secrets.REDIS_PORT }}
+                      REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
+                      REDIS_DB=${{ secrets.REDIS_DB }}
+                      MINIO_ENDPOINT=${{ secrets.MINIO_ENDPOINT }}
+                      MINIO_PORT=${{ secrets.MINIO_PORT }}
+                      MINIO_CONSOLE_PORT=${{ secrets.MINIO_CONSOLE_PORT }}
+                      MINIO_ACCESS_KEY=${{ secrets.MINIO_ACCESS_KEY }}
+                      MINIO_SECRET_KEY=${{ secrets.MINIO_SECRET_KEY }}
+                      MINIO_BUCKET_NAME=${{ secrets.MINIO_BUCKET_NAME }}
+                      MINIO_USE_SSL=${{ secrets.MINIO_USE_SSL }}
+                      CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME }}
+                      CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }}
+                      CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET }}
+                      PINATA_JWT_KEY=${{ secrets.PINATA_JWT_KEY }}
+                      PINATA_GATEWAY=${{ secrets.PINATA_GATEWAY }}
+                      DATABASE_URL=${{ secrets.DATABASE_URL }}
+                      JWT_SECRET=${{ secrets.JWT_SECRET }}
+                      JWT_EXPIRES_IN=${{ secrets.JWT_EXPIRES_IN }}
+                      JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }}
+                      JWT_REFRESH_EXPIRES_IN=${{ secrets.JWT_REFRESH_EXPIRES_IN }}
+                      FIREBASE_SERVICE_ACCOUNT_BASE64=${{ secrets.FIREBASE_SERVICE_ACCOUNT_BASE64 }}
+                      SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }}
+                      SENDGRID_FROM_EMAIL=${{ secrets.SENDGRID_FROM_EMAIL }}
+                      SENDGRID_FROM_NAME=${{ secrets.SENDGRID_FROM_NAME }}
+                      OTP_EXPIRY_SECONDS=${{ secrets.OTP_EXPIRY_SECONDS }}
+                      OTP_MAX_ATTEMPTS=${{ secrets.OTP_MAX_ATTEMPTS }}
+                      RESET_TOKEN_EXPIRY_SECONDS=${{ secrets.RESET_TOKEN_EXPIRY_SECONDS }}
+                      LOCATION_IQ_API_KEY=${{ secrets.LOCATION_IQ_API_KEY }}
+                      VISION_API_URL=${{ secrets.VISION_API_URL }}
+                      VISION_PORT=${{ secrets.VISION_PORT }}
+                      MINIO_PUBLIC_URL=${{ secrets.MINIO_PUBLIC_URL }}
+                      QR_HMAC_SECRET=${{ secrets.QR_HMAC_SECRET }}
+                      ALGOLIA_APP_ID=${{ secrets.ALGOLIA_APP_ID }}
+                      ALGOLIA_SEARCH_KEY=${{ secrets.ALGOLIA_SEARCH_KEY }}
+                      ALGOLIA_ADMIN_KEY=${{ secrets.ALGOLIA_ADMIN_KEY }}
+                      POLYGON_RPC_URL=${{ secrets.POLYGON_RPC_URL }}
+                      CONTRACT_ADDRESS=${{ secrets.CONTRACT_ADDRESS }}
 
             - name: Build and push Vision
               if: steps.filter.outputs.push_vision == 'true'
