@@ -23,3 +23,6 @@ jobs:
 
             - name: Run Prettier Check
               run: pnpm run format:check
+
+            - name: Run Type Check
+              run: pnpm run type-check
