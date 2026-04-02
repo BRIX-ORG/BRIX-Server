@@ -1,6 +1,6 @@
 # Socket.IO — Chat Module (`/chat`)
 
-## Overviewwwwwwwwwwwwwwwwww
+## Overview
 
 The BRIX chat system uses **Socket.IO** (`@nestjs/websockets`) at namespace `/chat`.  
 Authentication is **JWT-based** — the token must be provided on connection. Unauthenticated connections are immediately disconnected.
