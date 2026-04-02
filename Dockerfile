@@ -34,6 +34,7 @@ RUN npm install -g pnpm
 # Copy package files
 COPY package.json pnpm-lock.yaml ./
 COPY prisma/ ./prisma/
+COPY prisma.config.ts ./
 
 # Install only production dependencies
 ENV SKIP_PNPM_CHECK=true
