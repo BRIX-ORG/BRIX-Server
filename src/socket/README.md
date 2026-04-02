@@ -110,8 +110,8 @@ If the token is missing or invalid, the server disconnects the client immediatel
   reactions: Record<string, string[]> | null;
 
   isRead: boolean;
-  createdAt: string;   // ISO 8601
-  updatedAt: string;   // ISO 8601
+  createdAt: string;
+  updatedAt: string;
 }
 ```
 
