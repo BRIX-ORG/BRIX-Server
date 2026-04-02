@@ -15,7 +15,7 @@ jobs:
         outputs:
             push_server: ${{ steps.filter.outputs.push_server }}
             push_vision: ${{ steps.filter.outputs.push_vision }}
-            tag: ${{ steps.vars.outputs.tag }}
+            image_tag: ${{ steps.vars.outputs.image_tag }}
             env_name: ${{ steps.vars.outputs.env_name }}
         steps:
             - name: Checkout code
@@ -45,13 +45,13 @@ jobs:
             - name: Set environment variables
               id: vars
               run: |
-                  SHORT_SHA=$(git rev-parse --short HEAD)
+                  SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
                   if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-                    echo "tag=prod-${SHORT_SHA}" >> $GITHUB_OUTPUT
-                    echo "env_name=prod" >> $GITHUB_OUTPUT
+                    echo "image_tag=prod-${SHORT_SHA}" >> "$GITHUB_OUTPUT"
+                    echo "env_name=prod" >> "$GITHUB_OUTPUT"
                   else
-                    echo "tag=dev-${SHORT_SHA}" >> $GITHUB_OUTPUT
-                    echo "env_name=dev" >> $GITHUB_OUTPUT
+                    echo "image_tag=dev-${SHORT_SHA}" >> "$GITHUB_OUTPUT"
+                    echo "env_name=dev" >> "$GITHUB_OUTPUT"
                   fi
 
             - name: Log in to Docker Hub
@@ -69,7 +69,7 @@ jobs:
                   file: ./Dockerfile
                   push: true
                   tags: |
-                      ${{ secrets.DOCKERHUB_USERNAME }}/brix-server:${{ steps.vars.outputs.tag }}
+                      ${{ secrets.DOCKERHUB_USERNAME }}/brix-server:${{ steps.vars.outputs.image_tag }}
                       ${{ secrets.DOCKERHUB_USERNAME }}/brix-server:${{ steps.vars.outputs.env_name }}-latest
                   cache-from: type=gha
                   cache-to: type=gha,mode=max
@@ -128,7 +128,7 @@ jobs:
                   file: ./python/vision/Dockerfile
                   push: true
                   tags: |
-                      ${{ secrets.DOCKERHUB_USERNAME }}/brix-vision:${{ steps.vars.outputs.tag }}
+                      ${{ secrets.DOCKERHUB_USERNAME }}/brix-vision:${{ steps.vars.outputs.image_tag }}
                       ${{ secrets.DOCKERHUB_USERNAME }}/brix-vision:${{ steps.vars.outputs.env_name }}-latest
                   cache-from: type=gha
                   cache-to: type=gha,mode=max
@@ -149,7 +149,12 @@ jobs:
               working-directory: config-repo
               run: |
                   ENV_NAME="${{ needs.build-and-push.outputs.env_name }}"
-                  IMAGE_TAG="${{ needs.build-and-push.outputs.tag }}"
+                  IMAGE_TAG="${{ needs.build-and-push.outputs.image_tag }}"
+
+                  if [[ -z "$IMAGE_TAG" ]]; then
+                    echo "Error: IMAGE_TAG is empty. Refusing to update with empty tag."
+                    exit 1
+                  fi
 
                   if [[ "${{ needs.build-and-push.outputs.push_server }}" == "true" ]]; then
                     VALUES_FILE="environments/${ENV_NAME}/be-values.yaml"
@@ -173,5 +178,5 @@ jobs:
                   git config user.name "github-actions[bot]"
                   git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
                   git add .
-                  git commit -m "chore(auto): update backend image tags to ${{ needs.build-and-push.outputs.tag }} [skip ci]" || echo "No changes to commit"
+                  git commit -m "chore(auto): update backend image tags to ${{ needs.build-and-push.outputs.image_tag }} [skip ci]" || echo "No changes to commit"
                   git push origin main
