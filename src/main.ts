@@ -58,7 +58,7 @@ async function bootstrap() {
         .addBearerAuth()
         .build();
     const document = SwaggerModule.createDocument(app, swaggerConfig);
-    SwaggerModule.setup(`${apiPrefix}/docs`, app, document);
+    SwaggerModule.setup('docs', app, document);
 
     const port = configService.get<number>('app.port', 3000);
 
@@ -73,7 +73,7 @@ async function bootstrap() {
     );
     logger.log(
         pc.blueBright(`Swagger documentation is available at: `) +
-            pc.cyan(`http://localhost:${port}/${apiPrefix}/docs`),
+            pc.cyan(`http://localhost:${port}/docs`),
     );
 
     logger.log(

@@ -1,4 +1,4 @@
-# BRIX Vision Serviceeee
+# BRIX Vision Servicee
 
 Image processing microservice for the BRIX platform. This service provides AI-powered image analysis and utility functions.
 
