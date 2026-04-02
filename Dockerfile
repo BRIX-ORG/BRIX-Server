@@ -46,11 +46,11 @@ RUN pnpm exec prisma generate
 COPY --from=builder /app/dist ./dist
 
 # Expose port
-EXPOSE 3000
+EXPOSE 8080
 
 # Accept Build Arguments (Passed via GitHub Actions)
 ARG NODE_ENV=development
-ARG APP_PORT=3000
+ARG APP_PORT=8080
 ARG DB_HOST
 ARG DB_PORT
 ARG DB_USERNAME
