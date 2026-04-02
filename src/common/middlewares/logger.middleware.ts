@@ -10,6 +10,11 @@ export class LoggerMiddleware implements NestMiddleware {
         const { method, originalUrl, ip } = req;
         const startTime = Date.now();
 
+        // Skip logging for health check requests to reduce noise
+        if (originalUrl.includes('/health')) {
+            return next();
+        }
+
         res.on('finish', () => {
             const { statusCode } = res;
             const duration = Date.now() - startTime;
