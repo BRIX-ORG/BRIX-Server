@@ -14,7 +14,7 @@ Authentication is **JWT-based** — the token must be provided on connection. Un
 Pass the JWT access token at connection time via either:
 
 ```js
-// Option A — auth object (recommended)
+// Option A — auth object
 const socket = io('http://localhost:3000/chat', {
     auth: { token: '<access_token>' },
 });
