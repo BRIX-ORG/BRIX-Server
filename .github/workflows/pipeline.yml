@@ -19,7 +19,7 @@ jobs:
             env_name: ${{ steps.vars.outputs.env_name }}
         steps:
             - name: Checkout code
-              uses: actions/checkout@v6
+              uses: actions/checkout@v7
               with:
                   fetch-depth: 0
 
@@ -139,7 +139,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout Config Repo
-              uses: actions/checkout@v6
+              uses: actions/checkout@v7
               with:
                   repository: BRIX-ORG/BRIX-Configuration
                   token: ${{ secrets.CONFIG_REPO_PAT }}
